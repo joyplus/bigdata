@@ -21,11 +21,6 @@
 			<version>2.4</version>
 		</dependency>
 		<dependency>
-			<groupId>us.monoid.web</groupId>
-			<artifactId>resty</artifactId>
-			<version>0.3.2</version>
-		</dependency>
-		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
