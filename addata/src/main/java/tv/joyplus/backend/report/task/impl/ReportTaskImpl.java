@@ -1,4 +1,4 @@
-package tv.joyplus.backend.report.executor.impl;
+package tv.joyplus.backend.report.task.impl;
 
 import tv.joyplus.backend.report.task.ReportTask;
 
