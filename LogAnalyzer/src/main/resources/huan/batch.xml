@@ -58,12 +58,12 @@
 		<property name="password" value="${process.jdbc.password}" />
 	</bean>
 
-	<bean name="logInfoDBProcessor" class="tv.joyplus.backend.huan.dao.impl.LogInfoDBProcessor">
+	<bean name="logInfoDBProcessor" class="tv.joyplus.backend.huan.dao.impl.LogInfoDBProcessorImpl">
 		<property name="dataSource">
 			<ref local="dataSourceAddata" />
 		</property>
 	</bean>
-	<bean name="logDataDBProcessor" class="tv.joyplus.backend.huan.dao.impl.LogDataDBProcessor">
+	<bean name="logDataDBProcessor" class="tv.joyplus.backend.huan.dao.impl.LogDataDBProcessorImpl">
 		<property name="dataSource">
 			<ref local="dataSourceProcess" />
 		</property>
