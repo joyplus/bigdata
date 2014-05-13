@@ -1,32 +1,38 @@
 package tv.joyplus.backend.huan.beans;
 
+
 public class LogInfo {
-	private String date;	//时间
-	private String dnum;	//参数 i
-	private String devmodel;//参数 dm
+	public final static byte STATUS_UNPROCESSE = 0x00;
+	public final static byte STATUS_PROCESSED = 0x01;
+	private String adDate;	//时间
+	private String equitpmentKey;	//参数 i
+	private String deviceName;//参数 dm
 	private String version;	//版本
 	private String ip;		//客户端ip
 	private String imgurl;	//素材地址
 	private String adurl;	//监测url
 	private String sid;		//
 	private String title;	//
-	public String getDate() {
-		return date;
+	private long zoneId;
+	private byte status;
+
+	public String getAdDate() {
+		return adDate;
 	}
-	public void setDate(String date) {
-		this.date = date;
+	public void setAdDate(String adDate) {
+		this.adDate = adDate;
 	}
-	public String getDnum() {
-		return dnum;
+	public String getEquitpmentKey() {
+		return equitpmentKey;
 	}
-	public void setDnum(String dnum) {
-		this.dnum = dnum;
+	public void setEquitpmentKey(String equitpmentKey) {
+		this.equitpmentKey = equitpmentKey;
 	}
-	public String getDevmodel() {
-		return devmodel;
+	public String getDeviceName() {
+		return deviceName;
 	}
-	public void setDevmodel(String devmodel) {
-		this.devmodel = devmodel;
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
 	}
 	public String getVersion() {
 		return version;
@@ -64,11 +70,23 @@ public class LogInfo {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+	public long getZoneId() {
+		return zoneId;
+	}
+	public void setZoneId(long zoneId) {
+		this.zoneId = zoneId;
+	}
+	public byte getStatus() {
+		return status;
+	}
+	public void setStatus(byte status) {
+		this.status = status;
+	}
 	@Override
 	public String toString() {
-		return "\""+date+"\",\""+dnum+"\",\""+devmodel+"\",\""+version
+		return "\""+adDate+"\",\""+equitpmentKey+"\",\""+deviceName+"\",\""+version
 				+"\",\""+ip+"\",\""+imgurl+"\",\""+adurl+"\",\""
 				+sid+"\",\""+title+"\"";
 	}
-	
+
 }

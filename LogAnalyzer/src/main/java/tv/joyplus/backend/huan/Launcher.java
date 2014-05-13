@@ -13,13 +13,13 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Launcher {
 	public static void main(String[] args) {
-		ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:batch/batch.xml");
+		ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:huan/batch.xml");
 		JobLauncher jobLauncher = (JobLauncher) ctx.getBean("jobLauncher");
 		Job job = (Job) ctx.getBean("logJob");
 		Map<String, JobParameter> jobParametersMap = new HashMap<String, JobParameter>();
-        //jobParametersMap.put("input.file", new JobParameter("file:/Users/zino/Downloads/info.log"));
+        jobParametersMap.put("input.dir", new JobParameter("/Users/zino/Downloads/log"));
         //jobParametersMap.put("commit.num", new JobParameter("10"));
-        jobParametersMap.put("input.file", new JobParameter("classpath:batch/info.log"));
+        //jobParametersMap.put("input.file", new JobParameter("classpath:huan/info.log"));
 		try {
 			JobExecution result = jobLauncher.run(job, new JobParameters(jobParametersMap));
 			System.out.println(result.toString());
