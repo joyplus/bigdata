@@ -5,6 +5,7 @@
 *.war
 *.ear
 
+<<<<<<< HEAD
 addata/.classpath
 
 addata/.gradle/
@@ -12,3 +13,10 @@ addata/.gradle/
 addata/.project
 
 addata/.settings
+=======
+*.prefs
+
+LogAnalyzer/.classpath
+
+*.prefs
+>>>>>>> origin/integration
