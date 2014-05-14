@@ -4,3 +4,11 @@
 *.jar
 *.war
 *.ear
+
+addata/.classpath
+
+addata/.gradle/
+
+addata/.project
+
+addata/.settings
