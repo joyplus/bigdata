@@ -9,12 +9,15 @@
 
 	<bean id="simpleAsyncTaskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor">
 		<property name="daemon" value="true" />
-		<property name="concurrencyLimit" value="5" />
-		<property name="threadNamePrefix" value="simpleAsyncTaskExecutor" />
+		<property name="concurrencyLimit" value="10" />
+		<property name="threadNamePrefix" value="reportTask" />
 	</bean>
 	
-	<bean id="reportTask" class="tv.joyplus.backend.report.task.impl.ReportTaskImpl">
+	<bean id="reportTask" class="tv.joyplus.backend.sample.ReportTaskSampleImpl">
 		<property name="taskExecutor" ref="simpleAsyncTaskExecutor" />
+		<property name="processDao" ref="processDao" />
 	</bean>
+	
+	<bean id="processDao" class="tv.joyplus.backend.sample.ProcessDaoSampleImpl"/>
 
 </beans>

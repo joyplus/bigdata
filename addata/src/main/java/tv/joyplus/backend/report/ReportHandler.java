@@ -16,11 +16,6 @@ public class ReportHandler {
 		
 		reportTask.processReport(null);
 		
-		while (true) {
-			
-			
-			
-		}
 		
 	
 	}
