@@ -1,8 +1,7 @@
 package tv.joyplus.backend.report.dto;
 
 import java.util.Date;
-
-import com.sun.tools.javac.util.List;
+import java.util.List;
 
 public class ParameterDto {
 	
