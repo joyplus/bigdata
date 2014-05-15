@@ -14,7 +14,7 @@ public class ReportHandler {
 		
 		ReportTask reportTask = (ReportTask) ctx.getBean("reportTask");
 		
-		reportTask.queryData(null);
+		reportTask.processReport(null);
 		
 		while (true) {
 			
