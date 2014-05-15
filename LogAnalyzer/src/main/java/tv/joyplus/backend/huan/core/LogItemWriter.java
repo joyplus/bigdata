@@ -19,5 +19,6 @@ public class LogItemWriter implements ItemWriter<LogInfo> {
 	public void write(List<? extends LogInfo> list) throws SQLException {
 		logDataDao.batchLogData(list);
 		logInfoDao.batchLogInfo(list);
+		System.out.println("write done!");
 	}
 }

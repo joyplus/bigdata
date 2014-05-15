@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import tv.joyplus.backend.huan.beans.LogInfo;
 import tv.joyplus.backend.huan.dao.LogInfoDao;
 
-public class LogInfoDBProcessorImpl extends JdbcDaoSupport implements LogInfoDao {
+public class LogInfoDaoDBImpl extends JdbcDaoSupport implements LogInfoDao {
 
 	@Override
 	public void batchLogInfo(final List<? extends LogInfo> list) {

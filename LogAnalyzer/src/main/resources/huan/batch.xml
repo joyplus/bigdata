@@ -16,18 +16,50 @@
 	<context:property-placeholder location="classpath:huan/huan.properties"
 		order="1" ignore-unresolvable="true" />
 	<context:annotation-config />
-	<job id="logJob" xmlns="http://www.springframework.org/schema/batch">
-		<decision decider="decider" id="decider">
-			<next on="UNKNOWN" to="step"></next>
+	<job id="logAnalyzerJob"  xmlns="http://www.springframework.org/schema/batch">
+		<step id="logLoadStep" next="logUnzipStep">
+			<tasklet ref="logLoadTask"/>
+		</step>
+		<step id="logUnzipStep" next="decision">
+			<tasklet ref="logUnzipTask" />
+		</step>
+		<decision decider="decider" id="decision">
+			<next on="UNKNOWN" to="logAnalyzeStep"></next>
 			<end on="COMPLETED"></end>
 		</decision>
-		<step id="step" next="decider">
+		<step id="logAnalyzeStep" next="decision">
 			<tasklet>
 				<chunk reader="logItemReader" processor="logItemProcessor"
 					writer="logItemWriter" commit-interval="${commit.num}" />
 			</tasklet>
 		</step>
 	</job>
+	<bean id="logLoadTask" class="tv.joyplus.backend.huan.core.LogLoadTasklet">
+		<property name="downloadDir" value="${log.download.dir}"/>
+	</bean>
+	<bean id="logUnzipTask" class="tv.joyplus.backend.huan.core.LogUnzipTasklet">
+		<property name="unzipDir" value="${log.dir}"/>
+		<property name="mimeArchive">
+			<map>
+				<entry key="application/x-tar">
+					<value>tar</value>
+				</entry>
+				<entry key="application/zip">
+					<value>zip</value>
+				</entry>
+			</map>
+		</property>
+		<property name="mimeCompress">
+			<map>
+				<entry key="application/x-bzip">
+					<value>bzip2</value>
+				</entry>
+				<entry key="application/x-gzip">
+					<value>gz</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
 	<bean id="logItemReader" class="org.springframework.batch.item.file.FlatFileItemReader"
 		scope="step">
 		<property name="resource" value="#{jobExecutionContext['input.file']}" />
@@ -37,6 +69,7 @@
 		</property>
 	</bean>
 	<bean id="logItemProcessor" class="tv.joyplus.backend.huan.core.LogItemProcessor" scope="step">
+		<property name="filename" value="#{jobExecutionContext['input.file.name']}"/>
 	</bean>
 	<bean id="logItemWriter" class="tv.joyplus.backend.huan.core.LogItemWriter" scope="step">
 	</bean>
@@ -58,16 +91,34 @@
 		<property name="password" value="${process.jdbc.password}" />
 	</bean>
 
-	<bean name="logInfoDBProcessor" class="tv.joyplus.backend.huan.dao.impl.LogInfoDBProcessorImpl">
+	<bean name="logInfoDBProcessor" class="tv.joyplus.backend.huan.dao.impl.LogInfoDaoDBImpl">
 		<property name="dataSource">
 			<ref local="dataSourceAddata" />
 		</property>
 	</bean>
-	<bean name="logDataDBProcessor" class="tv.joyplus.backend.huan.dao.impl.LogDataDBProcessorImpl">
+	<bean name="logDataDBProcessor" class="tv.joyplus.backend.huan.dao.impl.LogDataDaoDBImpl">
 		<property name="dataSource">
 			<ref local="dataSourceProcess" />
 		</property>
 	</bean>
 	
 	<bean id="decider" class="tv.joyplus.backend.huan.core.LogDecision"/>
+	
+	<bean class="tv.joyplus.backend.qiniu.dao.impl.QiniuDaoImpl">
+		<property name="accessKey" value="${qiniu.accessKey}"/>
+		<property name="secretKey" value="${qiniu.secretKey}"/>
+		<property name="bucket" value="${qiniu.bucket}"/>
+		<property name="domain" value="${qiniu.domain}"/>
+	</bean>
+	
+	<bean class="tv.joyplus.backend.huan.dao.impl.DownloadFileInfoImpl">
+		<property name="dataSource">
+			<ref local="dataSourceProcess" />
+		</property>
+	</bean>
+	<bean class="tv.joyplus.backend.huan.dao.impl.AnalyzerFileInfoImpl">
+		<property name="dataSource">
+			<ref local="dataSourceProcess" />
+		</property>
+	</bean>
 </beans>

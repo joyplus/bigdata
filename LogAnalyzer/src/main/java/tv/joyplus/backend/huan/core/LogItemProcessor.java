@@ -9,6 +9,7 @@ import tv.joyplus.backend.huan.beans.LogInfo;
 
 public class LogItemProcessor implements ItemProcessor<String, LogInfo>{
 	private static String PATTERN_STRING = "\\[(.*?)\\].*?dnum\\=(.*?),devmodel\\=(.*?),version\\=(.*?),ip\\=(.*?),imgurl\\=(.*?),adurl\\=(.*?),sid\\=(.*?),title\\=(.*)";
+	private String filename;
 	@Override
 	public LogInfo process(String line) throws Exception {
 		return this.praseLogInfo(line);
@@ -28,9 +29,15 @@ public class LogItemProcessor implements ItemProcessor<String, LogInfo>{
 			log.setAdurl(m.group(7));
 			log.setSid(m.group(8));
 			log.setTitle(m.group(9));
-			log.setZoneId(0);
+			log.setZoneId(analyzeZoneId());
 		}
 		return log;
 	}
-
+	private long analyzeZoneId(){
+		//根据filename获取zone_id
+		return 0;
+	}
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
 }
