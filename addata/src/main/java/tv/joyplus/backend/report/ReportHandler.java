@@ -33,7 +33,7 @@ public class ReportHandler {
 				Mixed jobArr = Pherialize.unserialize(strJobText);
 				strJobText = jobArr.toString();
 				reportTask.processReport(strJobText);
-				//bsClient.deleteJob(job);
+//				bsClient.deleteJob(job);
 			}
 		} catch (BeanstalkException e) {
 			e.printStackTrace();

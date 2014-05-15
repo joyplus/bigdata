@@ -19,6 +19,7 @@
 		<property name="taskExecutor" ref="simpleAsyncTaskExecutor" />
 		<property name="processDao" ref="processDBProcessor" />
 		<property name="jobResultDao" ref="jobResultDBProcessor" />
+		<property name="jsonParser" ref="jacksonParser" />
 	</bean>
 
 	<bean id="dataSourceAddata"
@@ -46,5 +47,7 @@
 		<property name="dataSource">
 			<ref local="dataSourceProcess" />
 		</property>
+	</bean>
+	<bean name="jacksonParser" class="tv.joyplus.backend.report.jsonparse.ReportParser">
 	</bean>
 </beans>

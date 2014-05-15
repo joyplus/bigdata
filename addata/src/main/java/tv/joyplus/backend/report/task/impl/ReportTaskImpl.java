@@ -1,13 +1,19 @@
 package tv.joyplus.backend.report.task.impl;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 import org.springframework.core.task.TaskExecutor;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 import tv.joyplus.backend.report.dao.JobResultDao;
 import tv.joyplus.backend.report.dao.ProcessDao;
 import tv.joyplus.backend.report.dto.JobResultDto;
 import tv.joyplus.backend.report.dto.ParameterDto;
+import tv.joyplus.backend.report.jsonparse.ReportParser;
 import tv.joyplus.backend.report.task.ReportTask;
 
 public class ReportTaskImpl implements ReportTask {
@@ -17,6 +23,8 @@ public class ReportTaskImpl implements ReportTask {
 	private JobResultDao jobResultDao;
 	
 	private ProcessDao processDao;
+	
+	private ReportParser jsonParser;
 	
 	public JobResultDao getJobResultDao() {
 		return jobResultDao;
@@ -43,6 +51,15 @@ public class ReportTaskImpl implements ReportTask {
 	}
 	
 	
+	public ReportParser getJsonParser() {
+		return jsonParser;
+	}
+
+	public void setJsonParser(ReportParser jsonParser) {
+		this.jsonParser = jsonParser;
+	}
+
+
 	private class ProcessQuery implements Runnable {
 
         private String message;
@@ -85,8 +102,24 @@ public class ReportTaskImpl implements ReportTask {
 //	}
 
 	private ParameterDto parseParameter (String jsonString) {
-		
-		return null;
+//		System.out.println(jsonString);
+		ParameterDto parameterDto = null;
+		try {
+			parameterDto =  jsonParser.parseParameter(jsonString);
+		} catch (JsonParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return parameterDto;
 	}
 
 	private List<JobResultDto> queryData(ParameterDto parameterDto) {
