@@ -9,7 +9,7 @@ import com.trendrr.beanstalk.BeanstalkClient;
 import com.trendrr.beanstalk.BeanstalkException;
 import com.trendrr.beanstalk.BeanstalkJob;
 
-import de.ailis.pherialize.MixedArray;
+import de.ailis.pherialize.Mixed;
 import de.ailis.pherialize.Pherialize;
 import tv.joyplus.backend.report.task.ReportTask;
 
@@ -30,7 +30,7 @@ public class ReportHandler {
 			while (true) {
 				BeanstalkJob job = bsClient.reserve(1);
 				String strJobText = new String(job.getData());
-				MixedArray jobArr = Pherialize.unserialize(strJobText).toArray();
+				Mixed jobArr = Pherialize.unserialize(strJobText);
 				strJobText = jobArr.toString();
 				reportTask.processReport(strJobText);
 				//bsClient.deleteJob(job);
