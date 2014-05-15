@@ -8,7 +8,8 @@ public class ParameterDto {
 	private String reportId;
 	private String dataType;
 	private List<String> dataResource;
-	private Date[] dateRange = new Date[2];
+	private Date startDate;
+	private Date endDate;
 	
     public enum dataCycle {
     	total, byDay, byWeek, byMonth;
@@ -34,12 +35,7 @@ public class ParameterDto {
 	public void setDataResource(List<String> dataResource) {
 		this.dataResource = dataResource;
 	}
-	public Date[] getDateRange() {
-		return dateRange;
-	}
-	public void setDateRange(Date[] dateRange) {
-		this.dateRange = dateRange;
-	}
+
 	public int getFrequency() {
 		return frequency;
 	}
@@ -58,8 +54,18 @@ public class ParameterDto {
 	public void setItems(List<String> items) {
 		this.items = items;
 	}
-	
-	
+	public Date getStartDate() {
+		return startDate;
+	}
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+	public Date getEndDate() {
+		return endDate;
+	}
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
 	
 
 //	
