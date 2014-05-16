@@ -20,13 +20,13 @@ public class DownloadFileInfoImpl extends JdbcDaoSupport implements DownloadFile
 	@Override
 	public List<DownloadFileInfo> listAll() {
 		String sql = "SELECT * FROM " + DownloadFileInfo.TableName();
-		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper(DownloadFileInfo.class));
+		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper<DownloadFileInfo>(DownloadFileInfo.class));
 	}
 
 	@Override
 	public List<DownloadFileInfo> listUnzip() {
 		String sql = "SELECT id,ident,url,path,filename,mime_type,zip,status,create_time FROM "+DownloadFileInfo.TableName()+" WHERE zip=0";
-		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper(DownloadFileInfo.class));
+		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper<DownloadFileInfo>(DownloadFileInfo.class));
 	}
 
 	@Override

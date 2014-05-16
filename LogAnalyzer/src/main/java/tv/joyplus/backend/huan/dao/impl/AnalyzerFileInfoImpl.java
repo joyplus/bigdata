@@ -21,13 +21,13 @@ public class AnalyzerFileInfoImpl extends JdbcDaoSupport implements
 	@Override
 	public List<AnalyzerFileInfo> listAll() {
 		String sql = "SELECT * FROM " + AnalyzerFileInfo.TableName();
-		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper(AnalyzerFileInfo.class));
+		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper<AnalyzerFileInfo>(AnalyzerFileInfo.class));
 	}
 
 	@Override
 	public List<AnalyzerFileInfo> listUnAnalyzed() {
 		String sql = "SELECT * FROM "+AnalyzerFileInfo.TableName()+" WHERE status=0";
-		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper(AnalyzerFileInfo.class));
+		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper<AnalyzerFileInfo>(AnalyzerFileInfo.class));
 	}
 
 	@Override

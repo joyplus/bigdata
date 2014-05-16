@@ -3,6 +3,8 @@ package tv.joyplus.backend.huan.core;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -11,6 +13,7 @@ import tv.joyplus.backend.huan.dao.LogDataDao;
 import tv.joyplus.backend.huan.dao.LogInfoDao;
 
 public class LogItemWriter implements ItemWriter<LogInfo> {
+	private static final Log log = LogFactory.getLog(LogItemWriter.class);
 	@Autowired
 	private LogDataDao logDataDao;
 	@Autowired
@@ -19,6 +22,6 @@ public class LogItemWriter implements ItemWriter<LogInfo> {
 	public void write(List<? extends LogInfo> list) throws SQLException {
 		logDataDao.batchLogData(list);
 		logInfoDao.batchLogInfo(list);
-		System.out.println("write done!");
+		log.debug("write done!");
 	}
 }

@@ -14,6 +14,7 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.core.StepContribution;
@@ -29,7 +30,6 @@ import tv.joyplus.backend.huan.dao.DownloadFileInfoDao;
 
 public class LogUnzipTasklet implements Tasklet {
 	private static Log log = LogFactory.getLog(LogUnzipTasklet.class);
-	private static int bufferSize = 1024 * 10;
 	private String unzipDir;
 	private Map<String, String> mimeArchive;
 	private Map<String, String> mimeCompress;
@@ -44,18 +44,18 @@ public class LogUnzipTasklet implements Tasklet {
 		try{
 			FileUtils.forceMkdir(root);
 		}catch(Exception e){}
+		
+		//获取未解压的文件
 		List<DownloadFileInfo> list = downloadFileInfoDao.listUnzip();
 		for(DownloadFileInfo info : list) {
-			//未解压
-			if(info.getZip()==0) {
-				log.debug("Will unzip :"+info.getIdent());
-				File unzipfile = new File(new File(info.getPath()), info.getFilename());
-				if(mimeCompress.containsKey(info.getMimeType())) {
-					File tmpTarfile = deCompress(unzipfile, mimeCompress.get(info.getMimeType()));
-					deArchive(tmpTarfile, "tar", true);
-				}else if(mimeArchive.containsKey(info.getMimeType())) {
-					deArchive(unzipfile, mimeArchive.get(info.getMimeType()), false);
-				}
+			log.debug("Will unzip :"+info.getIdent());
+			File unzipfile = new File(new File(info.getPath()), info.getFilename());
+			//先解压成tar文件
+			if(mimeCompress.containsKey(info.getMimeType())) {
+				File tmpTarfile = deCompress(unzipfile, mimeCompress.get(info.getMimeType()));
+				deArchive(tmpTarfile, "tar", true);
+			}else if(mimeArchive.containsKey(info.getMimeType())) {
+				deArchive(unzipfile, mimeArchive.get(info.getMimeType()), false);
 			}
 			downloadFileInfoDao.updateZip(info);
 			
@@ -63,9 +63,16 @@ public class LogUnzipTasklet implements Tasklet {
 		return RepeatStatus.FINISHED;
 	}
 
-	private void deArchive(File file, String mimeType, boolean deleteFile) throws Exception {
+	/**
+	 * 解压tar,zip文件
+	 * @param file
+	 * @param archiveType
+	 * @param deleteFile
+	 * @throws Exception
+	 */
+	private void deArchive(File file, String archiveType, boolean deleteFile) throws Exception {
 		File root = new File(unzipDir);
-		ArchiveInputStream in = new ArchiveStreamFactory().createArchiveInputStream(mimeType, new FileInputStream(file));
+		ArchiveInputStream in = new ArchiveStreamFactory().createArchiveInputStream(archiveType, new FileInputStream(file));
 		while (true) {  
             ArchiveEntry entry = in.getNextEntry();
             if(entry==null) {
@@ -79,12 +86,7 @@ public class LogUnzipTasklet implements Tasklet {
                     f.createNewFile();  
                 }
             	FileOutputStream out = new FileOutputStream(f);
-            	byte[] bs = new byte[bufferSize];
-            	int len = -1;  
-                while ((len = in.read(bs)) != -1) {  
-                    out.write(bs, 0, len);  
-                }  
-                out.flush();
+            	IOUtils.copy(in, out);
                 log.debug("unanalyzed file:"+f.getAbsolutePath());
                 addToAnalyzerTable(f.getAbsolutePath(), f.getName());
                 
@@ -94,19 +96,26 @@ public class LogUnzipTasklet implements Tasklet {
 			file.delete();
 		}
 	}
-	private File deCompress(File file, String mimeType) throws Exception {
-		log.debug("unCompress "+ mimeType);
-		CompressorInputStream in = new CompressorStreamFactory().createCompressorInputStream(mimeType, new FileInputStream(file));
+	/**
+	 * 解压gz,bz2
+	 * @param file
+	 * @param archiveType
+	 * @return
+	 * @throws Exception
+	 */
+	private File deCompress(File file, String archiveType) throws Exception {
+		CompressorInputStream in = new CompressorStreamFactory().createCompressorInputStream(archiveType, new FileInputStream(file));
 		File outFile = new File(file.getParent() + File.separator + "tmp.tar");
 		FileOutputStream out = new FileOutputStream(outFile);
-		 final byte[] buffer = new byte[bufferSize];
-		 int n = 0;  
-         while (-1 != (n = in.read(buffer))) {  
-             out.write(buffer, 0, n);  
-         }  
-         return outFile;
+		IOUtils.copy(in, out);
+        return outFile;
 	}
 	
+	/**
+	 * 解压文件信息存入数据库
+	 * @param path
+	 * @param filename
+	 */
 	private void addToAnalyzerTable(String path, String filename) {
 		AnalyzerFileInfo instance = new AnalyzerFileInfo();
 		instance.setPath(path);
