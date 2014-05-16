@@ -5,8 +5,19 @@
 *.war
 *.ear
 
-*.prefs
+
+addata/.classpath
+
+addata/.gradle/
+
+addata/.project
+
+addata/.settings
 
 LogAnalyzer/.classpath
 
-*.prefs
+addata/bin
+
+addata/build
+
+
