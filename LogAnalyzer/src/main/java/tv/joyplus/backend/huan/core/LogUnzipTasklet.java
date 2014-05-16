@@ -52,13 +52,12 @@ public class LogUnzipTasklet implements Tasklet {
 			File unzipfile = new File(new File(info.getPath()), info.getFilename());
 			//先解压成tar文件
 			if(mimeCompress.containsKey(info.getMimeType())) {
-				File tmpTarfile = deCompress(unzipfile, mimeCompress.get(info.getMimeType()));
-				deArchive(tmpTarfile, "tar", true);
+				deCompress(unzipfile, mimeCompress.get(info.getMimeType()));
 			}else if(mimeArchive.containsKey(info.getMimeType())) {
-				deArchive(unzipfile, mimeArchive.get(info.getMimeType()), false);
+				deArchive(unzipfile, mimeArchive.get(info.getMimeType()));
 			}
+			//标记为已解压
 			downloadFileInfoDao.updateZip(info);
-			
 		}
 		return RepeatStatus.FINISHED;
 	}
@@ -67,33 +66,22 @@ public class LogUnzipTasklet implements Tasklet {
 	 * 解压tar,zip文件
 	 * @param file
 	 * @param archiveType
-	 * @param deleteFile
 	 * @throws Exception
 	 */
-	private void deArchive(File file, String archiveType, boolean deleteFile) throws Exception {
+	private void deArchive(File file, String archiveType) throws Exception {
 		File root = new File(unzipDir);
 		ArchiveInputStream in = new ArchiveStreamFactory().createArchiveInputStream(archiveType, new FileInputStream(file));
-		while (true) {  
-            ArchiveEntry entry = in.getNextEntry();
-            if(entry==null) {
-            	break;
-            }
+		ArchiveEntry entry = null;
+		while ((entry=in.getNextEntry())!=null) {  
             if(entry.isDirectory()) {
-            	(new File(root, entry.getName())).mkdirs();
+            	new File(root, entry.getName()).mkdirs();
             }else{
             	File f = new File(root, entry.getName());
-            	if (!f.exists()) {  
-                    f.createNewFile();  
-                }
             	FileOutputStream out = new FileOutputStream(f);
             	IOUtils.copy(in, out);
                 log.debug("unanalyzed file:"+f.getAbsolutePath());
                 addToAnalyzerTable(f.getAbsolutePath(), f.getName());
-                
             }
-		}
-		if(deleteFile) {
-			file.delete();
 		}
 	}
 	/**
@@ -103,12 +91,13 @@ public class LogUnzipTasklet implements Tasklet {
 	 * @return
 	 * @throws Exception
 	 */
-	private File deCompress(File file, String archiveType) throws Exception {
+	private void deCompress(File file, String archiveType) throws Exception {
 		CompressorInputStream in = new CompressorStreamFactory().createCompressorInputStream(archiveType, new FileInputStream(file));
 		File outFile = new File(file.getParent() + File.separator + "tmp.tar");
 		FileOutputStream out = new FileOutputStream(outFile);
 		IOUtils.copy(in, out);
-        return outFile;
+        deArchive(outFile, "tar");
+        outFile.delete();
 	}
 	
 	/**

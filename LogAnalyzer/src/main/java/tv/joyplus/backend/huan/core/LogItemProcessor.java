@@ -16,10 +16,10 @@ public class LogItemProcessor implements ItemProcessor<String, LogInfo>{
 	}
 	
 	private LogInfo praseLogInfo(String line) {
-		LogInfo log = new LogInfo();
 		Pattern p = Pattern.compile(PATTERN_STRING);
 		Matcher m = p.matcher(line);
 		if(m.find()) {
+			LogInfo log = new LogInfo();
 			log.setAdDate(m.group(1));
 			log.setEquitpmentKey(m.group(2));
 			log.setDeviceName(m.group(3));
@@ -30,8 +30,9 @@ public class LogItemProcessor implements ItemProcessor<String, LogInfo>{
 			log.setSid(m.group(8));
 			log.setTitle(m.group(9));
 			log.setZoneId(analyzeZoneId());
+			return log;
 		}
-		return log;
+		return null;
 	}
 	private long analyzeZoneId(){
 		//根据filename获取zone_id
