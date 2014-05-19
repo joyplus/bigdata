@@ -7,6 +7,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import tv.joyplus.backend.huan.beans.LogInfo;
@@ -44,4 +46,20 @@ public class LogDataDaoDBImpl extends JdbcDaoSupport implements LogDataDao {
 		});
 	}
 
+	@Override
+	public List<LogInfo> find(final LogInfo data) {
+		if(data.getTitle()==null || data.getTitle().length()==0 || data.getImgurl()==null || data.getImgurl().length()==0) {
+			return null;
+		}
+		String sql = "SELECT * FROM md_log_data WHERE title=? AND imgurl=?";
+		return getJdbcTemplate().query(sql, new PreparedStatementSetter(){
+
+				@Override
+				public void setValues(PreparedStatement ps) throws SQLException {
+					ps.setString(1, data.getTitle());
+					ps.setString(2, data.getImgurl());
+				}
+			}, new BeanPropertyRowMapper<LogInfo>(LogInfo.class));
+	}
+	
 }

@@ -121,4 +121,14 @@
 			<ref local="dataSourceProcess" />
 		</property>
 	</bean>
+	<bean class="tv.joyplus.backend.huan.dao.impl.LogProcessDaoImpl">
+		<property name="dataSource">
+			<ref local="dataSourceProcess" />
+		</property>
+		<property name="tubeName" value="${beanstalk.tube.process}"/>
+	</bean>
+	<bean class="com.trendrr.beanstalk.BeanstalkClient">
+		<property name="addr" value="${beanstalk.server}" />
+		<property name="port" value="${beanstalk.port}" />
+	</bean>
 </beans>

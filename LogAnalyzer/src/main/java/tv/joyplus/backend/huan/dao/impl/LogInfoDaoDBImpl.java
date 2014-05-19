@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import tv.joyplus.backend.huan.beans.LogInfo;
@@ -36,4 +37,30 @@ public class LogInfoDaoDBImpl extends JdbcDaoSupport implements LogInfoDao {
 			}
 		});
 	}
+
+	@Override
+	public List<LogInfo> findLogInfo() {
+		String sql = "SELECT * FROM md_log_info WHERE creative_id <> 0";
+		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper<LogInfo>(LogInfo.class));
+	}
+
+	@Override
+	public long getCampaignId(long creativeId) {
+		if(creativeId==0) {
+			return 0;
+		}
+		String sql = "SELECT campaign_id FROM md_ad_units WHERE adv_id=?";
+		
+		return getJdbcTemplate().queryForObject(sql, Long.class, creativeId);
+	}
+
+	@Override
+	public long getPublicationId(long zoneId) {
+		if(zoneId==0){
+			return 0;
+		}
+		String sql = "SELECT publication_id FROM md_zones WHERE entry_id=?";
+		return getJdbcTemplate().queryForObject(sql, Long.class, zoneId);
+	}
+	
 }

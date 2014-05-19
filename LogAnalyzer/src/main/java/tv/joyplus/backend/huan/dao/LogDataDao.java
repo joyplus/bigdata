@@ -6,4 +6,5 @@ import tv.joyplus.backend.huan.beans.LogInfo;
 
 public interface LogDataDao {
 	public void batchLogData(List<? extends LogInfo> list);
+	public List<LogInfo> find(LogInfo data);
 }
