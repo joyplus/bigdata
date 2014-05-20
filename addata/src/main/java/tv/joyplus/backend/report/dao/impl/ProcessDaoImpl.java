@@ -18,7 +18,7 @@ import tv.joyplus.backend.utility.CommonUtility;
 public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 
 //	Logger log = Logger.getLogger(ProcessDaoImpl.class);
-	
+	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	public List<JobResultDto> queryData(ParameterDto parameterDto) {
 		// TODO Auto-generated method stub
 		if(parameterDto==null){
@@ -60,6 +60,14 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}else{
 				sqlBuilder.append("where campaign_id in ( ").append(condition).append(" ) ");
 			}
+			
+			if(parameterDto.getDateRange().length>=2){
+				sqlBuilder.append(" and ad_date >= '")
+				.append(dateFormat.format(parameterDto.getDateRange()[0]))
+				.append(" ' and ad_date <= ' ")
+				.append(dateFormat.format(parameterDto.getDateRange()[1]))
+				.append("' ");
+			}
 			String groupBy = getGroupByFromList(parameterDto);
 			if(!CommonUtility.isEmptyString(groupBy)){
 				sqlBuilder.append(" group by ").append(groupBy);
@@ -79,6 +87,13 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				sqlBuilderChild1.append(" where 1 ");
 			}else{
 				sqlBuilderChild1.append(" where campaign_id in ( ").append(condition).append(" ) ");
+			}
+			if(parameterDto.getDateRange().length>=2){
+				sqlBuilderChild1.append(" and ad_date >= '")
+					.append(dateFormat.format(parameterDto.getDateRange()[0]))
+					.append(" ' and ad_date <= ' ")
+					.append(dateFormat.format(parameterDto.getDateRange()[1]))
+					.append("' ");
 			}
 			String groupBy = getGroupByFromList(parameterDto);
 			if(!CommonUtility.isEmptyString(groupBy)){
@@ -140,17 +155,6 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			Map jobResultMap = (Map) it.next();  
 			JobResultDto jobResultDto = new JobResultDto();
 			jobResultDto.setJob_id(Integer.valueOf(parameterDto.getReportId()));
-			System.out.println(jobResultMap.get("campaign_id") 
-					+ "\t" + jobResultMap.get("publication_id")
-					+ "\t" + jobResultMap.get("zone_id")
-					+ "\t" + jobResultMap.get("operation_type_tmp")
-					+ "\t" + jobResultMap.get("frequency")
-					+ "\t" + jobResultMap.get("province_code")
-					+ "\t" + jobResultMap.get("city_code")
-					+ "\t" + jobResultMap.get("device_name")
-					+ "\t" + jobResultMap.get("uv")
-					+ "\t" + jobResultMap.get("time_part")
-					+ "\t" + jobResultMap.get("impression"));
 			if(jobResultMap.containsKey("campaign_id")){
 				jobResultDto.setCampaign_id((Integer) jobResultMap.get("campaign_id"));
 			}
@@ -182,7 +186,6 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				jobResultDto.setRegion_code((String) jobResultMap.get("city_code"));
 			}
 			Calendar calendar = Calendar.getInstance();
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			try{
 				if(ParameterDto.DataCycle.BYWEEK.toString().equalsIgnoreCase(parameterDto.getDataType())){
 					SimpleDateFormat format = new SimpleDateFormat("yyyyww");
@@ -201,12 +204,15 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 					jobResultDto.setDate_start(dateFormat.format(calendar.getTime()));
 					calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 					jobResultDto.setDate_end(dateFormat.format(calendar.getTime()));
+				}else{
+					jobResultDto.setDate_start(dateFormat.format(parameterDto.getDateRange()[0]));
+					jobResultDto.setDate_end(dateFormat.format(parameterDto.getDateRange()[1]));
 				}
 			}catch (java.text.ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-//			System.out.println(jobResultDto.toString());
+			System.out.println(jobResultDto.toString());
 			jobResultDtos.add(jobResultDto);
 		}
 		return jobResultDtos;
@@ -264,7 +270,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	/**
 	 * 
 	 * @param parameterDto
-	 * @param hasFrequency  whether count the impression
+	 * @param hasFrequency  
 	 * @param hasTimePart
 	 * @return
 	 */
