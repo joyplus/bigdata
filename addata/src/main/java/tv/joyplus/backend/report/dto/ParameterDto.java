@@ -6,12 +6,57 @@ import java.util.List;
 public class ParameterDto {
 	
 	private String reportId;
+	private String type;
 	private String dataType;
 	private List<String> dataResource;
 	private Date[] dateRange = new Date[2];
 	
-    public enum dataCycle {
-    	total, byDay, byWeek, byMonth;
+    public enum DataCycle {
+    	TOTAL("total"), BYDAY("byDay"), BYWEEK("byWeek"), BYMONTH("byMonth");
+    	private String type;
+        private DataCycle(String type) {
+                   this.type=type;
+        }
+        public String getType(){
+            return type;
+        }
+        public String toString(){
+            switch (this) {
+            case TOTAL: return "total";
+            case BYDAY: return "byDay";
+            case BYWEEK: return "byWeek";
+            case BYMONTH: return "byMonth";
+            default: return "byMonth";
+            }
+        }
+    }
+    public enum Type {
+    	CAMPAIGN("campaign"), 
+    	UNIT("unit"), 
+    	PUBLICATION("publication"),
+    	ZONE("zone"),
+    	MONITOR("monitor"),
+    	MONITORUNIT("monitorUnit"),
+    	LOCATION("location");
+        private String type;
+        private Type(String type) {
+                   this.type=type;
+        }
+        public String getType(){
+            return type;
+        }
+        public String toString(){
+            switch (this) {
+            case CAMPAIGN: return "campaign";
+            case UNIT: return "unit";
+            case PUBLICATION: return "publication";
+            case ZONE: return "zone";
+            case MONITOR: return "monitor";
+            case MONITORUNIT: return "monitorUnit";
+            case LOCATION: return "location";
+            default: return "campaign";
+            }
+        }
     }
 	private int frequency;
 	private List<String> groupby;
@@ -57,6 +102,12 @@ public class ParameterDto {
 	}
 	public void setItems(List<String> items) {
 		this.items = items;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	

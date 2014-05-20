@@ -31,6 +31,7 @@ public class JobResultDto {
 	public String zone_type;
 	public String zone_size;
 	public int frequency;
+	private int impression;
 	public int getId() {
 		return id;
 	}
@@ -210,5 +211,34 @@ public class JobResultDto {
 	}
 	public void setFrequency(int frequency) {
 		this.frequency = frequency;
+	}
+	public int getImpression() {
+		return impression;
+	}
+	public void setImpression(int impression) {
+		this.impression = impression;
+	}
+	@Override
+	public String toString() {
+		return "JobResultDto [id=" + id + ", job_id=" + job_id
+				+ ", date_start=" + date_start + ", date_end=" + date_end
+				+ ", campaign_id=" + campaign_id + ", campaign_name="
+				+ campaign_name + ", adv_id=" + adv_id + ", adv_name="
+				+ adv_name + ", publication_id=" + publication_id
+				+ ", publication_name=" + publication_name + ", zone_id="
+				+ zone_id + ", zone_name=" + zone_name + ", advistiser_id="
+				+ advistiser_id + ", advistiser_name=" + advistiser_name
+				+ ", request=" + request + ", uv=" + uv + ", quality_id="
+				+ quality_id + ", quality_name=" + quality_name
+				+ ", region_code=" + region_code + ", region_name="
+				+ region_name + ", device_id=" + device_id + ", device_brand="
+				+ device_brand + ", device_name=" + device_name
+				+ ", device_movement=" + device_movement
+				+ ", creative_unit_type=" + creative_unit_type
+				+ ", creative_extension=" + creative_extension
+				+ ", creative_size=" + creative_size + ", zone_type="
+				+ zone_type + ", zone_size=" + zone_size + ", frequency="
+				+ frequency + ", impression=" + impression + "]";
 	}	
+
 }

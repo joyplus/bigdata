@@ -27,14 +27,14 @@ public class ReportHandler {
 		BeanstalkClient bsClient = new BeanstalkClient("localhost", 11300, "tubeCustomizeReport");
 		
 		try {
-			while (true) {
+//			while (true) {
 				BeanstalkJob job = bsClient.reserve(1);
 				String strJobText = new String(job.getData());
 				Mixed jobArr = Pherialize.unserialize(strJobText);
 				strJobText = jobArr.toString();
 				reportTask.processReport(strJobText);
 //				bsClient.deleteJob(job);
-			}
+//			}
 		} catch (BeanstalkException e) {
 			e.printStackTrace();
 		} finally {
