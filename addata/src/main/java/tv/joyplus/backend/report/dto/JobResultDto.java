@@ -32,6 +32,7 @@ public class JobResultDto {
 	public String zone_size;
 	public int frequency;
 	private int impression;
+	private String operation_type;
 	public int getId() {
 		return id;
 	}
@@ -239,6 +240,12 @@ public class JobResultDto {
 				+ ", creative_size=" + creative_size + ", zone_type="
 				+ zone_type + ", zone_size=" + zone_size + ", frequency="
 				+ frequency + ", impression=" + impression + "]";
+	}
+	public String getOperation_type() {
+		return operation_type;
+	}
+	public void setOperation_type(String operation_type) {
+		this.operation_type = operation_type;
 	}	
 
 }

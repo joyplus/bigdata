@@ -1,5 +1,6 @@
 package tv.joyplus.backend.report.dao.impl;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -47,12 +48,14 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	}
 	
 	private List<JobResultDto> queryData(Type type, ParameterDto parameterDto){
-		List<String> resouces = parameterDto.getDataResource();
 		StringBuilder sqlBuilder = new StringBuilder();
 		if(parameterDto.getFrequency()<0){
 			String condition = getConditionFromParameter(type,parameterDto);
 			sqlBuilder.append("select ");
 			sqlBuilder.append(getDataFeild(parameterDto, false, true));
+			if(type == Type.PUBLICATION || type == Type.ZONE){
+				sqlBuilder.append(", if( operation_type='001', '002', operation_type ) as operation_type_temp ");
+			}
 			sqlBuilder.append(" from md_device_request_log ");
 			if(condition == null){
 				sqlBuilder.append(" where 1 ");
@@ -60,10 +63,18 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				sqlBuilder.append(condition);
 			}
 			String groupBy = getGroupByFromList(parameterDto);
-			if(!CommonUtility.isEmptyString(groupBy)){
+			if(type == Type.PUBLICATION || type == Type.ZONE){
 				sqlBuilder.append(" group by ").append(groupBy);
+				sqlBuilder = addFiled(sqlBuilder, "operation_type_temp");
 				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
 					sqlBuilder = addFiled(sqlBuilder, "time_part");
+				}
+			}else{
+				if(!CommonUtility.isEmptyString(groupBy)){
+					sqlBuilder.append(" group by ").append(groupBy);
+					if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+						sqlBuilder = addFiled(sqlBuilder, "time_part");
+					}
 				}
 			}
 			
@@ -72,6 +83,9 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			sqlBuilderChild1.append("select ");
 			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
 			sqlBuilderChild1.append(", if( count( * ) >=10, 10, count( * ) ) as frequency, count( * ) as impression_count ");
+			if(type == Type.PUBLICATION || type == Type.ZONE){
+				sqlBuilderChild1.append(", if( operation_type='001', '002', operation_type ) as operation_type_temp ");
+			}
 			sqlBuilderChild1.append(" from md_device_request_log ");
 			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
@@ -80,16 +94,28 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				sqlBuilderChild1.append(condition);
 			}
 			String groupBy = getGroupByFromList(parameterDto);
-			if(!CommonUtility.isEmptyString(groupBy)){
-				sqlBuilderChild1.append(" group by ").append(groupBy);
-				sqlBuilderChild1.append(", equipment_key");
-				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
-				}
+			sqlBuilderChild1.append(" group by ").append(groupBy);
+			sqlBuilderChild1 = addFiled(sqlBuilderChild1, "equipment_key");
+			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
 			}
+			if(type == Type.PUBLICATION || type == Type.ZONE){
+				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "operation_type_temp");
+			}
+			
+//			if(!CommonUtility.isEmptyString(groupBy)){
+//				sqlBuilderChild1.append(" group by ").append(groupBy);
+//				sqlBuilderChild1.append(", equipment_key");
+//				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+//					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
+//				}
+//			}
 			sqlBuilder.append("select ");
 			sqlBuilder.append(getDataFeild(parameterDto, true, false));
 			sqlBuilder.append(", frequency, count(*) as uv, sum(impression_count) as impression ");
+			if(type == Type.PUBLICATION || type == Type.ZONE){
+				sqlBuilder = addFiled(sqlBuilder, "operation_type_temp");
+			}
 			sqlBuilder.append(" from (");
 			sqlBuilder.append(sqlBuilderChild1.toString());
 			sqlBuilder.append(" )child1 ");
@@ -102,6 +128,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			sqlBuilderChild1.append("select ");
 			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
 			sqlBuilderChild1.append(",count( * ) as frequency ");
+			
 			sqlBuilderChild1.append(" from md_device_request_log ");
 			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
@@ -110,16 +137,20 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				sqlBuilderChild1.append(condition);
 			}
 			String groupBy = getGroupByFromList(parameterDto);
-			if(!CommonUtility.isEmptyString(groupBy)){
-				sqlBuilderChild1.append(" group by ").append(groupBy);
-				sqlBuilderChild1.append(", equipment_key");
-				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
-				}
+			sqlBuilderChild1.append(" group by ").append(groupBy);
+			sqlBuilderChild1 = addFiled(sqlBuilderChild1, "equipment_key");
+			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
+			}
+			if(type == Type.PUBLICATION || type == Type.ZONE){
+				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "operation_type_temp");
 			}
 			sqlBuilder.append("select ");
 			sqlBuilder.append(getDataFeild(parameterDto, true, false));
 			sqlBuilder.append(", frequency, count(*) as uv, sum(frequency) as impression ");
+			if(type == Type.PUBLICATION || type == Type.ZONE){
+				sqlBuilder = addFiled(sqlBuilder, "operation_type_temp");
+			}
 			sqlBuilder.append(" from (");
 			sqlBuilder.append(sqlBuilderChild1.toString());
 			sqlBuilder.append(" )child1 ");
@@ -132,11 +163,11 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		System.out.println(sqlBuilder.toString());
 		String sql = sqlBuilder.toString();
 		List<JobResultDto> jobResultDtos = new ArrayList<JobResultDto>();
-		List rows = getJdbcTemplate().queryForList(sql);
+		List<Map<String, Object>> rows = getJdbcTemplate().queryForList(sql);
 		System.out.println("result size = \t" + rows.size());
-		Iterator it = rows.iterator();
+		Iterator<Map<String, Object>> it = rows.iterator();
 		while(it.hasNext()){
-			Map jobResultMap = (Map) it.next();  
+			Map<String, Object> jobResultMap = it.next();  
 			JobResultDto jobResultDto = new JobResultDto();
 			jobResultDto.setJob_id(Integer.valueOf(parameterDto.getReportId()));
 			if(jobResultMap.containsKey("campaign_id")){
@@ -149,16 +180,16 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				jobResultDto.setZone_id((Integer) jobResultMap.get("zone_id"));
 			}
 			if(jobResultMap.containsKey("frequency")){
-				jobResultDto.setFrequency((Integer) jobResultMap.get("frequency"));
+				jobResultDto.setFrequency(((BigDecimal) jobResultMap.get("frequency")).intValue());
 			}
 			if(jobResultMap.containsKey("device_name")){
 				jobResultDto.setDevice_brand((String) jobResultMap.get("device_name"));
 			}
 			if(jobResultMap.containsKey("uv")){
-				jobResultDto.setUv(((Long) jobResultMap.get("uv")).intValue());
+				jobResultDto.setUv(((BigDecimal) jobResultMap.get("uv")).intValue());
 			}
 			if(jobResultMap.containsKey("impression")){
-				jobResultDto.setImpression(((Long) jobResultMap.get("impression")).intValue());
+				jobResultDto.setImpression(((BigDecimal) jobResultMap.get("impression")).intValue());
 			}
 			if(jobResultMap.containsKey("device_name")){
 				jobResultDto.setDevice_brand((String) jobResultMap.get("device_name"));
@@ -168,6 +199,9 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}
 			if(jobResultMap.containsKey("city_code")){
 				jobResultDto.setRegion_code((String) jobResultMap.get("city_code"));
+			}
+			if(jobResultMap.containsKey("operation_type_temp")){
+				jobResultDto.setOperation_type((String) jobResultMap.get("operation_type_temp"));
 			}
 			Calendar calendar = Calendar.getInstance();
 			try{
@@ -196,12 +230,58 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println(jobResultDto.toString());
+//			System.out.println(jobResultDto.toString());
 			jobResultDtos.add(jobResultDto);
+		}
+		if(type == Type.PUBLICATION || type == Type.ZONE){
+			jobResultDtos = mergeRequsetAndImpression(jobResultDtos);
+		}
+		System.out.println("return size = " + jobResultDtos.size());
+		for(JobResultDto jobResultDto : jobResultDtos){
+			System.out.println(jobResultDto.toString());
 		}
 		return jobResultDtos;
 	}
 	
+	private List<JobResultDto> mergeRequsetAndImpression(List<JobResultDto> jobResultDtos) {
+		// TODO Auto-generated method stub
+		System.out.println("mergeRequsetAndImpression");
+		Iterator<JobResultDto> iterator = jobResultDtos.iterator();
+		List<JobResultDto> jobresults = new ArrayList<JobResultDto>();
+		JobResultDto jobresult = null;
+		while(iterator.hasNext()){
+			if(jobresult == null){
+				jobresult = iterator.next();
+			}else{
+				JobResultDto jobresult_1 = iterator.next();
+				if(isSameItemExceptOperationType(jobresult, jobresult_1)){
+					if("002".equals(jobresult.getOperation_type())){
+						jobresult_1.setRequest(jobresult.getImpression());
+						jobresult_1.setUv(jobresult.getUv());
+						jobresult = jobresult_1;
+					}else{
+						jobresult.setRequest(jobresult_1.getImpression());
+					}
+				}else{
+					if("002".equals(jobresult.getOperation_type())){
+						jobresult.setRequest(jobresult.getImpression());
+						jobresult.setUv(0);
+						jobresult.setImpression(0);
+					}
+					jobresults.add(jobresult);
+					jobresult = jobresult_1;
+				}
+			}
+		}
+		if("002".equals(jobresult.getOperation_type())){
+			jobresult.setRequest(jobresult.getImpression());
+			jobresult.setUv(0);
+			jobresult.setImpression(0);
+		}
+		jobresults.add(jobresult);
+		return jobresults;
+	}
+
 	private List<JobResultDto> queryByCampaignId(ParameterDto parameterDto){
 		System.out.println("queryByCampaignId");
 		return queryData(ParameterDto.Type.CAMPAIGN, parameterDto);
@@ -253,13 +333,13 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				conditionBuilder.append(" where campaign_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
 				break;
 			case PUBLICATION:
-				conditionBuilder.append(" where publication_id in ( ").append(condition).append(" ) ");
+				conditionBuilder.append(" where publication_id in ( ").append(condition).append(" ) ").append(" and operation_type in('001','002','003') ");
 				break;
 			case UNIT:
 				conditionBuilder.append(" where creative_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
 				break;
 			case ZONE:
-				conditionBuilder.append(" where zone_id in ( ").append(condition).append(" ) ");
+				conditionBuilder.append(" where zone_id in ( ").append(condition).append(" ) ").append(" and operation_type in('001','002','003') ");
 				break;
 			case LOCATION:
 				conditionBuilder.append(" where city_code in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
@@ -271,6 +351,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				conditionBuilder.append(" where creative_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
 				break;
 			default:
+				conditionBuilder.append(" where 1 ");
 				break;
 		}
 		if(parameterDto.getDateRange().length>=2){
@@ -323,8 +404,11 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 						sb_item = addFiled(sb_item, "count(distinct equipment_key) as uv");
 					}
 				}else{
-					if(!"campaign_owner".equalsIgnoreCase(itemList.get(i)) && !(sb.indexOf(itemList.get(i))>0)){
-						sb_item = addFiled(sb_item, itemList.get(i));
+					String feild = replace(itemList.get(i));
+					if(!"campaign_owner".equalsIgnoreCase(feild)
+							&& !"request".equalsIgnoreCase(feild) 
+							&& !(sb.indexOf(feild)>0)){
+						sb_item = addFiled(sb_item, feild);
 					}
 				}
 			}
@@ -366,9 +450,61 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		return str.replace("campaign_name", "campaign_id")
 		.replace("device_brands", "device_name")
 		.replace("zone_name", "zone_id")
+		.replace("zone_id", "zone_id")
 		.replace("province", "province_code")
 		.replace("city", "city_code")
 		.replace("adv_name", "creative_id")
+		.replace("adv_id", "creative_id")
+		.replace("inv_id", "publication_id")
 		.replace("inv_name", "publication_id");
 	}
+	
+	private boolean isSameItemExceptOperationType(JobResultDto jobResultDtoA, JobResultDto jobResultDtoB){
+		
+		if(jobResultDtoA == null || jobResultDtoB ==null){
+			return false;
+		}
+		
+		boolean isIdsEquals = false;
+		if(jobResultDtoA.getCampaign_id() == jobResultDtoB.getCampaign_id() 
+				&& jobResultDtoA.getAdv_id() == jobResultDtoB.getAdv_id()
+				&& jobResultDtoA.getPublication_id() == jobResultDtoB.getPublication_id()
+				&& jobResultDtoA.getZone_id() == jobResultDtoB.getZone_id()){
+			isIdsEquals = true;
+		}
+		boolean isFrequencyEquals = (jobResultDtoA.getFrequency() == jobResultDtoB.getFrequency());
+		boolean isDateStartEquals = false;
+		if(jobResultDtoA.getDate_start()!=null){
+			if(jobResultDtoA.getDate_start().equals(jobResultDtoB.getDate_start())){
+				isDateStartEquals = true;
+			}
+		}else{
+			if(jobResultDtoB.getDate_start() == null){
+				isDateStartEquals = true;
+			}
+		}
+		boolean isDateEndEquals = false;
+		if(jobResultDtoA.getDate_end()!=null){
+			if(jobResultDtoA.getDate_end().equals(jobResultDtoB.getDate_end())){
+				isDateEndEquals = true;
+			}
+		}else{
+			if(jobResultDtoB.getDate_end() == null){
+				isDateEndEquals = true;
+			}
+		}
+		
+		boolean isRegion_code = false;
+		if(jobResultDtoA.getRegion_code()!=null){
+			if(jobResultDtoA.getRegion_code().equals(jobResultDtoB.getRegion_code())){
+				isDateStartEquals = true;
+			}
+		}else{
+			if(jobResultDtoB.getRegion_code() == null){
+				isRegion_code = true;
+			}
+		}
+		return isIdsEquals && isFrequencyEquals && isDateStartEquals && isDateEndEquals && isRegion_code;
+	}
+	
 }
