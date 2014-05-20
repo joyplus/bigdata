@@ -5,23 +5,24 @@ import java.util.regex.Pattern;
 
 import org.springframework.batch.item.ItemProcessor;
 
+import tv.joyplus.backend.huan.beans.LogData;
 import tv.joyplus.backend.huan.beans.LogInfo;
 
-public class LogItemProcessor implements ItemProcessor<String, LogInfo>{
+public class LogItemProcessor implements ItemProcessor<String, LogData>{
 	private static String PATTERN_STRING = "\\[(.*?)\\].*?dnum\\=(.*?),devmodel\\=(.*?),version\\=(.*?),ip\\=(.*?),imgurl\\=(.*?),adurl\\=(.*?),sid\\=(.*?),title\\=(.*)";
 	private String filename;
 	@Override
-	public LogInfo process(String line) throws Exception {
+	public LogData process(String line) throws Exception {
 		return this.praseLogInfo(line);
 	}
 	
-	private LogInfo praseLogInfo(String line) {
+	private LogData praseLogInfo(String line) {
 		Pattern p = Pattern.compile(PATTERN_STRING);
 		Matcher m = p.matcher(line);
 		if(m.find()) {
-			LogInfo log = new LogInfo();
+			LogData log = new LogData();
 			log.setAdDate(m.group(1));
-			log.setEquitpmentKey(m.group(2));
+			log.setEquipmentKey(m.group(2));
 			log.setDeviceName(m.group(3));
 			log.setVersion(m.group(4));
 			log.setIp(m.group(5));

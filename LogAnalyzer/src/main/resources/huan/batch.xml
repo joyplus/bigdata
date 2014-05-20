@@ -16,6 +16,14 @@
 	<context:property-placeholder location="classpath:huan/huan.properties"
 		order="1" ignore-unresolvable="true" />
 	<context:annotation-config />
+	<job id="logTransforJob"  xmlns="http://www.springframework.org/schema/batch">
+		<step id="logTransforStep">
+			<tasklet ref="logTransforTask" />
+		</step>
+	</job>
+	<bean id="logTransforTask" class="tv.joyplus.backend.huan.core.LogTransforTasklet">
+		<property name="businessId" value="${business.id}" />
+	</bean>
 	<job id="logAnalyzerJob"  xmlns="http://www.springframework.org/schema/batch">
 		<step id="logLoadStep" next="logUnzipStep">
 			<tasklet ref="logLoadTask"/>

@@ -11,22 +11,23 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import tv.joyplus.backend.huan.beans.LogData;
 import tv.joyplus.backend.huan.beans.LogInfo;
 import tv.joyplus.backend.huan.dao.LogDataDao;
 
 public class LogDataDaoDBImpl extends JdbcDaoSupport implements LogDataDao {
 
 	@Override
-	public void batchLogData(final List<? extends LogInfo> list) {
+	public void batchLogData(final List<? extends LogData> list) {
 		getJdbcTemplate().batchUpdate("INSERT INTO md_log_data (`ad_date`,`equipment_key`,`device_name`,"
 				+ "`version`,`ip`,`imgurl`,`adurl`,`sid`,`title`,`zone_id`,`create_time`,`status`) VALUES ("
 				+ "?,?,?,?,?,?,?,?,?,?,?,?)", new BatchPreparedStatementSetter() {
 			
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				LogInfo log = list.get(i);
+				LogData log = list.get(i);
 				ps.setObject(1, log.getAdDate());
-				ps.setObject(2, log.getEquitpmentKey());
+				ps.setObject(2, log.getEquipmentKey());
 				ps.setObject(3, log.getDeviceName());
 				ps.setObject(4, log.getVersion());
 				ps.setObject(5, log.getIp());
@@ -47,19 +48,24 @@ public class LogDataDaoDBImpl extends JdbcDaoSupport implements LogDataDao {
 	}
 
 	@Override
-	public List<LogInfo> find(final LogInfo data) {
-		if(data.getTitle()==null || data.getTitle().length()==0 || data.getImgurl()==null || data.getImgurl().length()==0) {
+	public List<LogData> find(final LogInfo info) {
+		if(info.getTitle()==null || info.getTitle().length()==0 || info.getImgurl()==null || info.getImgurl().length()==0) {
 			return null;
 		}
-		String sql = "SELECT * FROM md_log_data WHERE title=? AND imgurl=?";
+		String sql = null;
+		if(info.getMaxId()==0) {
+			sql = "SELECT * FROM md_log_data WHERE title=? AND imgurl=? ORDER BY id DESC";
+		}else{
+			sql = "SELECT * FROM md_log_data WHERE title=? AND imgurl=? AND id>" + info.getMaxId() + " ORDER BY id DESC";
+		}
 		return getJdbcTemplate().query(sql, new PreparedStatementSetter(){
 
 				@Override
 				public void setValues(PreparedStatement ps) throws SQLException {
-					ps.setString(1, data.getTitle());
-					ps.setString(2, data.getImgurl());
+					ps.setString(1, info.getTitle());
+					ps.setString(2, info.getImgurl());
 				}
-			}, new BeanPropertyRowMapper<LogInfo>(LogInfo.class));
+			}, new BeanPropertyRowMapper<LogData>(LogData.class));
 	}
 	
 }

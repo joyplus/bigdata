@@ -11,7 +11,8 @@ public class Launcher {
 	public static void main(String[] args) {
 		ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:huan/batch.xml");
 		JobLauncher jobLauncher = (JobLauncher) ctx.getBean("jobLauncher");
-		Job job = (Job) ctx.getBean("logAnalyzerJob");
+		Job job = (Job) ctx.getBean("logTransforJob");
+		//Job job = (Job) ctx.getBean("logAnalyzerJob");
 		try {
 			JobExecution result = jobLauncher.run(job, new JobParameters());
 			System.out.println(result.toString());

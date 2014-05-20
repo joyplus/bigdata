@@ -8,8 +8,10 @@ import java.util.List;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import tv.joyplus.backend.huan.beans.LogData;
 import tv.joyplus.backend.huan.beans.LogInfo;
 import tv.joyplus.backend.huan.dao.LogInfoDao;
 
@@ -18,7 +20,7 @@ public class LogInfoDaoDBImpl extends JdbcDaoSupport implements LogInfoDao {
 	@Override
 	public void batchLogInfo(final List<? extends LogInfo> list) {
 		getJdbcTemplate().batchUpdate("INSERT IGNORE INTO md_log_info (`title`,`imgurl`,`adurl`,`sid`,"
-				+ "`creative_id`,`create_time`) VALUES (?,?,?,?,?,?)", new BatchPreparedStatementSetter() {
+				+ "`creative_id`,`create_time`,`max_id`) VALUES (?,?,?,?,?,?,?)", new BatchPreparedStatementSetter() {
 			
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -29,6 +31,7 @@ public class LogInfoDaoDBImpl extends JdbcDaoSupport implements LogInfoDao {
 				ps.setString(4, log.getSid());
 				ps.setLong(5, 0);
 				ps.setTimestamp(6, new Timestamp(Calendar.getInstance().getTimeInMillis()));
+				ps.setLong(7, 0);
 			}
 			
 			@Override
@@ -36,12 +39,29 @@ public class LogInfoDaoDBImpl extends JdbcDaoSupport implements LogInfoDao {
 				return list.size();
 			}
 		});
+		
+		getJdbcTemplate().update("DELETE FROM md_log_info WHERE title='' OR imgurl=''");
 	}
 
 	@Override
 	public List<LogInfo> findLogInfo() {
 		String sql = "SELECT * FROM md_log_info WHERE creative_id <> 0";
 		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper<LogInfo>(LogInfo.class));
+	}
+	
+	
+
+	@Override
+	public void updateMaxId(final LogData data) {
+		String sql = "UPDATE md_log_info SET max_id=? WHERE title=? AND imgurl=?";
+		getJdbcTemplate().update(sql, new PreparedStatementSetter(){
+
+			@Override
+			public void setValues(PreparedStatement ps) throws SQLException {
+				ps.setLong(1, data.getId());
+				ps.setString(2, data.getTitle());
+				ps.setString(3, data.getImgurl());
+			}});
 	}
 
 	@Override
@@ -51,7 +71,12 @@ public class LogInfoDaoDBImpl extends JdbcDaoSupport implements LogInfoDao {
 		}
 		String sql = "SELECT campaign_id FROM md_ad_units WHERE adv_id=?";
 		
-		return getJdbcTemplate().queryForObject(sql, Long.class, creativeId);
+		try {
+			long l = getJdbcTemplate().queryForObject(sql, Long.class, creativeId);
+			return l;
+		}catch(Exception e) {
+			return 0;
+		}
 	}
 
 	@Override
@@ -60,7 +85,12 @@ public class LogInfoDaoDBImpl extends JdbcDaoSupport implements LogInfoDao {
 			return 0;
 		}
 		String sql = "SELECT publication_id FROM md_zones WHERE entry_id=?";
-		return getJdbcTemplate().queryForObject(sql, Long.class, zoneId);
+		try {
+			long l = getJdbcTemplate().queryForObject(sql, Long.class, zoneId);
+			return l;
+		}catch(Exception e) {
+			return 0;
+		}
 	}
 	
 }
