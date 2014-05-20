@@ -46,27 +46,18 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			
 	}
 	
-	private List<JobResultDto> queryByCampaignId(ParameterDto parameterDto){
-		System.out.println("queryByCampaignId");
+	private List<JobResultDto> queryData(Type type, ParameterDto parameterDto){
 		List<String> resouces = parameterDto.getDataResource();
 		StringBuilder sqlBuilder = new StringBuilder();
 		if(parameterDto.getFrequency()<0){
-			String condition = getConditionFromDataResource(resouces);
+			String condition = getConditionFromParameter(type,parameterDto);
 			sqlBuilder.append("select ");
 			sqlBuilder.append(getDataFeild(parameterDto, false, true));
 			sqlBuilder.append(" from md_device_request_log ");
 			if(condition == null){
-				sqlBuilder.append("where 1 ");
+				sqlBuilder.append(" where 1 ");
 			}else{
-				sqlBuilder.append("where campaign_id in ( ").append(condition).append(" ) ");
-			}
-			
-			if(parameterDto.getDateRange().length>=2){
-				sqlBuilder.append(" and ad_date >= '")
-				.append(dateFormat.format(parameterDto.getDateRange()[0]))
-				.append(" ' and ad_date <= ' ")
-				.append(dateFormat.format(parameterDto.getDateRange()[1]))
-				.append("' ");
+				sqlBuilder.append(condition);
 			}
 			String groupBy = getGroupByFromList(parameterDto);
 			if(!CommonUtility.isEmptyString(groupBy)){
@@ -82,18 +73,11 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
 			sqlBuilderChild1.append(", if( count( * ) >=10, 10, count( * ) ) as frequency, count( * ) as impression_count ");
 			sqlBuilderChild1.append(" from md_device_request_log ");
-			String condition = getConditionFromDataResource(resouces);
+			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
 				sqlBuilderChild1.append(" where 1 ");
 			}else{
-				sqlBuilderChild1.append(" where campaign_id in ( ").append(condition).append(" ) ");
-			}
-			if(parameterDto.getDateRange().length>=2){
-				sqlBuilderChild1.append(" and ad_date >= '")
-					.append(dateFormat.format(parameterDto.getDateRange()[0]))
-					.append(" ' and ad_date <= ' ")
-					.append(dateFormat.format(parameterDto.getDateRange()[1]))
-					.append("' ");
+				sqlBuilderChild1.append(condition);
 			}
 			String groupBy = getGroupByFromList(parameterDto);
 			if(!CommonUtility.isEmptyString(groupBy)){
@@ -119,11 +103,11 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
 			sqlBuilderChild1.append(",count( * ) as frequency ");
 			sqlBuilderChild1.append(" from md_device_request_log ");
-			String condition = getConditionFromDataResource(resouces);
+			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
 				sqlBuilderChild1.append(" where 1 ");
 			}else{
-				sqlBuilderChild1.append(" where campaign_id in ( ").append(condition).append(" ) ");
+				sqlBuilderChild1.append(condition);
 			}
 			String groupBy = getGroupByFromList(parameterDto);
 			if(!CommonUtility.isEmptyString(groupBy)){
@@ -217,26 +201,38 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		}
 		return jobResultDtos;
 	}
+	
+	private List<JobResultDto> queryByCampaignId(ParameterDto parameterDto){
+		System.out.println("queryByCampaignId");
+		return queryData(ParameterDto.Type.CAMPAIGN, parameterDto);
+	}
 	private List<JobResultDto> queryByUnitId(ParameterDto parameterDto){
-		return null;
+		System.out.println("queryByUnitId");
+		return queryData(ParameterDto.Type.UNIT, parameterDto);
 	}
 	private List<JobResultDto> queryByPublicationId(ParameterDto parameterDto){
-		return null;
+		System.out.println("queryByPublicationId");
+		return queryData(ParameterDto.Type.PUBLICATION, parameterDto);
 	}
 	private List<JobResultDto> queryByZoneId(ParameterDto parameterDto){
-		return null;
+		System.out.println("queryByZoneId");
+		return queryData(ParameterDto.Type.ZONE, parameterDto);
 	}
 	private List<JobResultDto> queryByMonitor(ParameterDto parameterDto){
-		return null;
+		System.out.println("queryByMonitor");
+		return queryData(ParameterDto.Type.MONITOR, parameterDto);
 	}
 	private List<JobResultDto> queryByMonitorunit(ParameterDto parameterDto){
-		return null;
+		System.out.println("queryByMonitorunit");
+		return queryData(ParameterDto.Type.MONITORUNIT, parameterDto);
 	}
 	private List<JobResultDto> queryByLocation(ParameterDto parameterDto){
-		return null;
+		System.out.println("queryByLocation");
+		return queryData(ParameterDto.Type.LOCATION, parameterDto);
 	}
 	
-	private String getConditionFromDataResource(List<String> resouces){
+	private String getConditionFromParameter(Type type, ParameterDto parameterDto){
+		List<String> resouces = parameterDto.getDataResource();
 		if(resouces==null || resouces.size()==0){
 			return null;
 		}
@@ -250,7 +246,41 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			sb.append(resouces.get(i));
 			sb.append("'");
 		}
-		return sb.toString();
+		String condition = sb.toString();
+		StringBuilder conditionBuilder = new StringBuilder();
+		switch (type) {
+			case CAMPAIGN:
+				conditionBuilder.append(" where campaign_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				break;
+			case PUBLICATION:
+				conditionBuilder.append(" where publication_id in ( ").append(condition).append(" ) ");
+				break;
+			case UNIT:
+				conditionBuilder.append(" where creative_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				break;
+			case ZONE:
+				conditionBuilder.append(" where zone_id in ( ").append(condition).append(" ) ");
+				break;
+			case LOCATION:
+				conditionBuilder.append(" where city_code in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				break;
+			case MONITOR:
+				conditionBuilder.append(" where campaign_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				break;
+			case MONITORUNIT:
+				conditionBuilder.append(" where creative_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				break;
+			default:
+				break;
+		}
+		if(parameterDto.getDateRange().length>=2){
+			conditionBuilder.append(" and ad_date >= '")
+				.append(dateFormat.format(parameterDto.getDateRange()[0]))
+				.append(" ' and ad_date <= ' ")
+				.append(dateFormat.format(parameterDto.getDateRange()[1]))
+				.append("' ");
+		}
+		return conditionBuilder.toString();
 	}
 	private String getGroupByFromList(ParameterDto parameterDto){
 		
