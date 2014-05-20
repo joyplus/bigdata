@@ -317,6 +317,9 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	
 	
 	private StringBuilder addFiled(StringBuilder sb, String feild){
+		if(CommonUtility.isEmptyString(feild)){
+			return sb;
+		}
 		if(!CommonUtility.isEmptyString(sb.toString())){
 			sb.append(" , ");
 		}
