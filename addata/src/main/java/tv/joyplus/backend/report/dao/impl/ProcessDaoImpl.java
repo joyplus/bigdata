@@ -1,6 +1,5 @@
 package tv.joyplus.backend.report.dao.impl;
 
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -8,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import tv.joyplus.backend.report.dao.ProcessDao;
@@ -18,7 +19,8 @@ import tv.joyplus.backend.utility.CommonUtility;
 
 public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 
-//	Logger log = Logger.getLogger(ProcessDaoImpl.class);
+	protected Log log = LogFactory.getLog(ProcessDaoImpl.class);
+
 	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	public List<JobResultDto> queryData(ParameterDto parameterDto) {
 		// TODO Auto-generated method stub
@@ -160,11 +162,11 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				sqlBuilder.append(", frequency");
 			}
 		}
-		System.out.println(sqlBuilder.toString());
+		log.info(sqlBuilder.toString());
 		String sql = sqlBuilder.toString();
 		List<JobResultDto> jobResultDtos = new ArrayList<JobResultDto>();
 		List<Map<String, Object>> rows = getJdbcTemplate().queryForList(sql);
-		System.out.println("result size = \t" + rows.size());
+		log.debug("result size = \t" + rows.size());
 		Iterator<Map<String, Object>> it = rows.iterator();
 		while(it.hasNext()){
 			Map<String, Object> jobResultMap = it.next();  
@@ -180,16 +182,17 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				jobResultDto.setZone_id((Integer) jobResultMap.get("zone_id"));
 			}
 			if(jobResultMap.containsKey("frequency")){
-				jobResultDto.setFrequency(((BigDecimal) jobResultMap.get("frequency")).intValue());
+				jobResultDto.setFrequency(Integer.valueOf(String.valueOf(jobResultMap.get("frequency"))));
 			}
 			if(jobResultMap.containsKey("device_name")){
 				jobResultDto.setDevice_brand((String) jobResultMap.get("device_name"));
 			}
 			if(jobResultMap.containsKey("uv")){
-				jobResultDto.setUv(((BigDecimal) jobResultMap.get("uv")).intValue());
+				jobResultDto.setUv(Integer.valueOf(String.valueOf(jobResultMap.get("uv"))));
+				
 			}
 			if(jobResultMap.containsKey("impression")){
-				jobResultDto.setImpression(((BigDecimal) jobResultMap.get("impression")).intValue());
+				jobResultDto.setImpression(Integer.valueOf(String.valueOf(jobResultMap.get("impression"))));
 			}
 			if(jobResultMap.containsKey("device_name")){
 				jobResultDto.setDevice_brand((String) jobResultMap.get("device_name"));
@@ -230,22 +233,21 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-//			System.out.println(jobResultDto.toString());
 			jobResultDtos.add(jobResultDto);
 		}
 		if(type == Type.PUBLICATION || type == Type.ZONE){
 			jobResultDtos = mergeRequsetAndImpression(jobResultDtos);
 		}
-		System.out.println("return size = " + jobResultDtos.size());
+		log.debug("return size = \t" + rows.size());
 		for(JobResultDto jobResultDto : jobResultDtos){
-			System.out.println(jobResultDto.toString());
+			log.debug(jobResultDto.toString());
 		}
 		return jobResultDtos;
 	}
 	
 	private List<JobResultDto> mergeRequsetAndImpression(List<JobResultDto> jobResultDtos) {
 		// TODO Auto-generated method stub
-		System.out.println("mergeRequsetAndImpression");
+		log.debug("mergeRequsetAndImpression");
 		Iterator<JobResultDto> iterator = jobResultDtos.iterator();
 		List<JobResultDto> jobresults = new ArrayList<JobResultDto>();
 		JobResultDto jobresult = null;
@@ -283,31 +285,31 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	}
 
 	private List<JobResultDto> queryByCampaignId(ParameterDto parameterDto){
-		System.out.println("queryByCampaignId");
+		log.debug("queryByCampaignId");
 		return queryData(ParameterDto.Type.CAMPAIGN, parameterDto);
 	}
 	private List<JobResultDto> queryByUnitId(ParameterDto parameterDto){
-		System.out.println("queryByUnitId");
+		log.debug("queryByUnitId");
 		return queryData(ParameterDto.Type.UNIT, parameterDto);
 	}
 	private List<JobResultDto> queryByPublicationId(ParameterDto parameterDto){
-		System.out.println("queryByPublicationId");
+		log.debug("queryByPublicationId");
 		return queryData(ParameterDto.Type.PUBLICATION, parameterDto);
 	}
 	private List<JobResultDto> queryByZoneId(ParameterDto parameterDto){
-		System.out.println("queryByZoneId");
+		log.debug("queryByZoneId");
 		return queryData(ParameterDto.Type.ZONE, parameterDto);
 	}
 	private List<JobResultDto> queryByMonitor(ParameterDto parameterDto){
-		System.out.println("queryByMonitor");
+		log.debug("queryByMonitor");
 		return queryData(ParameterDto.Type.MONITOR, parameterDto);
 	}
 	private List<JobResultDto> queryByMonitorunit(ParameterDto parameterDto){
-		System.out.println("queryByMonitorunit");
+		log.debug("queryByMonitorunit");
 		return queryData(ParameterDto.Type.MONITORUNIT, parameterDto);
 	}
 	private List<JobResultDto> queryByLocation(ParameterDto parameterDto){
-		System.out.println("queryByLocation");
+		log.debug("queryByLocation");
 		return queryData(ParameterDto.Type.LOCATION, parameterDto);
 	}
 	

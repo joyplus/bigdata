@@ -102,7 +102,6 @@ public class ReportTaskImpl implements ReportTask {
 //	}
 
 	private ParameterDto parseParameter (String jsonString) {
-//		System.out.println(jsonString);
 		ParameterDto parameterDto = null;
 		try {
 			parameterDto =  jsonParser.parseParameter(jsonString);
