@@ -102,7 +102,6 @@ public class ReportTaskImpl implements ReportTask {
 //	}
 
 	private ParameterDto parseParameter (String jsonString) {
-//		System.out.println(jsonString);
 		ParameterDto parameterDto = null;
 		try {
 			parameterDto =  jsonParser.parseParameter(jsonString);
@@ -133,7 +132,4 @@ public class ReportTaskImpl implements ReportTask {
 		this.getJobResultDao().saveJobResults(results);
 		this.getJobResultDao().updateReportStatus(parameterDto.getReportId());
 	}
-
-
-
 }
