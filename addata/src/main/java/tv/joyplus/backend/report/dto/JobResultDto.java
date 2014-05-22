@@ -5,6 +5,7 @@ public class JobResultDto {
 	public int job_id;
 	public String date_start;
 	public String date_end;
+	public int hour;
 	public int campaign_id;
 	public String campaign_name;
 	public int adv_id;
@@ -16,6 +17,7 @@ public class JobResultDto {
 	public int advistiser_id;
 	public String advistiser_name;
 	public int request;
+	public int impression;
 	public int uv;
 	public int quality_id;
 	public String quality_name;
@@ -31,7 +33,6 @@ public class JobResultDto {
 	public String zone_type;
 	public String zone_size;
 	public int frequency;
-	private int impression;
 	private String operation_type;
 	public int getId() {
 		return id;
@@ -56,6 +57,12 @@ public class JobResultDto {
 	}
 	public void setDate_end(String date_end) {
 		this.date_end = date_end;
+	}
+	public int getHour() {
+		return hour;
+	}
+	public void setHour(int hour) {
+		this.hour = hour;
 	}
 	public int getCampaign_id() {
 		return campaign_id;
@@ -222,7 +229,7 @@ public class JobResultDto {
 	@Override
 	public String toString() {
 		return "JobResultDto [id=" + id + ", job_id=" + job_id
-				+ ", date_start=" + date_start + ", date_end=" + date_end
+				+ ", date_start=" + date_start + ", date_end=" + date_end + ", hour=" + hour
 				+ ", campaign_id=" + campaign_id + ", campaign_name="
 				+ campaign_name + ", adv_id=" + adv_id + ", adv_name="
 				+ adv_name + ", publication_id=" + publication_id
