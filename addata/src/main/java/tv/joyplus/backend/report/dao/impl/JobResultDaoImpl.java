@@ -100,7 +100,7 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 			
 			//获取地域信息
 			String strRegionName = null;
-			strSQL = "SELECT * FROM md_regional_targeting WHERE region_code=?";
+			strSQL = "SELECT * FROM md_regional_targeting WHERE targeting_code=?";
 			List<Map<String, Object>> lstRegionResult = getJdbcTemplate().queryForList(strSQL, jobResultRow.region_code);
 			Iterator<Map<String, Object>> itRegion = lstRegionResult.iterator();
 			if (itRegion.hasNext()) {
