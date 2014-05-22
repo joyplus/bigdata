@@ -132,7 +132,4 @@ public class ReportTaskImpl implements ReportTask {
 		this.getJobResultDao().saveJobResults(results);
 		this.getJobResultDao().updateReportStatus(parameterDto.getReportId());
 	}
-
-
-
 }

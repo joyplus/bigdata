@@ -68,7 +68,7 @@ public class ReportParser {
 			}
 			parameterDto.setGroupby(groupby);
 		}
-		log.info("json string parse success");
+		log.debug("json string parse success");
 		return parameterDto;
 	}
 }

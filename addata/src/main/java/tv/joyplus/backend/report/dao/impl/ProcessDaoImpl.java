@@ -25,6 +25,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	public List<JobResultDto> queryData(ParameterDto parameterDto) {
 		// TODO Auto-generated method stub
 		if(parameterDto==null){
+			log.error("null parameterDto, queryData faild");
 			return null;
 		}
 		if(parameterDto.getType().equals(Type.CAMPAIGN.toString())){
@@ -42,8 +43,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		}else if(parameterDto.getType().equals(Type.LOCATION.toString())){
 			return queryByLocation(parameterDto);
 		}else{
-//			log.error("unkown type");
-			System.err.println("unkown type");
+			log.error("unkown type");
 			return null;
 		}
 			
@@ -105,13 +105,6 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "operation_type_temp");
 			}
 			
-//			if(!CommonUtility.isEmptyString(groupBy)){
-//				sqlBuilderChild1.append(" group by ").append(groupBy);
-//				sqlBuilderChild1.append(", equipment_key");
-//				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-//					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
-//				}
-//			}
 			sqlBuilder.append("select ");
 			sqlBuilder.append(getDataFeild(parameterDto, true, false));
 			sqlBuilder.append(", frequency, count(*) as uv, sum(impression_count) as impression ");
