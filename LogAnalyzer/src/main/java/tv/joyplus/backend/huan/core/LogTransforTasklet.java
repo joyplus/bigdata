@@ -31,7 +31,7 @@ public class LogTransforTasklet implements Tasklet {
 	private String businessId;
 	@Override
 	public RepeatStatus execute(StepContribution contribution,
-			ChunkContext chunkContext) throws Exception {
+			ChunkContext chunkContext) {
 		
 		List<LogInfo> list = logInfoDao.findLogInfo();
 		log.debug("find loginfos :" + list.size());

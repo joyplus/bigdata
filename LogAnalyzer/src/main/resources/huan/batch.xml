@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:batch="http://www.springframework.org/schema/batch"
 	xsi:schemaLocation="http://www.springframework.org/schema/batch 
 		http://www.springframework.org/schema/batch/spring-batch.xsd 
 		http://www.springframework.org/schema/beans 
@@ -16,7 +14,7 @@
 	<context:property-placeholder location="classpath:huan/huan.properties"
 		order="1" ignore-unresolvable="true" />
 	<context:annotation-config />
-	<job id="logTransforJob"  xmlns="http://www.springframework.org/schema/batch">
+	<job id="logTransforJob" xmlns="http://www.springframework.org/schema/batch">
 		<step id="logTransforStep">
 			<tasklet ref="logTransforTask" />
 		</step>
@@ -24,9 +22,9 @@
 	<bean id="logTransforTask" class="tv.joyplus.backend.huan.core.LogTransforTasklet">
 		<property name="businessId" value="${business.id}" />
 	</bean>
-	<job id="logAnalyzerJob"  xmlns="http://www.springframework.org/schema/batch">
+	<job id="logAnalyzerJob" xmlns="http://www.springframework.org/schema/batch">
 		<step id="logLoadStep" next="logUnzipStep">
-			<tasklet ref="logLoadTask"/>
+			<tasklet ref="logLoadTask" />
 		</step>
 		<step id="logUnzipStep" next="decision">
 			<tasklet ref="logUnzipTask" />
@@ -43,10 +41,10 @@
 		</step>
 	</job>
 	<bean id="logLoadTask" class="tv.joyplus.backend.huan.core.LogLoadTasklet">
-		<property name="downloadDir" value="${log.download.dir}"/>
+		<property name="downloadDir" value="${log.download.dir}" />
 	</bean>
 	<bean id="logUnzipTask" class="tv.joyplus.backend.huan.core.LogUnzipTasklet">
-		<property name="unzipDir" value="${log.dir}"/>
+		<property name="unzipDir" value="${log.dir}" />
 		<property name="mimeArchive">
 			<map>
 				<entry key="application/x-tar">
@@ -76,10 +74,12 @@
 				class="org.springframework.batch.item.file.mapping.PassThroughLineMapper" />
 		</property>
 	</bean>
-	<bean id="logItemProcessor" class="tv.joyplus.backend.huan.core.LogItemProcessor" scope="step">
-		<property name="filename" value="#{jobExecutionContext['input.file.name']}"/>
+	<bean id="logItemProcessor" class="tv.joyplus.backend.huan.core.LogItemProcessor"
+		scope="step">
+		<property name="filename" value="#{jobExecutionContext['input.file.name']}" />
 	</bean>
-	<bean id="logItemWriter" class="tv.joyplus.backend.huan.core.LogItemWriter" scope="step">
+	<bean id="logItemWriter" class="tv.joyplus.backend.huan.core.LogItemWriter"
+		scope="step">
 	</bean>
 
 
@@ -109,16 +109,16 @@
 			<ref local="dataSourceProcess" />
 		</property>
 	</bean>
-	
-	<bean id="decider" class="tv.joyplus.backend.huan.core.LogDecision"/>
-	
+
+	<bean id="decider" class="tv.joyplus.backend.huan.core.LogDecision" />
+
 	<bean class="tv.joyplus.backend.qiniu.dao.impl.QiniuDaoImpl">
-		<property name="accessKey" value="${qiniu.accessKey}"/>
-		<property name="secretKey" value="${qiniu.secretKey}"/>
-		<property name="bucket" value="${qiniu.bucket}"/>
-		<property name="domain" value="${qiniu.domain}"/>
+		<property name="accessKey" value="${qiniu.accessKey}" />
+		<property name="secretKey" value="${qiniu.secretKey}" />
+		<property name="bucket" value="${qiniu.bucket}" />
+		<property name="domain" value="${qiniu.domain}" />
 	</bean>
-	
+
 	<bean class="tv.joyplus.backend.huan.dao.impl.DownloadFileInfoImpl">
 		<property name="dataSource">
 			<ref local="dataSourceProcess" />
@@ -133,10 +133,52 @@
 		<property name="dataSource">
 			<ref local="dataSourceProcess" />
 		</property>
-		<property name="tubeName" value="${beanstalk.tube.process}"/>
+		<property name="tubeName" value="${beanstalk.tube.process}" />
 	</bean>
 	<bean class="com.trendrr.beanstalk.BeanstalkClient">
 		<property name="addr" value="${beanstalk.server}" />
 		<property name="port" value="${beanstalk.port}" />
+	</bean>
+	
+	<bean id="logAnalyzerJobLauncher" class="tv.joyplus.backend.huan.logAnalyzerLauncher">
+		<property name="jobLauncher" ref="jobLauncher" />
+		<property name="job" ref="logAnalyzerJob" />
+	</bean>
+	
+	<bean id="logLoadJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="logAnalyzerJobLauncher" />  
+ 		<property name="targetMethod" value="execute" />
+	</bean>
+	
+	<bean id="cronTriggerLogLoad" 
+                class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="logLoadJobDetail" />
+		<property name="cronExpression" value="0 15 17 * * ?" />
+	</bean>
+	
+	<bean id="logTransforJobLauncher" class="tv.joyplus.backend.huan.LogTransforLauncher">
+		<property name="jobLauncher" ref="jobLauncher" />
+		<property name="job" ref="logTransforJob" />
+	</bean>
+	
+	
+	<bean id="logTransforJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="logTransforJobLauncher" />  
+ 		<property name="targetMethod" value="execute" />
+	</bean>
+	
+	<bean id="cronTriggerLogTransfor" 
+                class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="logTransforJobDetail" />
+		<property name="cronExpression" value="0 18 17 * * ?" />
+	</bean>
+	
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="cronTriggerLogLoad" />
+				<ref bean="cronTriggerLogTransfor" />
+			</list>
+		</property>
 	</bean>
 </beans>

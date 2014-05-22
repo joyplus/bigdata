@@ -20,7 +20,7 @@ public class LogInfoDaoDBImpl extends JdbcDaoSupport implements LogInfoDao {
 	@Override
 	public void batchLogInfo(final List<? extends LogInfo> list) {
 		getJdbcTemplate().batchUpdate("INSERT IGNORE INTO md_log_info (`title`,`imgurl`,`adurl`,`sid`,"
-				+ "`creative_id`,`create_time`,`max_id`) VALUES (?,?,?,?,?,?,?)", new BatchPreparedStatementSetter() {
+				+ "`creative_id`,`create_time`,`zone_id`,`max_id`) VALUES (?,?,?,?,?,?,?,?)", new BatchPreparedStatementSetter() {
 			
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -31,7 +31,8 @@ public class LogInfoDaoDBImpl extends JdbcDaoSupport implements LogInfoDao {
 				ps.setString(4, log.getSid());
 				ps.setLong(5, 0);
 				ps.setTimestamp(6, new Timestamp(Calendar.getInstance().getTimeInMillis()));
-				ps.setLong(7, 0);
+				ps.setLong(7, log.getZoneId());
+				ps.setLong(8, 0);
 			}
 			
 			@Override

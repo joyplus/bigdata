@@ -8,6 +8,7 @@ public class LogInfo {
 	private String adurl;
 	private String sid;		//
 	private String title;	//
+	private long zoneId;
 	private long maxId;
 	private long creativeId;
 	private byte status;
@@ -35,6 +36,12 @@ public class LogInfo {
 	}
 	public void setTitle(String title) {
 		this.title = title;
+	}
+	public long getZoneId() {
+		return zoneId;
+	}
+	public void setZoneId(long zoneId) {
+		this.zoneId = zoneId;
 	}
 	public long getMaxId() {
 		return maxId;

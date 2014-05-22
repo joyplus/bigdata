@@ -13,6 +13,7 @@ import com.trendrr.beanstalk.BeanstalkException;
 
 import de.ailis.pherialize.Mixed;
 import de.ailis.pherialize.Pherialize;
+import tv.joyplus.backend.exception.TaskException;
 import tv.joyplus.backend.huan.beans.LogProcess;
 import tv.joyplus.backend.huan.dao.LogProcessDao;
 
@@ -34,7 +35,7 @@ public class LogProcessDaoImpl extends JdbcDaoSupport implements LogProcessDao {
 				beanstalk.put(1L, 0, 120, data);
 			}
 		} catch (BeanstalkException e) {
-			e.printStackTrace();
+			throw new TaskException("");
 		}
 	}
 	public void setTubeName(String tubeName) {

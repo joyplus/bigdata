@@ -30,6 +30,7 @@ public class LogItemWriter implements ItemWriter<LogData> {
 			i.setAdurl(d.getAdurl());
 			i.setCreativeId(0);
 			i.setImgurl(d.getImgurl());
+			i.setZoneId(d.getZoneId());
 			i.setMaxId(0);
 			i.setSid(d.getSid());
 			i.setTitle(d.getTitle());
