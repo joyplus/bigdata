@@ -178,7 +178,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				jobResultDto.setFrequency(Integer.valueOf(String.valueOf(jobResultMap.get("frequency"))));
 			}
 			if(jobResultMap.containsKey("device_name")){
-				jobResultDto.setDevice_brand((String) jobResultMap.get("device_name"));
+				jobResultDto.setDevice_name((String) jobResultMap.get("device_name"));
 			}
 			if(jobResultMap.containsKey("uv")){
 				jobResultDto.setUv(Integer.valueOf(String.valueOf(jobResultMap.get("uv"))));
@@ -186,9 +186,6 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}
 			if(jobResultMap.containsKey("impression")){
 				jobResultDto.setImpression(Integer.valueOf(String.valueOf(jobResultMap.get("impression"))));
-			}
-			if(jobResultMap.containsKey("device_name")){
-				jobResultDto.setDevice_brand((String) jobResultMap.get("device_name"));
 			}
 			if(jobResultMap.containsKey("province_code")){
 				jobResultDto.setRegion_code((String) jobResultMap.get("province_code"));
