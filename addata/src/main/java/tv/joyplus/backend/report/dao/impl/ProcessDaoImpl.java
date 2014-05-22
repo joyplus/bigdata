@@ -28,25 +28,29 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			log.error("null parameterDto, queryData faild");
 			return null;
 		}
-		if(parameterDto.getType().equals(Type.CAMPAIGN.toString())){
-			return queryByCampaignId(parameterDto);
-		}else if(parameterDto.getType().equals(Type.UNIT.toString())){
-			return queryByUnitId(parameterDto);
-		}else if(parameterDto.getType().equals(Type.PUBLICATION.toString())){
-			return queryByPublicationId(parameterDto);
-		}else if(parameterDto.getType().equals(Type.ZONE.toString())){
-			return queryByZoneId(parameterDto);
-		}else if(parameterDto.getType().equals(Type.MONITOR.toString())){
-			return queryByMonitor(parameterDto);
-		}else if(parameterDto.getType().equals(Type.MONITORUNIT.toString())){
-			return queryByMonitorunit(parameterDto);
-		}else if(parameterDto.getType().equals(Type.LOCATION.toString())){
-			return queryByLocation(parameterDto);
-		}else{
-			log.error("unkown type");
+		try{
+			if(parameterDto.getType().equals(Type.CAMPAIGN.toString())){
+				return queryByCampaignId(parameterDto);
+			}else if(parameterDto.getType().equals(Type.UNIT.toString())){
+				return queryByUnitId(parameterDto);
+			}else if(parameterDto.getType().equals(Type.PUBLICATION.toString())){
+				return queryByPublicationId(parameterDto);
+			}else if(parameterDto.getType().equals(Type.ZONE.toString())){
+				return queryByZoneId(parameterDto);
+			}else if(parameterDto.getType().equals(Type.MONITOR.toString())){
+				return queryByMonitor(parameterDto);
+			}else if(parameterDto.getType().equals(Type.MONITORUNIT.toString())){
+				return queryByMonitorunit(parameterDto);
+			}else if(parameterDto.getType().equals(Type.LOCATION.toString())){
+				return queryByLocation(parameterDto);
+			}else{
+				log.error("unkown type");
+				return null;
+			}
+		}catch(Exception e){
+			log.error(e.getMessage(),e);
 			return null;
 		}
-			
 	}
 	
 	private List<JobResultDto> queryData(Type type, ParameterDto parameterDto){
