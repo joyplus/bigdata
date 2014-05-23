@@ -22,6 +22,12 @@
 		<property name="jsonParser" ref="jacksonParser" />
 	</bean>
 
+	<bean id="bsClient" class="com.trendrr.beanstalk.BeanstalkClient">
+		<property name="addr" value="${beanstalk.addr}" />
+		<property name="port" value="${beanstalk.port}" />
+		<property name="tube" value="${beanstalk.tube}" />
+	</bean>
+
 	<bean id="dataSourceAddata"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="${addata.jdbc.driverClassName}" />
