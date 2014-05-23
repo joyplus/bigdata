@@ -54,8 +54,11 @@ buildscript {
 }
 
 jar {
-    baseName = 'gs-gradle'
+    baseName = 'logAnalyzer'
     version =  '0.1.0'
+    manifest {
+		attributes 'Implementation-Title': baseName, 'Implementation-Version': version
+    }
 }
 
 springBoot {
