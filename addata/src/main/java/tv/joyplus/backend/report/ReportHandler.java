@@ -23,8 +23,8 @@ public class ReportHandler {
 		ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:ApplicationContext.xml");
 		
 		ReportTask reportTask = (ReportTask) ctx.getBean("reportTask");
-		
-		BeanstalkClient bsClient = new BeanstalkClient("localhost", 11300, "tubeCustomizeReport");
+		BeanstalkClient bsClient = (BeanstalkClient) ctx.getBean("bsClient");
+//		BeanstalkClient bsClient = new BeanstalkClient("localhost", 11300, "tubeCustomizeReport");
 		
 		try {
 			while (true) {
