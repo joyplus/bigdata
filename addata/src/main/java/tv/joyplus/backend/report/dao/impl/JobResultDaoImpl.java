@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
-import sun.org.mozilla.javascript.internal.regexp.SubString;
 import tv.joyplus.backend.report.dao.JobResultDao;
 import tv.joyplus.backend.report.dto.JobResultDto;
 
