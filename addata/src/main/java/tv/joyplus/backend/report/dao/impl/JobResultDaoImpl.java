@@ -15,6 +15,10 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 		
 		String strSQL = null;
 		
+		if (results == null) {
+			return;
+		}
+		
 		Iterator<JobResultDto> itResult = results.iterator();
 		while (itResult.hasNext()) {
 			JobResultDto jobResultRow = itResult.next();
