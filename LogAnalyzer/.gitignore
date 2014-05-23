@@ -3,3 +3,10 @@
 /.settings
 
 *.log
+/build
+/.gradle
+/gradle
+gradlew
+gradlew.bat
+
+.project
