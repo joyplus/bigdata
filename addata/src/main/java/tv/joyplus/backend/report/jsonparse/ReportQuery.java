@@ -8,6 +8,7 @@ public class ReportQuery {
 	private String[] dateRange; 
 	private String[] items;
 	private String[] groupBy;
+	private String[] orderBy;
 	public String getType() {
 		return type;
 	}
@@ -49,5 +50,11 @@ public class ReportQuery {
 	}
 	public void setGroupBy(String[] groupBy) {
 		this.groupBy = groupBy;
+	}
+	public String[] getOrderBy() {
+		return orderBy;
+	}
+	public void setOrderBy(String[] orderBy) {
+		this.orderBy = orderBy;
 	} 
 }
