@@ -455,6 +455,9 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		.replace("city", "city_code")
 		.replace("adv_name", "creative_id")
 		.replace("adv_id", "creative_id")
+		.replace("adv_size", "creative_id")
+		.replace("adv_type", "creative_id")
+		.replace("adv_ext", "creative_id")
 		.replace("inv_id", "publication_id")
 		.replace("inv_name", "publication_id");
 	}
