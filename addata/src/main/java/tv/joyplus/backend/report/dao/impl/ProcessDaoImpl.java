@@ -170,13 +170,16 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			JobResultDto jobResultDto = new JobResultDto();
 			jobResultDto.setJob_id(Integer.valueOf(parameterDto.getReportId()));
 			if(jobResultMap.containsKey("campaign_id")){
-				jobResultDto.setCampaign_id((Integer) jobResultMap.get("campaign_id"));
+				jobResultDto.setCampaign_id(Integer.valueOf(String.valueOf(jobResultMap.get("campaign_id"))));
 			}
 			if(jobResultMap.containsKey("publication_id")){
-				jobResultDto.setPublication_id((Integer) jobResultMap.get("publication_id"));
+				jobResultDto.setPublication_id(Integer.valueOf(String.valueOf(jobResultMap.get("publication_id"))));
 			}
 			if(jobResultMap.containsKey("zone_id")){
-				jobResultDto.setZone_id((Integer) jobResultMap.get("zone_id"));
+				jobResultDto.setZone_id(Integer.valueOf(String.valueOf(jobResultMap.get("zone_id"))));
+			}
+			if(jobResultMap.containsKey("creative_id")){
+				jobResultDto.setAdv_id(Integer.valueOf(String.valueOf(jobResultMap.get("creative_id"))));
 			}
 			if(jobResultMap.containsKey("frequency")){
 				jobResultDto.setFrequency(Integer.valueOf(String.valueOf(jobResultMap.get("frequency"))));
@@ -210,8 +213,8 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 					calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
 					jobResultDto.setDate_end(dateFormat.format(calendar.getTime()));
 				}else if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
-					jobResultDto.setDate_start(dateFormat.format((String)jobResultMap.get("time_part")));
-					jobResultDto.setDate_end(dateFormat.format((String)jobResultMap.get("time_part")));
+					jobResultDto.setDate_start((String)jobResultMap.get("time_part"));
+					jobResultDto.setDate_end((String)jobResultMap.get("time_part"));
 				}else if(ParameterDto.DataCycle.BYMONTH.toString().equalsIgnoreCase(parameterDto.getDataType())){
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
 					calendar.setTime(format.parse((String)jobResultMap.get("time_part")));
@@ -225,7 +228,8 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				}
 			}catch (java.text.ParseException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+//				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 			jobResultDtos.add(jobResultDto);
 		}
@@ -401,8 +405,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 					}
 				}else{
 					String feild = replace(itemList.get(i));
-					if(!"campaign_owner".equalsIgnoreCase(feild)
-							&& !"request".equalsIgnoreCase(feild) 
+					if(!"request".equalsIgnoreCase(feild) 
 							&& !(sb.indexOf(feild)>0)){
 						sb_item = addFiled(sb_item, feild);
 					}
@@ -444,13 +447,18 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	
 	private String replace(String str){
 		return str.replace("campaign_name", "campaign_id")
+		.replace("campaign_owner", "campaign_id")
 		.replace("device_brands", "device_name")
 		.replace("zone_name", "zone_id")
-		.replace("zone_id", "zone_id")
+		.replace("zone_type", "zone_id")
+		.replace("zone_size", "zone_id")
 		.replace("province", "province_code")
 		.replace("city", "city_code")
 		.replace("adv_name", "creative_id")
 		.replace("adv_id", "creative_id")
+		.replace("adv_size", "creative_id")
+		.replace("adv_type", "creative_id")
+		.replace("adv_ext", "creative_id")
 		.replace("inv_id", "publication_id")
 		.replace("inv_name", "publication_id");
 	}
