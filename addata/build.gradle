@@ -14,10 +14,26 @@ apply plugin: 'spring-boot'
 
 sourceCompatibility = 1.5
 version = '1.0'
+
+loadConfiguration()
+
+def loadConfiguration() {
+	def environment = hasProperty( 'env' ) ? env : 'dev'
+	setProperty 'environment', environment
+    if( environment.equals( 'sit' ))
+	sourceSets.main.resources.srcDirs = ['src/main/resources/sit']
+	else if(environment.equals( 'product' ))
+	sourceSets.main.resources.srcDirs = ['src/main/resources/product']
+	else
+	sourceSets.main.resources.srcDirs = ['src/main/resources/dev']
+}
+
 jar {
     manifest {
         attributes 'Implementation-Title': 'AdData', 'Implementation-Version': version
     }
+    archiveName = "addata-$version-$environment.$extension"
+    
 }
 
 springBoot {
