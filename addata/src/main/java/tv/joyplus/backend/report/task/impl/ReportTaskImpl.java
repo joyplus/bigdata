@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.task.TaskExecutor;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -11,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import tv.joyplus.backend.report.dao.JobResultDao;
 import tv.joyplus.backend.report.dao.ProcessDao;
+import tv.joyplus.backend.report.dao.impl.ProcessDaoImpl;
 import tv.joyplus.backend.report.dto.JobResultDto;
 import tv.joyplus.backend.report.dto.ParameterDto;
 import tv.joyplus.backend.report.jsonparse.ReportParser;
@@ -25,6 +28,7 @@ public class ReportTaskImpl implements ReportTask {
 	private ProcessDao processDao;
 	
 	private ReportParser jsonParser;
+	Log log = LogFactory.getLog(ProcessDaoImpl.class);
 	
 	public JobResultDao getJobResultDao() {
 		return jobResultDao;
@@ -107,16 +111,20 @@ public class ReportTaskImpl implements ReportTask {
 			parameterDto =  jsonParser.parseParameter(jsonString);
 		} catch (JsonParseException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
+			log.error(e.getMessage());
 		} catch (JsonMappingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
+			log.error(e.getMessage());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
+			log.error(e.getMessage());
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return parameterDto;
 	}

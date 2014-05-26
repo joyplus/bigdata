@@ -42,7 +42,8 @@ public class ReportHandler {
 				reportTask.processReport(strJobText);
 				bsClient.deleteJob(job);
 			} catch (Exception e) {
-				e.printStackTrace();
+//				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 		}
 	}

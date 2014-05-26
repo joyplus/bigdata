@@ -228,7 +228,8 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				}
 			}catch (java.text.ParseException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+//				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 			jobResultDtos.add(jobResultDto);
 		}
