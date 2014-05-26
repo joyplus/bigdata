@@ -404,8 +404,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 					}
 				}else{
 					String feild = replace(itemList.get(i));
-					if(!"campaign_owner".equalsIgnoreCase(feild)
-							&& !"request".equalsIgnoreCase(feild) 
+					if(!"request".equalsIgnoreCase(feild) 
 							&& !(sb.indexOf(feild)>0)){
 						sb_item = addFiled(sb_item, feild);
 					}
@@ -447,6 +446,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	
 	private String replace(String str){
 		return str.replace("campaign_name", "campaign_id")
+		.replace("campaign_owner", "campaign_id")
 		.replace("device_brands", "device_name")
 		.replace("zone_name", "zone_id")
 		.replace("zone_type", "zone_id")
