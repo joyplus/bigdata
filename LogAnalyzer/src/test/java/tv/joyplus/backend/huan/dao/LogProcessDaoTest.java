@@ -18,7 +18,7 @@ import com.trendrr.beanstalk.BeanstalkJob;
 
 import de.ailis.pherialize.Pherialize;
 
-@ContextConfiguration(locations = {"classpath*:huan/batch.xml"})
+@ContextConfiguration(locations = {"classpath:huan/batch.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class LogProcessDaoTest {
 	@Autowired
