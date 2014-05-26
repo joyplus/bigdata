@@ -24,6 +24,30 @@ public class BeanstalkClient {
 	boolean reap = false; //this will tell the pool to reap it when returned
 	
 	protected String addr;
+	public String getAddr() {
+		return addr;
+	}
+
+	public void setAddr(String addr) {
+		this.addr = addr;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public String getTube() {
+		return tube;
+	}
+
+	public void setTube(String tube) {
+		this.tube = tube;
+	}
+
 	protected int port;
 	protected String tube;
 	
@@ -39,6 +63,10 @@ public class BeanstalkClient {
 	
 	
 	public static void main(String...strings) throws Exception{
+		
+	}
+	
+	public BeanstalkClient(){
 		
 	}
 	

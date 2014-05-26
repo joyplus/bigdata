@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/batch 
+		http://www.springframework.org/schema/batch/spring-batch.xsd 
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/jdbc 
+		http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd">
+	<import resource="classpath:ApplicationContext.xml" />
+	<context:property-placeholder location="classpath:huan/huan.properties"
+		order="1" ignore-unresolvable="true" />
+	<context:annotation-config />
+	<job id="logJob" xmlns="http://www.springframework.org/schema/batch">
+		<decision decider="decider" id="decider">
+			<next on="UNKNOWN" to="step"></next>
+			<end on="COMPLETED"></end>
+		</decision>
+		<step id="step" next="decider">
+			<tasklet>
+				<chunk reader="logItemReader" processor="logItemProcessor"
+					writer="logItemWriter" commit-interval="${commit.num}" />
+			</tasklet>
+		</step>
+	</job>
+	<bean id="logItemReader" class="org.springframework.batch.item.file.FlatFileItemReader"
+		scope="step">
+		<property name="resource" value="#{jobExecutionContext['input.file']}" />
+		<property name="lineMapper">
+			<bean
+				class="org.springframework.batch.item.file.mapping.PassThroughLineMapper" />
+		</property>
+	</bean>
+	<bean id="logItemProcessor" class="tv.joyplus.backend.huan.core.LogItemProcessor" scope="step">
+	</bean>
+	<bean id="logItemWriter" class="tv.joyplus.backend.huan.core.LogItemWriter" scope="step">
+	</bean>
+
+
+	<bean id="dataSourceAddata"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${addata.jdbc.driverClassName}" />
+		<property name="url" value="${addata.jdbc.url}" />
+		<property name="username" value="${addata.jdbc.username}" />
+		<property name="password" value="${addata.jdbc.password}" />
+	</bean>
+
+	<bean id="dataSourceProcess"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${process.jdbc.driverClassName}" />
+		<property name="url" value="${process.jdbc.url}" />
+		<property name="username" value="${process.jdbc.username}" />
+		<property name="password" value="${process.jdbc.password}" />
+	</bean>
+
+	<bean name="logInfoDBProcessor" class="tv.joyplus.backend.huan.dao.impl.LogInfoDBProcessorImpl">
+		<property name="dataSource">
+			<ref local="dataSourceAddata" />
+		</property>
+	</bean>
+	<bean name="logDataDBProcessor" class="tv.joyplus.backend.huan.dao.impl.LogDataDBProcessorImpl">
+		<property name="dataSource">
+			<ref local="dataSourceProcess" />
+		</property>
+	</bean>
+	
+	<bean id="decider" class="tv.joyplus.backend.huan.core.LogDecision"/>
+</beans>

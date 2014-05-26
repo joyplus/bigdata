@@ -5,6 +5,7 @@
 *.war
 *.ear
 
+
 addata/.classpath
 
 addata/.gradle/
@@ -12,3 +13,11 @@ addata/.gradle/
 addata/.project
 
 addata/.settings
+
+LogAnalyzer/.classpath
+
+addata/bin
+
+addata/build
+
+
