@@ -31,11 +31,11 @@ public class LogLoadLauncher {
 						job.getName(), oldJobParameters);
 				log.info(jobExecution);
 				if (jobExecution == null || jobExecution.getStatus().equals(BatchStatus.COMPLETED)) {
-					log.info("preview job is stoppt, this job will be start");
+					log.info("previews job stopped, this job will start");
 					oldJobParameters = jobParameters;
 					jobLauncher.run(job, jobParameters);
 				} else {
-					log.info("preview job isn't stoppt, this job will be exit");
+					log.info("previews job doesn't stopped, this job will exit");
 				}
 			}
 			

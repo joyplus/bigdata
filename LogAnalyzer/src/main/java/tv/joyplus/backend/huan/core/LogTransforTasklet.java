@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import tv.joyplus.backend.huan.beans.LogData;
 import tv.joyplus.backend.huan.beans.LogInfo;
+import tv.joyplus.backend.huan.beans.OperationType;
 import tv.joyplus.backend.huan.dao.LogDataDao;
 import tv.joyplus.backend.huan.dao.LogInfoDao;
 import tv.joyplus.backend.huan.dao.LogProcessDao;
@@ -51,9 +52,9 @@ public class LogTransforTasklet implements Tasklet {
 				map.put("user_pattern", "");
 				map.put("date", data.getAdDate());
 				if(data.getTitle()==null || data.getTitle().length()==0 || data.getImgurl()==null || data.getImgurl().length()==0) {
-					map.put("operation_type", "001");
+					map.put("operation_type", OperationType.TYPE_AD_NO);
 				}else{
-					map.put("operation_type", "003");
+					map.put("operation_type", OperationType.TYPE_IMPRESSION);
 				}
 				
 				map.put("operation_extra", "");

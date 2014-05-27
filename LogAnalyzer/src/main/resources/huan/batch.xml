@@ -204,7 +204,7 @@
 	<bean id="cronTriggerLogTransfor" 
                 class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="logTransforJobDetail" />
-		<property name="cronExpression" value="* * */1 * * ?" />
+		<property name="cronExpression" value="* */30 * * * ?" />
 	</bean>
 	
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
