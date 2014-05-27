@@ -37,7 +37,7 @@ public class LogDataDaoDBImpl extends JdbcDaoSupport implements LogDataDao {
 				ps.setString(9, log.getTitle());
 				ps.setLong(10, log.getZoneId());
 				ps.setTimestamp(11, new Timestamp(Calendar.getInstance().getTimeInMillis()));
-				ps.setInt(12, LogInfo.STATUS_UNPROCESSE);
+				ps.setInt(12, 0);
 			}
 			
 			@Override
@@ -49,9 +49,6 @@ public class LogDataDaoDBImpl extends JdbcDaoSupport implements LogDataDao {
 
 	@Override
 	public List<LogData> find(final LogInfo info) {
-		if(info.getTitle()==null || info.getTitle().length()==0 || info.getImgurl()==null || info.getImgurl().length()==0) {
-			return null;
-		}
 		String sql = null;
 		if(info.getMaxId()==0) {
 			sql = "SELECT * FROM md_log_data WHERE title=? AND imgurl=? ORDER BY id DESC";

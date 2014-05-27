@@ -15,7 +15,7 @@ public class AnalyzerFileInfoImpl extends JdbcDaoSupport implements
 	public void save(AnalyzerFileInfo instance) {
 		String sql = "INSERT INTO " + AnalyzerFileInfo.TableName() + "(path,filename,offset,status,create_time)"
 				+ "VALUES(?,?,?,?,?)";
-		getJdbcTemplate().update(sql, new Object[]{instance.getPath(), instance.getFilename(), 0, 0, instance.getCreateTime()});
+		getJdbcTemplate().update(sql, new Object[]{instance.getPath(), instance.getFilename(), 0, instance.getStatus(), instance.getCreateTime()});
 	}
 
 	@Override
@@ -31,9 +31,9 @@ public class AnalyzerFileInfoImpl extends JdbcDaoSupport implements
 	}
 
 	@Override
-	public void updateAnalyzed(long id) {
-		String sql = "UPDATE "+AnalyzerFileInfo.TableName()+" SET status=1 WHERE id=?";
-		getJdbcTemplate().update(sql, new Object[]{id});
+	public void updateStatus(long id, byte status) {
+		String sql = "UPDATE "+AnalyzerFileInfo.TableName()+" SET status=? WHERE id=?";
+		getJdbcTemplate().update(sql, new Object[]{status, id});
 	}
 
 }

@@ -37,6 +37,6 @@ public class LogItemWriter implements ItemWriter<LogData> {
 			infos.add(i);
 		}
 		logInfoDao.batchLogInfo(infos);
-		log.debug("write done!");
+		log.info("write done -> "+list.size());
 	}
 }

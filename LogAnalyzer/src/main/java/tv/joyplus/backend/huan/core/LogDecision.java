@@ -38,7 +38,7 @@ public class LogDecision implements JobExecutionDecider {
 		//如果有已解析的文件，更新数据库状态为已解析
 		if(context.containsKey(INPUT_FILE_ID)) {
 			log.debug("update id:" + context.getLong(INPUT_FILE_ID));
-			analyzerFileInfoDao.updateAnalyzed(context.getLong(INPUT_FILE_ID));
+			analyzerFileInfoDao.updateStatus(context.getLong(INPUT_FILE_ID), AnalyzerFileInfo.STATUS_PROCESSED);
 		}
 		if(file!=null) {
 			log.debug("poll one:"+file.getPath());

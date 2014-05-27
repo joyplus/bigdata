@@ -10,8 +10,8 @@ import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 
-public class LogTransforLauncher {
-	private final static Log log = LogFactory.getLog(LogTransforLauncher.class);
+public class LogAnalyzerLauncher {
+	private final static Log log = LogFactory.getLog(LogAnalyzerLauncher.class);
 	private static JobParameters oldJobParameters = null;
 	private JobRepository jobRepository;
 	private JobLauncher jobLauncher;
@@ -43,14 +43,17 @@ public class LogTransforLauncher {
 			log.error(e.getMessage());
 		}
 	}
+
 	public void setJobRepository(JobRepository jobRepository) {
 		this.jobRepository = jobRepository;
 	}
+
 	public void setJobLauncher(JobLauncher jobLauncher) {
 		this.jobLauncher = jobLauncher;
 	}
+
 	public void setJob(Job job) {
 		this.job = job;
 	}
-	
+
 }

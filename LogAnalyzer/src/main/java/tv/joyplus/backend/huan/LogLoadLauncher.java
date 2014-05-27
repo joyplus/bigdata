@@ -3,6 +3,7 @@ package tv.joyplus.backend.huan;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
@@ -10,8 +11,8 @@ import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 
-public class LogTransforLauncher {
-	private final static Log log = LogFactory.getLog(LogTransforLauncher.class);
+public class LogLoadLauncher {
+	private final static Log log = LogFactory.getLog(LogLoadLauncher.class);
 	private static JobParameters oldJobParameters = null;
 	private JobRepository jobRepository;
 	private JobLauncher jobLauncher;

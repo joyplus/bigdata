@@ -24,13 +24,17 @@
 	<bean id="logTransforTask" class="tv.joyplus.backend.huan.core.LogTransforTasklet">
 		<property name="businessId" value="${business.id}" />
 	</bean>
-	<job id="logAnalyzerJob" xmlns="http://www.springframework.org/schema/batch">
+	
+	<job id="logLoadJob" xmlns="http://www.springframework.org/schema/batch">
 		<step id="logLoadStep" next="logUnzipStep">
 			<tasklet ref="logLoadTask" />
 		</step>
-		<step id="logUnzipStep" next="decision">
+		<step id="logUnzipStep">
 			<tasklet ref="logUnzipTask" />
 		</step>
+	</job>
+	
+	<job id="logAnalyzerJob" xmlns="http://www.springframework.org/schema/batch">
 		<decision decider="decider" id="decision">
 			<next on="UNKNOWN" to="logAnalyzeStep"></next>
 			<end on="COMPLETED"></end>
@@ -79,6 +83,13 @@
 	<bean id="logItemProcessor" class="tv.joyplus.backend.huan.core.LogItemProcessor"
 		scope="step">
 		<property name="filename" value="#{jobExecutionContext['input.file.name']}" />
+		<property name="zones">
+			<map>
+				<entry key="infopush.debug.log">
+					<value>200</value>
+				</entry>
+			</map>
+		</property>
 	</bean>
 	<bean id="logItemWriter" class="tv.joyplus.backend.huan.core.LogItemWriter"
 		scope="step">
@@ -142,23 +153,44 @@
 		<property name="port" value="${beanstalk.port}" />
 	</bean>
 	
-	<bean id="logAnalyzerJobLauncher" class="tv.joyplus.backend.huan.logAnalyzerLauncher">
+	<bean id="logAnalyzerJobLauncher" class="tv.joyplus.backend.huan.LogAnalyzerLauncher">
+		<property name="jobRepository" ref="jobRepository" />
 		<property name="jobLauncher" ref="jobLauncher" />
 		<property name="job" ref="logAnalyzerJob" />
 	</bean>
 	
-	<bean id="logLoadJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	<bean id="logAnalyzerJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 		<property name="targetObject" ref="logAnalyzerJobLauncher" />  
  		<property name="targetMethod" value="execute" />
 	</bean>
 	
-	<bean id="cronTriggerLogLoad" 
+	<bean id="cronTriggerLogAnalyzer" lazy-init="false"
                 class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-		<property name="jobDetail" ref="logLoadJobDetail" />
-		<property name="cronExpression" value="0 */15 * * * ?" />
+		<property name="jobDetail" ref="logAnalyzerJobDetail" />
+		<property name="cronExpression" value="* */30 * * * ?" />
 	</bean>
 	
+	
+	<bean id="logLoadJobLauncher" class="tv.joyplus.backend.huan.LogLoadLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+		<property name="jobLauncher" ref="jobLauncher" />
+		<property name="job" ref="logLoadJob" />
+	</bean>
+	
+	<bean id="logLoadJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="logLoadJobLauncher" />  
+ 		<property name="targetMethod" value="execute" />
+	</bean>
+	
+	<bean id="cronTriggerLogLoad" lazy-init="false"
+                class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="logLoadJobDetail" />
+		<property name="cronExpression" value="* */30 * * * ?" />
+	</bean>
+	
+	
 	<bean id="logTransforJobLauncher" class="tv.joyplus.backend.huan.LogTransforLauncher">
+		<property name="jobRepository" ref="jobRepository" />
 		<property name="jobLauncher" ref="jobLauncher" />
 		<property name="job" ref="logTransforJob" />
 	</bean>
@@ -172,13 +204,14 @@
 	<bean id="cronTriggerLogTransfor" 
                 class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="logTransforJobDetail" />
-		<property name="cronExpression" value="0 */30 * * * ?" />
+		<property name="cronExpression" value="* */30 * * * ?" />
 	</bean>
 	
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
 				<ref bean="cronTriggerLogLoad" />
+				<ref bean="cronTriggerLogAnalyzer" />
 				<ref bean="cronTriggerLogTransfor" />
 			</list>
 		</property>

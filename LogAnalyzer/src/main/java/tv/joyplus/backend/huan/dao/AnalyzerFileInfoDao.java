@@ -8,5 +8,5 @@ public interface AnalyzerFileInfoDao {
 	public void save(AnalyzerFileInfo instance);
 	public List<AnalyzerFileInfo> listAll();
 	public List<AnalyzerFileInfo> listUnAnalyzed();
-	public void updateAnalyzed(long id);
+	public void updateStatus(long id, byte status);
 }

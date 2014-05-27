@@ -57,6 +57,7 @@ public class LogLoadTasklet implements Tasklet {
 			qiniuDao.download(downloadFileInfo.getUrl(), new File(root, downloadFileInfo.getFilename()));
 			downloadFileInfoDao.save(downloadFileInfo);
 		}
+		log.info("log load tasklet done");
 		return RepeatStatus.FINISHED;
 	}
 	public void setDownloadDir(String downloadDir) {
