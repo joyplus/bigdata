@@ -8,10 +8,11 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import tv.joyplus.backend.report.dao.JobResultDao;
 import tv.joyplus.backend.report.dto.JobResultDto;
+import tv.joyplus.backend.utility.CommonUtility;
 
 public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 
-	public void saveJobResults(List<JobResultDto> results) {
+	public void  saveJobResults(List<JobResultDto> results) {
 		
 		String strSQL = null;
 		
@@ -50,12 +51,12 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 				strCreativeName = (String) mapCreative.get("adv_name");
 				strCreativeUnitType = (String) mapCreative.get("creative_unit_type");
 				String strCreativeType = (String) mapCreative.get("adv_type");
-				if (strCreativeUnitType.compareTo("open") != 0) {
+				if ("open".equals(strCreativeUnitType)) {
 					strCreativeFile = (String) mapCreative.get("adv_creative_url");
 				} else {
-					if (strCreativeType.compareTo("2") == 0) {
+					if ("2".equals(strCreativeType)) {
 						strCreativeFile = (String) mapCreative.get("adv_creative_url_3");
-					} else if (strCreativeType.compareTo("4") == 0) {
+					} else if ("4".equals(strCreativeType)) {
 						strCreativeFile = (String) mapCreative.get("adv_creative_url_2");
 					}
 				}
@@ -64,7 +65,7 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 					strCreativeExtension = strCreativeFile.substring(strCreativeFile.lastIndexOf(".") + 1);
 				}
 				
-				if (strCreativeType.compareTo("5") == 0) {
+				if ("5".equals(strCreativeType)) {
 					strCreativeFile = (String) mapCreative.get("adv_creative_url_2");
 					if (strCreativeFile != null) {
 						strCreativeExtension = strCreativeFile.substring(strCreativeFile.lastIndexOf(".") + 1);
@@ -74,8 +75,11 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 						strCreativeExtension = strCreativeExtension + "、" + strCreativeFile.substring(strCreativeFile.lastIndexOf(".") + 1);
 					}
 				}
-				
-				strCreativeSize = (String) mapCreative.get("adv_width") + "x" + (String) mapCreative.get("adv_height");
+				String width = String.valueOf(mapCreative.get("adv_width")) ;
+				String height = String.valueOf(mapCreative.get("adv_height")) ;
+				if(!CommonUtility.isEmptyString(width) && !CommonUtility.isEmptyString(height)){
+					strCreativeSize =  width + "x" + height;
+				}
 			}
 			
 			//获取媒体信息
@@ -98,7 +102,12 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 				Map<String, Object> mapZone = itZone.next();
 				strZoneName = (String) mapZone.get("zone_name");
 				strZoneType = (String) mapZone.get("zone_type");
-				strZoneSize = (String) mapZone.get("zone_width") + "x" + (String) mapZone.get("zone_height");
+				String width = String.valueOf(mapZone.get("zone_width")) ;
+				String height = String.valueOf(mapZone.get("zone_height")) ;
+				if(!CommonUtility.isEmptyString(width) && !CommonUtility.isEmptyString(height)){
+					strZoneSize =  width + "x" + height;
+				}
+//				strZoneSize = (String) mapZone.get("zone_width") + "x" + (String) mapZone.get("zone_height");
 			}
 			
 			//获取地域信息
@@ -140,9 +149,9 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 		}
 	}
 
-	public void updateReportStatus(String reportId) {
-		String strSQL = "UPDATE md_customize_report set status=1 where report_id=?";
-		getJdbcTemplate().update(strSQL, reportId);
+	public void updateReportStatus(String reportId, int status) {
+		String strSQL = "UPDATE md_customize_report set status=? where report_id=?";
+		getJdbcTemplate().update(strSQL, status,reportId);
 	}
 
 }

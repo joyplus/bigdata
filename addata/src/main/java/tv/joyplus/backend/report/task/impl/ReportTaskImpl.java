@@ -73,9 +73,27 @@ public class ReportTaskImpl implements ReportTask {
         }
 
         public void run() {
-            System.out.println(message);
+        	ParameterDto parameterDto = parseParameter(message);
+    		List<JobResultDto> results = queryData(parameterDto);
+    		if(results !=null){
+    			try{
+    				getJobResultDao().saveJobResults(results);
+        			getJobResultDao().updateReportStatus(parameterDto.getReportId(),1);
+        			log.info("Report " + parameterDto.getReportId() + " generate success");
+    			}catch(Exception e){
+    				log.error(e.getMessage());
+    				if(parameterDto!=null){
+    					getJobResultDao().updateReportStatus(parameterDto.getReportId(),2);
+    				}
+    				log.warn("Report " + parameterDto.getReportId() + " generate faile");
+    			}
+    		}else{
+    			getJobResultDao().updateReportStatus(parameterDto.getReportId(),2);
+    			if(parameterDto!=null){
+    				log.warn("Report " + parameterDto.getReportId() + " generate faile");
+    			}
+    		}
         }
-
     }
     
     public ReportTaskImpl() {
@@ -135,9 +153,6 @@ public class ReportTaskImpl implements ReportTask {
 	}
 
 	public void processReport(String jsonString) {
-		ParameterDto parameterDto = this.parseParameter(jsonString);
-		List<JobResultDto> results = this.queryData(parameterDto);
-		this.getJobResultDao().saveJobResults(results);
-		this.getJobResultDao().updateReportStatus(parameterDto.getReportId());
+		taskExecutor.execute(new ProcessQuery(jsonString));
 	}
 }

@@ -81,6 +81,10 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 					if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
 						sqlBuilder = addFiled(sqlBuilder, "time_part");
 					}
+				}else{
+					if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+						sqlBuilder.append(" group by time_part");
+					}
 				}
 			}
 			
@@ -209,9 +213,9 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 					SimpleDateFormat format = new SimpleDateFormat("yyyyww");
 					calendar.setTime(format.parse((String)jobResultMap.get("time_part")));
 					calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-					jobResultDto.setDate_start(dateFormat.format(calendar.getTime()));
+					jobResultDto.setDate_start(dateFormat.format((parameterDto.getDateRange()[0].getTime()>=calendar.getTime().getTime())? parameterDto.getDateRange()[0] : calendar.getTime()));
 					calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
-					jobResultDto.setDate_end(dateFormat.format(calendar.getTime()));
+					jobResultDto.setDate_end(dateFormat.format((parameterDto.getDateRange()[1].getTime()<=calendar.getTime().getTime())? parameterDto.getDateRange()[1] : calendar.getTime()));
 				}else if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
 					jobResultDto.setDate_start((String)jobResultMap.get("time_part"));
 					jobResultDto.setDate_end((String)jobResultMap.get("time_part"));
@@ -219,9 +223,9 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
 					calendar.setTime(format.parse((String)jobResultMap.get("time_part")));
 					calendar.set(Calendar.DAY_OF_MONTH, 1);
-					jobResultDto.setDate_start(dateFormat.format(calendar.getTime()));
+					jobResultDto.setDate_start(dateFormat.format((parameterDto.getDateRange()[0].getTime()>=calendar.getTime().getTime())? parameterDto.getDateRange()[0] : calendar.getTime()));
 					calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-					jobResultDto.setDate_end(dateFormat.format(calendar.getTime()));
+					jobResultDto.setDate_end(dateFormat.format(parameterDto.getDateRange()[1].getTime()<=calendar.getTime().getTime()? parameterDto.getDateRange()[1] : calendar.getTime()));
 				}else{
 					jobResultDto.setDate_start(dateFormat.format(parameterDto.getDateRange()[0]));
 					jobResultDto.setDate_end(dateFormat.format(parameterDto.getDateRange()[1]));
@@ -406,7 +410,8 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				}else{
 					String feild = replace(itemList.get(i));
 					if(!"request".equalsIgnoreCase(feild) 
-							&& !(sb.indexOf(feild)>0)){
+							&& !(sb.indexOf(feild)>0)
+							&& !(sb_item.indexOf(feild)>0)){
 						sb_item = addFiled(sb_item, feild);
 					}
 				}
