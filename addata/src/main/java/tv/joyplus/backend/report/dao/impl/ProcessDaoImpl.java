@@ -406,7 +406,8 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				}else{
 					String feild = replace(itemList.get(i));
 					if(!"request".equalsIgnoreCase(feild) 
-							&& !(sb.indexOf(feild)>0)){
+							&& !(sb.indexOf(feild)>0)
+							&& !(sb_item.indexOf(feild)>0)){
 						sb_item = addFiled(sb_item, feild);
 					}
 				}
