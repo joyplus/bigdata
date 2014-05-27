@@ -167,7 +167,7 @@
 	<bean id="cronTriggerLogAnalyzer" lazy-init="false"
                 class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="logAnalyzerJobDetail" />
-		<property name="cronExpression" value="0 * * * * ?" />
+		<property name="cronExpression" value="* */30 * * * ?" />
 	</bean>
 	
 	
@@ -185,7 +185,7 @@
 	<bean id="cronTriggerLogLoad" lazy-init="false"
                 class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="logLoadJobDetail" />
-		<property name="cronExpression" value="0 0 */1 * * ?" />
+		<property name="cronExpression" value="* */30 * * * ?" />
 	</bean>
 	
 	
@@ -204,7 +204,7 @@
 	<bean id="cronTriggerLogTransfor" 
                 class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="logTransforJobDetail" />
-		<property name="cronExpression" value="* * */1 * * ?" />
+		<property name="cronExpression" value="* */30 * * * ?" />
 	</bean>
 	
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">

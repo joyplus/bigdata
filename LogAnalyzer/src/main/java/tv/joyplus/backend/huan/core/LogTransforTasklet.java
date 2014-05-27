@@ -50,7 +50,12 @@ public class LogTransforTasklet implements Tasklet {
 				map.put("device_name", data.getDeviceName());
 				map.put("user_pattern", "");
 				map.put("date", data.getAdDate());
-				map.put("operation_type", "003");
+				if(data.getTitle()==null || data.getTitle().length()==0 || data.getImgurl()==null || data.getImgurl().length()==0) {
+					map.put("operation_type", "001");
+				}else{
+					map.put("operation_type", "003");
+				}
+				
 				map.put("operation_extra", "");
 				map.put("publication_id", publicationId);
 				map.put("zone_id", data.getZoneId());

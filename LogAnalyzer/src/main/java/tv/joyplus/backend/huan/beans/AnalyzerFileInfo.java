@@ -3,6 +3,10 @@ package tv.joyplus.backend.huan.beans;
 import java.sql.Timestamp;
 
 public class AnalyzerFileInfo {
+	public final static byte STATUS_UNPROCESSE = 0x00; 	//未处理
+	public final static byte STATUS_PROCESSED = 0x01;	//已处理
+	public final static byte STATUS_LOCK = 0x02;		//处理中
+	public final static byte STATUS_EXIST = 0x04;		//已存在
 	private long id;
 	private String path;
 	private String filename;

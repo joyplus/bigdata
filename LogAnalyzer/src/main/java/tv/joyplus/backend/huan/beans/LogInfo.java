@@ -2,8 +2,7 @@ package tv.joyplus.backend.huan.beans;
 
 
 public class LogInfo {
-	public final static byte STATUS_UNPROCESSE = 0x00;
-	public final static byte STATUS_PROCESSED = 0x01;
+	
 	private String imgurl;	//素材地址
 	private String adurl;
 	private String sid;		//

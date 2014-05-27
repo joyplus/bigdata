@@ -41,7 +41,6 @@ public class LogInfoDaoDBImpl extends JdbcDaoSupport implements LogInfoDao {
 			}
 		});
 		
-		getJdbcTemplate().update("DELETE FROM md_log_info WHERE title='' OR imgurl=''");
 	}
 
 	@Override

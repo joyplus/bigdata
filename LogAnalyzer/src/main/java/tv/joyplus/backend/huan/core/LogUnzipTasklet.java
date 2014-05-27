@@ -41,20 +41,28 @@ public class LogUnzipTasklet implements Tasklet {
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext)
 			throws Exception {
 		File root = new File(unzipDir);
-		try{
-			FileUtils.forceMkdir(root);
-		}catch(Exception e){}
+		root.mkdirs();
 		
+		File saveDir = null;
 		//获取未解压的文件
 		List<DownloadFileInfo> list = downloadFileInfoDao.listUnzip();
 		for(DownloadFileInfo info : list) {
-			log.debug("Will unzip :"+info.getIdent());
+			int index = info.getIdent().lastIndexOf("/");
+			if(index != -1) {
+				String prefix = info.getIdent().substring(0, index);
+				saveDir = new File(root, prefix);
+			}else{
+				saveDir = root;
+			}
+			log.debug("Will unzip :" + info.getIdent());
+			saveDir.mkdirs();
+			
 			File unzipfile = new File(new File(info.getPath()), info.getFilename());
 			//先解压成tar文件
 			if(mimeCompress.containsKey(info.getMimeType())) {
-				deCompress(unzipfile, mimeCompress.get(info.getMimeType()));
+				deCompress(saveDir, unzipfile, mimeCompress.get(info.getMimeType()));
 			}else if(mimeArchive.containsKey(info.getMimeType())) {
-				deArchive(unzipfile, mimeArchive.get(info.getMimeType()));
+				deArchive(saveDir, unzipfile, mimeArchive.get(info.getMimeType()));
 			}
 			//标记为已解压
 			downloadFileInfoDao.updateZip(info);
@@ -68,19 +76,30 @@ public class LogUnzipTasklet implements Tasklet {
 	 * @param archiveType
 	 * @throws Exception
 	 */
-	private void deArchive(File file, String archiveType) throws Exception {
-		File root = new File(unzipDir);
+	private void deArchive(File saveDir, File file, String archiveType) throws Exception {
 		ArchiveInputStream in = new ArchiveStreamFactory().createArchiveInputStream(archiveType, new FileInputStream(file));
 		ArchiveEntry entry = null;
 		while ((entry=in.getNextEntry())!=null) {  
             if(entry.isDirectory()) {
-            	new File(root, entry.getName()).mkdirs();
+            	new File(saveDir, entry.getName()).mkdirs();
             }else{
-            	File f = new File(root, entry.getName());
-            	FileOutputStream out = new FileOutputStream(f);
-            	IOUtils.copy(in, out);
-                log.debug("unanalyzed file:"+f.getAbsolutePath());
-                addToAnalyzerTable(f.getAbsolutePath(), f.getName());
+            	File f = new File(saveDir, entry.getName());
+            	//文件存在
+            	if(f.exists()) {
+            		//已存在的文件放入临时目录
+            		File existDir = new File(saveDir, "log.file.exist.tmp");
+            		existDir.mkdirs();
+            		File exist = new File(existDir, entry.getName());
+            		FileOutputStream out = new FileOutputStream(exist);
+                	IOUtils.copy(in, out);
+                	addToAnalyzerTable(exist.getAbsolutePath(), exist.getName(), AnalyzerFileInfo.STATUS_EXIST);
+                	log.error(exist.getName()+" existed");
+            	}else{
+            		FileOutputStream out = new FileOutputStream(f);
+                	IOUtils.copy(in, out);
+                    log.debug("unanalyzed file:"+f.getAbsolutePath());
+                    addToAnalyzerTable(f.getAbsolutePath(), f.getName(), AnalyzerFileInfo.STATUS_UNPROCESSE);
+            	}
             }
 		}
 	}
@@ -91,12 +110,12 @@ public class LogUnzipTasklet implements Tasklet {
 	 * @return
 	 * @throws Exception
 	 */
-	private void deCompress(File file, String archiveType) throws Exception {
+	private void deCompress(File saveDir, File file, String archiveType) throws Exception {
 		CompressorInputStream in = new CompressorStreamFactory().createCompressorInputStream(archiveType, new FileInputStream(file));
 		File outFile = new File(file.getParent() + File.separator + "tmp.tar");
 		FileOutputStream out = new FileOutputStream(outFile);
 		IOUtils.copy(in, out);
-        deArchive(outFile, "tar");
+        deArchive(saveDir, outFile, "tar");
         outFile.delete();
 	}
 	
@@ -105,10 +124,11 @@ public class LogUnzipTasklet implements Tasklet {
 	 * @param path
 	 * @param filename
 	 */
-	private void addToAnalyzerTable(String path, String filename) {
+	private void addToAnalyzerTable(String path, String filename, int status) {
 		AnalyzerFileInfo instance = new AnalyzerFileInfo();
 		instance.setPath(path);
 		instance.setFilename(filename);
+		instance.setStatus(status);
 		instance.setCreateTime(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		analyzerFileInfoDao.save(instance);
 	}

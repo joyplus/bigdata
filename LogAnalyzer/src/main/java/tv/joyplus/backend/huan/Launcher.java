@@ -5,6 +5,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class Launcher {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-		new ClassPathXmlApplicationContext("classpath*:huan/batch.xml");
+		new ClassPathXmlApplicationContext("classpath:huan/batch.xml");
 	}
 }
