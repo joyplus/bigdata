@@ -10,7 +10,18 @@ description = """LogAnalyzer"""
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
+loadConfiguration()
 
+def loadConfiguration() {
+	def environment = hasProperty( 'env' ) ? env : 'dev'
+	setProperty 'environment', environment
+    if( environment.equals( 'sit' ))
+	sourceSets.main.resources.srcDirs = ['src/main/resources/sit']
+	else if(environment.equals( 'product' ))
+	sourceSets.main.resources.srcDirs = ['src/main/resources/product']
+	else
+	sourceSets.main.resources.srcDirs = ['src/main/resources/dev']
+}
 
 repositories {
      maven { url "http://repo.maven.apache.org/maven2" }
@@ -59,6 +70,7 @@ jar {
     manifest {
 		attributes 'Implementation-Title': baseName, 'Implementation-Version': version
     }
+    archiveName = "$baseName-$version-$environment.$extension"
 }
 
 configurations {
