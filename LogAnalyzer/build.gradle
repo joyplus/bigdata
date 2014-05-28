@@ -61,6 +61,6 @@ jar {
     }
 }
 
-springBoot {
-    mainClass = "tv.joyplus.backend.huan.Launcher"
+configurations {
+	mainClassName = 'tv.joyplus.backend.huan.Launcher'
 }
