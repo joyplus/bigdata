@@ -45,7 +45,7 @@ public class LogInfoDaoDBImpl extends JdbcDaoSupport implements LogInfoDao {
 
 	@Override
 	public List<LogInfo> findLogInfo() {
-		String sql = "SELECT * FROM md_log_info WHERE creative_id <> 0";
+		String sql = "SELECT * FROM md_log_info WHERE creative_id <> 0 OR (title='' OR imgurl='')";
 		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper<LogInfo>(LogInfo.class));
 	}
 	
