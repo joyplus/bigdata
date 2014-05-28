@@ -16,6 +16,7 @@ import tv.joyplus.backend.report.dto.JobResultDto;
 import tv.joyplus.backend.report.dto.ParameterDto;
 import tv.joyplus.backend.report.dto.ParameterDto.Type;
 import tv.joyplus.backend.utility.CommonUtility;
+import tv.joyplus.backend.utility.Const;
 
 public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 
@@ -68,14 +69,17 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}else{
 				sqlBuilder.append(condition);
 			}
+			
 			String groupBy = getGroupByFromList(parameterDto);
 			if(type == Type.PUBLICATION || type == Type.ZONE){
+				sqlBuilder.append(" and operation_type in ('001','002', '003') ");
 				sqlBuilder.append(" group by ").append(groupBy);
 				sqlBuilder = addFiled(sqlBuilder, "operation_type_temp");
 				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
 					sqlBuilder = addFiled(sqlBuilder, "time_part");
 				}
 			}else{
+				sqlBuilder.append(" and operation_type = '003' ");
 				if(!CommonUtility.isEmptyString(groupBy)){
 					sqlBuilder.append(" group by ").append(groupBy);
 					if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
@@ -93,9 +97,6 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			sqlBuilderChild1.append("select ");
 			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
 			sqlBuilderChild1.append(", if( count( * ) >=10, 10, count( * ) ) as frequency, count( * ) as impression_count ");
-			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilderChild1.append(", if( operation_type='001', '002', operation_type ) as operation_type_temp ");
-			}
 			sqlBuilderChild1.append(" from md_device_request_log ");
 			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
@@ -103,22 +104,16 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}else{
 				sqlBuilderChild1.append(condition);
 			}
+			sqlBuilderChild1.append(" and operation_type = '003' ");
 			String groupBy = getGroupByFromList(parameterDto);
 			sqlBuilderChild1.append(" group by ").append(groupBy);
 			sqlBuilderChild1 = addFiled(sqlBuilderChild1, "equipment_key");
 			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
 				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
 			}
-			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "operation_type_temp");
-			}
-			
 			sqlBuilder.append("select ");
 			sqlBuilder.append(getDataFeild(parameterDto, true, false));
 			sqlBuilder.append(", frequency, count(*) as uv, sum(impression_count) as impression ");
-			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilder = addFiled(sqlBuilder, "operation_type_temp");
-			}
 			sqlBuilder.append(" from (");
 			sqlBuilder.append(sqlBuilderChild1.toString());
 			sqlBuilder.append(" )child1 ");
@@ -131,7 +126,6 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			sqlBuilderChild1.append("select ");
 			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
 			sqlBuilderChild1.append(",count( * ) as frequency ");
-			
 			sqlBuilderChild1.append(" from md_device_request_log ");
 			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
@@ -139,21 +133,16 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}else{
 				sqlBuilderChild1.append(condition);
 			}
+			sqlBuilderChild1.append(" and operation_type = '003' ");
 			String groupBy = getGroupByFromList(parameterDto);
 			sqlBuilderChild1.append(" group by ").append(groupBy);
 			sqlBuilderChild1 = addFiled(sqlBuilderChild1, "equipment_key");
 			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
 				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
 			}
-			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "operation_type_temp");
-			}
 			sqlBuilder.append("select ");
 			sqlBuilder.append(getDataFeild(parameterDto, true, false));
 			sqlBuilder.append(", frequency, count(*) as uv, sum(frequency) as impression ");
-			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilder = addFiled(sqlBuilder, "operation_type_temp");
-			}
 			sqlBuilder.append(" from (");
 			sqlBuilder.append(sqlBuilderChild1.toString());
 			sqlBuilder.append(" )child1 ");
@@ -259,7 +248,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}else{
 				JobResultDto jobresult_1 = iterator.next();
 				if(isSameItemExceptOperationType(jobresult, jobresult_1)){
-					if("002".equals(jobresult.getOperation_type())){
+					if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
 						jobresult_1.setRequest(jobresult.getImpression());
 						jobresult_1.setUv(jobresult.getUv());
 						jobresult = jobresult_1;
@@ -267,7 +256,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 						jobresult.setRequest(jobresult_1.getImpression());
 					}
 				}else{
-					if("002".equals(jobresult.getOperation_type())){
+					if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
 						jobresult.setRequest(jobresult.getImpression());
 						jobresult.setUv(0);
 						jobresult.setImpression(0);
@@ -277,7 +266,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				}
 			}
 		}
-		if("002".equals(jobresult.getOperation_type())){
+		if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
 			jobresult.setRequest(jobresult.getImpression());
 			jobresult.setUv(0);
 			jobresult.setImpression(0);
@@ -334,25 +323,25 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		StringBuilder conditionBuilder = new StringBuilder();
 		switch (type) {
 			case CAMPAIGN:
-				conditionBuilder.append(" where campaign_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				conditionBuilder.append(" where campaign_id in ( ").append(condition).append(" ) ");
 				break;
 			case PUBLICATION:
-				conditionBuilder.append(" where publication_id in ( ").append(condition).append(" ) ").append(" and operation_type in('001','002','003') ");
+				conditionBuilder.append(" where publication_id in ( ").append(condition).append(" ) ");
 				break;
 			case UNIT:
-				conditionBuilder.append(" where creative_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				conditionBuilder.append(" where creative_id in ( ").append(condition).append(" ) ");
 				break;
 			case ZONE:
-				conditionBuilder.append(" where zone_id in ( ").append(condition).append(" ) ").append(" and operation_type in('001','002','003') ");
+				conditionBuilder.append(" where zone_id in ( ").append(condition).append(" ) ");
 				break;
 			case LOCATION:
-				conditionBuilder.append(" where city_code in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				conditionBuilder.append(" where city_code in ( ").append(condition).append(" ) ");
 				break;
 			case MONITOR:
-				conditionBuilder.append(" where campaign_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				conditionBuilder.append(" where campaign_id in ( ").append(condition).append(" ) ");
 				break;
 			case MONITORUNIT:
-				conditionBuilder.append(" where creative_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				conditionBuilder.append(" where creative_id in ( ").append(condition).append(" ) ");
 				break;
 			default:
 				conditionBuilder.append(" where 1 ");
