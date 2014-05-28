@@ -69,6 +69,9 @@
 				<entry key="application/x-gzip">
 					<value>gz</value>
 				</entry>
+				<entry key="application/x-compressed">
+					<value>gz</value>
+				</entry>
 			</map>
 		</property>
 	</bean>
