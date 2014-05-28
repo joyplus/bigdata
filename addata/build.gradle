@@ -36,8 +36,8 @@ jar {
     
 }
 
-springBoot {
-    mainClass = "tv.joyplus.backend.report.ReportHandler"
+configurations{
+	mainClassName = "tv.joyplus.backend.report.ReportHandler"
 }
 
 repositories {

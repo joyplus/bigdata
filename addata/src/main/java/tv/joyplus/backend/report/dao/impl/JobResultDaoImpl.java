@@ -4,14 +4,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import tv.joyplus.backend.report.dao.JobResultDao;
 import tv.joyplus.backend.report.dto.JobResultDto;
 import tv.joyplus.backend.utility.CommonUtility;
+import tv.joyplus.backend.utility.Const;
 
 public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 
+	protected Log log = LogFactory.getLog(JobResultDaoImpl.class);
+	
 	public void  saveJobResults(List<JobResultDto> results) {
 		
 		String strSQL = null;
@@ -51,12 +56,12 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 				strCreativeName = (String) mapCreative.get("adv_name");
 				strCreativeUnitType = (String) mapCreative.get("creative_unit_type");
 				String strCreativeType = (String) mapCreative.get("adv_type");
-				if ("open".equals(strCreativeUnitType)) {
+				if (!Const.CREATIVE_TYPE_OPEN.equals(strCreativeUnitType)) {
 					strCreativeFile = (String) mapCreative.get("adv_creative_url");
 				} else {
-					if ("2".equals(strCreativeType)) {
+					if (Const.CREATIVE_TYPE_VIDEO.equals(strCreativeType)) {
 						strCreativeFile = (String) mapCreative.get("adv_creative_url_3");
-					} else if ("4".equals(strCreativeType)) {
+					} else if (Const.CREATIVE_TYPE_ZIP.equals(strCreativeType)) {
 						strCreativeFile = (String) mapCreative.get("adv_creative_url_2");
 					}
 				}
@@ -65,7 +70,7 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 					strCreativeExtension = strCreativeFile.substring(strCreativeFile.lastIndexOf(".") + 1);
 				}
 				
-				if ("5".equals(strCreativeType)) {
+				if (Const.CREATIVE_TYPE_VIDEOANDZIP.equals(strCreativeType)) {
 					strCreativeFile = (String) mapCreative.get("adv_creative_url_2");
 					if (strCreativeFile != null) {
 						strCreativeExtension = strCreativeFile.substring(strCreativeFile.lastIndexOf(".") + 1);
@@ -77,7 +82,10 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 				}
 				String width = String.valueOf(mapCreative.get("adv_width")) ;
 				String height = String.valueOf(mapCreative.get("adv_height")) ;
-				if(!CommonUtility.isEmptyString(width) && !CommonUtility.isEmptyString(height)){
+				if(!CommonUtility.isEmptyString(width) 
+						&& !CommonUtility.isEmptyString(height)
+						&&!"null".equalsIgnoreCase(width)
+						&&!"null".equalsIgnoreCase(height)){
 					strCreativeSize =  width + "x" + height;
 				}
 			}
@@ -104,7 +112,10 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 				strZoneType = (String) mapZone.get("zone_type");
 				String width = String.valueOf(mapZone.get("zone_width")) ;
 				String height = String.valueOf(mapZone.get("zone_height")) ;
-				if(!CommonUtility.isEmptyString(width) && !CommonUtility.isEmptyString(height)){
+				if(!CommonUtility.isEmptyString(width) 
+						&& !CommonUtility.isEmptyString(height)
+						&&!"null".equalsIgnoreCase(width)
+						&&!"null".equalsIgnoreCase(height)){
 					strZoneSize =  width + "x" + height;
 				}
 //				strZoneSize = (String) mapZone.get("zone_width") + "x" + (String) mapZone.get("zone_height");
