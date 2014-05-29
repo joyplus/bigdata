@@ -18,6 +18,7 @@ import tv.joyplus.backend.report.dto.JobResultDto;
 import tv.joyplus.backend.report.dto.ParameterDto;
 import tv.joyplus.backend.report.jsonparse.ReportParser;
 import tv.joyplus.backend.report.task.ReportTask;
+import tv.joyplus.backend.utility.Const;
 
 public class ReportTaskImpl implements ReportTask {
 	
@@ -78,17 +79,17 @@ public class ReportTaskImpl implements ReportTask {
     		if(results !=null){
     			try{
     				getJobResultDao().saveJobResults(results);
-        			getJobResultDao().updateReportStatus(parameterDto.getReportId(),1);
+        			getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_SUCCESS);
         			log.info("Report " + parameterDto.getReportId() + " generate success");
     			}catch(Exception e){
     				log.error(e.getMessage());
     				if(parameterDto!=null){
-    					getJobResultDao().updateReportStatus(parameterDto.getReportId(),2);
+    					getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_FAILE);
     				}
     				log.warn("Report " + parameterDto.getReportId() + " generate faile");
     			}
     		}else{
-    			getJobResultDao().updateReportStatus(parameterDto.getReportId(),2);
+    			getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_FAILE);
     			if(parameterDto!=null){
     				log.warn("Report " + parameterDto.getReportId() + " generate faile");
     			}

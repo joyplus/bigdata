@@ -20,11 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ReportParser {
 
 	private ObjectMapper mapper;
-	private SimpleDateFormat sdf; 
+//	private SimpleDateFormat sdf; 
 	Log log = LogFactory.getLog(ProcessDaoImpl.class);
 	public ReportParser () {
 		mapper = new ObjectMapper();
-		sdf = new SimpleDateFormat("yyyy-MM-dd");
 	}
 	
 	public ParameterDto parseParameter(String param) throws JsonParseException, JsonMappingException, IOException, ParseException {
@@ -46,7 +45,7 @@ public class ReportParser {
 		
 		if(query.getDateRange()!=null){
 			List<Date> dateRange = new ArrayList<Date>();
-			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			for(String str : query.getDateRange()){
 				dateRange.add(sdf.parse(str));
 			}
