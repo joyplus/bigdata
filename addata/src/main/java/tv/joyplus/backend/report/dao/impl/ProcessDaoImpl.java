@@ -96,7 +96,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			StringBuilder sqlBuilderChild1 = new StringBuilder();
 			sqlBuilderChild1.append("select ");
 			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
-			sqlBuilderChild1.append(", if( count( * ) >=10, 10, count( * ) ) as frequency, count( * ) as impression_count ");
+			sqlBuilderChild1.append(", if( count( * ) >10, 11, count( * ) ) as frequency, count( * ) as impression_count ");
 			sqlBuilderChild1.append(" from md_device_request_log ");
 			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
@@ -117,6 +117,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			sqlBuilder.append(" from (");
 			sqlBuilder.append(sqlBuilderChild1.toString());
 			sqlBuilder.append(" )child1 ");
+			sqlBuilder.append(" where frequency > '10' ");
 			if(!CommonUtility.isEmptyString(groupBy)){
 				sqlBuilder.append(" group by ").append(groupBy);
 				sqlBuilder.append(", frequency");
