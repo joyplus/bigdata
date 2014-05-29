@@ -22,7 +22,6 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 
 	protected Log log = LogFactory.getLog(ProcessDaoImpl.class);
 
-	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	public List<JobResultDto> queryData(ParameterDto parameterDto) {
 		// TODO Auto-generated method stub
 		if(parameterDto==null){
@@ -55,6 +54,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	}
 	
 	private List<JobResultDto> queryData(Type type, ParameterDto parameterDto){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		StringBuilder sqlBuilder = new StringBuilder();
 		if(parameterDto.getFrequency()<0){
 			String condition = getConditionFromParameter(type,parameterDto);
@@ -267,12 +267,14 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				}
 			}
 		}
-		if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
-			jobresult.setRequest(jobresult.getImpression());
-			jobresult.setUv(0);
-			jobresult.setImpression(0);
+		if(jobresult!=null){
+			if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
+				jobresult.setRequest(jobresult.getImpression());
+				jobresult.setUv(0);
+				jobresult.setImpression(0);
+			}
+			jobresults.add(jobresult);
 		}
-		jobresults.add(jobresult);
 		return jobresults;
 	}
 
@@ -306,6 +308,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	}
 	
 	private String getConditionFromParameter(Type type, ParameterDto parameterDto){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		List<String> resouces = parameterDto.getDataResource();
 		if(resouces==null || resouces.size()==0){
 			return null;
