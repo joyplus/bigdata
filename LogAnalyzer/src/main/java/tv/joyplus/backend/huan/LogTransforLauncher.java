@@ -29,7 +29,7 @@ public class LogTransforLauncher {
 				JobExecution jobExecution = jobRepository.getLastJobExecution(
 						job.getName(), oldJobParameters);
 				log.info(jobExecution);
-				if (jobExecution == null || jobExecution.getStatus().equals(BatchStatus.COMPLETED)) {
+				if (jobExecution == null || !jobExecution.getStatus().isRunning()) {
 					log.info("previews job stopped, this job will start");
 					oldJobParameters = jobParameters;
 					jobLauncher.run(job, jobParameters);
