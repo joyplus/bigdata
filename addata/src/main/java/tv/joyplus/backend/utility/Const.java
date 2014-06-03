@@ -15,4 +15,10 @@ public interface Const {
 	public static final int RESULT_STATUS_SUCCESS = 1;
 	public static final int RESULT_STATUS_FAILE = 2;
 
+	
+	public static final int EXCEPTION_BADSQL = 0;
+	public static final int EXCEPTION_JSONPARSE = EXCEPTION_BADSQL + 1;
+	public static final int EXCEPTION_UNKOWN_TYPE = EXCEPTION_JSONPARSE + 1;
+	public static final int EXCEPTION_DATEPARSE = EXCEPTION_UNKOWN_TYPE + 1;
+	public static final int EXCEPTION_NULL_PARAME = EXCEPTION_DATEPARSE + 1;
 }

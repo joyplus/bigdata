@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import tv.joyplus.backend.report.dao.JobResultDao;
 import tv.joyplus.backend.report.dto.JobResultDto;
+import tv.joyplus.backend.report.exception.ReportBaseException;
 import tv.joyplus.backend.utility.CommonUtility;
 import tv.joyplus.backend.utility.Const;
 
@@ -22,7 +23,7 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 		String strSQL = null;
 		
 		if (results == null) {
-			return;
+			throw new ReportBaseException(Const.EXCEPTION_NULL_PARAME, "save parameter null", "");
 		}
 		
 		Iterator<JobResultDto> itResult = results.iterator();

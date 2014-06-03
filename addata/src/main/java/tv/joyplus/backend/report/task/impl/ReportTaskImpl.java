@@ -16,6 +16,7 @@ import tv.joyplus.backend.report.dao.ProcessDao;
 import tv.joyplus.backend.report.dao.impl.ProcessDaoImpl;
 import tv.joyplus.backend.report.dto.JobResultDto;
 import tv.joyplus.backend.report.dto.ParameterDto;
+import tv.joyplus.backend.report.exception.ReportBaseException;
 import tv.joyplus.backend.report.jsonparse.ReportParser;
 import tv.joyplus.backend.report.task.ReportTask;
 import tv.joyplus.backend.utility.Const;
@@ -74,26 +75,29 @@ public class ReportTaskImpl implements ReportTask {
         }
 
         public void run() {
-        	ParameterDto parameterDto = parseParameter(message);
-    		List<JobResultDto> results = queryData(parameterDto);
-    		if(results !=null){
-    			try{
-    				getJobResultDao().saveJobResults(results);
-        			getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_SUCCESS);
-        			log.info("Report " + parameterDto.getReportId() + " generate success");
-    			}catch(Exception e){
-    				log.error(e.getMessage());
-    				if(parameterDto!=null){
-    					getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_FAILE);
-    				}
-    				log.warn("Report " + parameterDto.getReportId() + " generate faile");
-    			}
-    		}else{
-    			getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_FAILE);
-    			if(parameterDto!=null){
-    				log.warn("Report " + parameterDto.getReportId() + " generate faile");
-    			}
-    		}
+        	ParameterDto parameterDto = null;
+        	List<JobResultDto> results = null;
+        	try {
+        		parameterDto = parseParameter(message);
+        		results = queryData(parameterDto);
+        		getJobResultDao().saveJobResults(results);
+			} catch (ReportBaseException e) {
+				// TODO: handle exception
+				log.error("ReportBaseException id : " + e.getExceptionId() + "\t error message :" + e.getErrorMessage() + "\t caseBy :" + e.getExceptionMessage());
+				if(parameterDto!=null){
+					getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_FAILE);
+					log.error("Report " + parameterDto.getReportId() + " generate faile");
+				}
+			}catch (Exception e) {
+				// TODO: handle exception
+				log.error(e.getMessage());
+				if(parameterDto!=null){
+					getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_FAILE);
+					log.error("Report " + parameterDto.getReportId() + " generate faile");
+				}
+			}
+        	log.info("Report " + parameterDto.getReportId() + " generate success");
+        	getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_SUCCESS);
         }
     }
     
@@ -128,22 +132,8 @@ public class ReportTaskImpl implements ReportTask {
 		ParameterDto parameterDto = null;
 		try {
 			parameterDto =  jsonParser.parseParameter(jsonString);
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-//			e.printStackTrace();
-			log.error(e.getMessage());
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-//			e.printStackTrace();
-			log.error(e.getMessage());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-//			e.printStackTrace();
-			log.error(e.getMessage());
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-//			e.printStackTrace();
-			log.error(e.getMessage());
+		} catch (Exception e) {
+			throw new ReportBaseException(Const.EXCEPTION_JSONPARSE, "json parse faile : " + jsonString ,e.getMessage());
 		}
 		return parameterDto;
 	}
