@@ -89,7 +89,7 @@
 		<property name="zones">
 			<map>
 				<entry key="infopush.debug.log">
-					<value>200</value>
+					<value>140</value>
 				</entry>
 			</map>
 		</property>
