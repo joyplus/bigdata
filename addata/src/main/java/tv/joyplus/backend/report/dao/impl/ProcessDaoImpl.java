@@ -9,26 +9,27 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import tv.joyplus.backend.report.dao.ProcessDao;
 import tv.joyplus.backend.report.dto.JobResultDto;
 import tv.joyplus.backend.report.dto.ParameterDto;
 import tv.joyplus.backend.report.dto.ParameterDto.Type;
+import tv.joyplus.backend.report.exception.ReportBaseException;
 import tv.joyplus.backend.utility.CommonUtility;
+import tv.joyplus.backend.utility.Const;
 
 public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 
 	protected Log log = LogFactory.getLog(ProcessDaoImpl.class);
 
-	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	public List<JobResultDto> queryData(ParameterDto parameterDto) {
 		// TODO Auto-generated method stub
 		if(parameterDto==null){
-			log.error("null parameterDto, queryData faild");
-			return null;
+			throw new ReportBaseException(Const.EXCEPTION_NULL_PARAME, "query parameter null", null);
 		}
-		try{
+		if(parameterDto.getType()!=null){
 			if(parameterDto.getType().equals(Type.CAMPAIGN.toString())){
 				return queryByCampaignId(parameterDto);
 			}else if(parameterDto.getType().equals(Type.UNIT.toString())){
@@ -44,16 +45,16 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}else if(parameterDto.getType().equals(Type.LOCATION.toString())){
 				return queryByLocation(parameterDto);
 			}else{
-				log.error("unkown type");
-				return null;
+				throw new ReportBaseException(Const.EXCEPTION_UNKOWN_TYPE, "unkown type  parameter" + parameterDto.getType(), null);
 			}
-		}catch(Exception e){
-			log.error(e.getMessage(),e);
-			return null;
+			
+		}else{
+			throw new ReportBaseException(Const.EXCEPTION_UNKOWN_TYPE, "unkown type  parameter , parameterDto.getType() is null", null);
 		}
 	}
 	
 	private List<JobResultDto> queryData(Type type, ParameterDto parameterDto){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		StringBuilder sqlBuilder = new StringBuilder();
 		if(parameterDto.getFrequency()<0){
 			String condition = getConditionFromParameter(type,parameterDto);
@@ -68,18 +69,25 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}else{
 				sqlBuilder.append(condition);
 			}
+			
 			String groupBy = getGroupByFromList(parameterDto);
 			if(type == Type.PUBLICATION || type == Type.ZONE){
+				sqlBuilder.append(" and operation_type in ('001','002', '003') ");
 				sqlBuilder.append(" group by ").append(groupBy);
 				sqlBuilder = addFiled(sqlBuilder, "operation_type_temp");
 				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
 					sqlBuilder = addFiled(sqlBuilder, "time_part");
 				}
 			}else{
+				sqlBuilder.append(" and operation_type = '003' ");
 				if(!CommonUtility.isEmptyString(groupBy)){
 					sqlBuilder.append(" group by ").append(groupBy);
 					if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
 						sqlBuilder = addFiled(sqlBuilder, "time_part");
+					}
+				}else{
+					if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+						sqlBuilder.append(" group by time_part");
 					}
 				}
 			}
@@ -88,10 +96,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			StringBuilder sqlBuilderChild1 = new StringBuilder();
 			sqlBuilderChild1.append("select ");
 			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
-			sqlBuilderChild1.append(", if( count( * ) >=10, 10, count( * ) ) as frequency, count( * ) as impression_count ");
-			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilderChild1.append(", if( operation_type='001', '002', operation_type ) as operation_type_temp ");
-			}
+			sqlBuilderChild1.append(", if( count( * ) >10, 11, count( * ) ) as frequency, count( * ) as impression_count ");
 			sqlBuilderChild1.append(" from md_device_request_log ");
 			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
@@ -99,25 +104,20 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}else{
 				sqlBuilderChild1.append(condition);
 			}
+			sqlBuilderChild1.append(" and operation_type = '003' ");
 			String groupBy = getGroupByFromList(parameterDto);
 			sqlBuilderChild1.append(" group by ").append(groupBy);
 			sqlBuilderChild1 = addFiled(sqlBuilderChild1, "equipment_key");
 			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
 				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
 			}
-			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "operation_type_temp");
-			}
-			
 			sqlBuilder.append("select ");
 			sqlBuilder.append(getDataFeild(parameterDto, true, false));
 			sqlBuilder.append(", frequency, count(*) as uv, sum(impression_count) as impression ");
-			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilder = addFiled(sqlBuilder, "operation_type_temp");
-			}
 			sqlBuilder.append(" from (");
 			sqlBuilder.append(sqlBuilderChild1.toString());
 			sqlBuilder.append(" )child1 ");
+			sqlBuilder.append(" where frequency > '10' ");
 			if(!CommonUtility.isEmptyString(groupBy)){
 				sqlBuilder.append(" group by ").append(groupBy);
 				sqlBuilder.append(", frequency");
@@ -127,7 +127,6 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			sqlBuilderChild1.append("select ");
 			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
 			sqlBuilderChild1.append(",count( * ) as frequency ");
-			
 			sqlBuilderChild1.append(" from md_device_request_log ");
 			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
@@ -135,21 +134,16 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}else{
 				sqlBuilderChild1.append(condition);
 			}
+			sqlBuilderChild1.append(" and operation_type = '003' ");
 			String groupBy = getGroupByFromList(parameterDto);
 			sqlBuilderChild1.append(" group by ").append(groupBy);
 			sqlBuilderChild1 = addFiled(sqlBuilderChild1, "equipment_key");
 			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
 				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
 			}
-			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "operation_type_temp");
-			}
 			sqlBuilder.append("select ");
 			sqlBuilder.append(getDataFeild(parameterDto, true, false));
 			sqlBuilder.append(", frequency, count(*) as uv, sum(frequency) as impression ");
-			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilder = addFiled(sqlBuilder, "operation_type_temp");
-			}
 			sqlBuilder.append(" from (");
 			sqlBuilder.append(sqlBuilderChild1.toString());
 			sqlBuilder.append(" )child1 ");
@@ -162,7 +156,14 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		log.info(sqlBuilder.toString());
 		String sql = sqlBuilder.toString();
 		List<JobResultDto> jobResultDtos = new ArrayList<JobResultDto>();
-		List<Map<String, Object>> rows = getJdbcTemplate().queryForList(sql);
+		List<Map<String, Object>> rows = null;
+		try {
+			rows = getJdbcTemplate().queryForList(sql);
+		} catch (DataAccessException e) {
+			// TODO: handle exception
+			throw new ReportBaseException(Const.EXCEPTION_BADSQL, "query faile", e);
+		}
+		
 		log.debug("result size = \t" + rows.size());
 		Iterator<Map<String, Object>> it = rows.iterator();
 		while(it.hasNext()){
@@ -170,13 +171,16 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			JobResultDto jobResultDto = new JobResultDto();
 			jobResultDto.setJob_id(Integer.valueOf(parameterDto.getReportId()));
 			if(jobResultMap.containsKey("campaign_id")){
-				jobResultDto.setCampaign_id((Integer) jobResultMap.get("campaign_id"));
+				jobResultDto.setCampaign_id(Integer.valueOf(String.valueOf(jobResultMap.get("campaign_id"))));
 			}
 			if(jobResultMap.containsKey("publication_id")){
-				jobResultDto.setPublication_id((Integer) jobResultMap.get("publication_id"));
+				jobResultDto.setPublication_id(Integer.valueOf(String.valueOf(jobResultMap.get("publication_id"))));
 			}
 			if(jobResultMap.containsKey("zone_id")){
-				jobResultDto.setZone_id((Integer) jobResultMap.get("zone_id"));
+				jobResultDto.setZone_id(Integer.valueOf(String.valueOf(jobResultMap.get("zone_id"))));
+			}
+			if(jobResultMap.containsKey("creative_id")){
+				jobResultDto.setAdv_id(Integer.valueOf(String.valueOf(jobResultMap.get("creative_id"))));
 			}
 			if(jobResultMap.containsKey("frequency")){
 				jobResultDto.setFrequency(Integer.valueOf(String.valueOf(jobResultMap.get("frequency"))));
@@ -206,26 +210,27 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 					SimpleDateFormat format = new SimpleDateFormat("yyyyww");
 					calendar.setTime(format.parse((String)jobResultMap.get("time_part")));
 					calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-					jobResultDto.setDate_start(dateFormat.format(calendar.getTime()));
+					jobResultDto.setDate_start(dateFormat.format((parameterDto.getDateRange()[0].getTime()>=calendar.getTime().getTime())? parameterDto.getDateRange()[0] : calendar.getTime()));
 					calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
-					jobResultDto.setDate_end(dateFormat.format(calendar.getTime()));
+					jobResultDto.setDate_end(dateFormat.format((parameterDto.getDateRange()[1].getTime()<=calendar.getTime().getTime())? parameterDto.getDateRange()[1] : calendar.getTime()));
 				}else if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
-					jobResultDto.setDate_start(dateFormat.format((String)jobResultMap.get("time_part")));
-					jobResultDto.setDate_end(dateFormat.format((String)jobResultMap.get("time_part")));
+					jobResultDto.setDate_start((String)jobResultMap.get("time_part"));
+					jobResultDto.setDate_end((String)jobResultMap.get("time_part"));
 				}else if(ParameterDto.DataCycle.BYMONTH.toString().equalsIgnoreCase(parameterDto.getDataType())){
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
 					calendar.setTime(format.parse((String)jobResultMap.get("time_part")));
 					calendar.set(Calendar.DAY_OF_MONTH, 1);
-					jobResultDto.setDate_start(dateFormat.format(calendar.getTime()));
+					jobResultDto.setDate_start(dateFormat.format((parameterDto.getDateRange()[0].getTime()>=calendar.getTime().getTime())? parameterDto.getDateRange()[0] : calendar.getTime()));
 					calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-					jobResultDto.setDate_end(dateFormat.format(calendar.getTime()));
+					jobResultDto.setDate_end(dateFormat.format(parameterDto.getDateRange()[1].getTime()<=calendar.getTime().getTime()? parameterDto.getDateRange()[1] : calendar.getTime()));
 				}else{
 					jobResultDto.setDate_start(dateFormat.format(parameterDto.getDateRange()[0]));
 					jobResultDto.setDate_end(dateFormat.format(parameterDto.getDateRange()[1]));
 				}
 			}catch (java.text.ParseException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+//				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 			jobResultDtos.add(jobResultDto);
 		}
@@ -251,7 +256,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}else{
 				JobResultDto jobresult_1 = iterator.next();
 				if(isSameItemExceptOperationType(jobresult, jobresult_1)){
-					if("002".equals(jobresult.getOperation_type())){
+					if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
 						jobresult_1.setRequest(jobresult.getImpression());
 						jobresult_1.setUv(jobresult.getUv());
 						jobresult = jobresult_1;
@@ -259,7 +264,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 						jobresult.setRequest(jobresult_1.getImpression());
 					}
 				}else{
-					if("002".equals(jobresult.getOperation_type())){
+					if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
 						jobresult.setRequest(jobresult.getImpression());
 						jobresult.setUv(0);
 						jobresult.setImpression(0);
@@ -269,12 +274,14 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				}
 			}
 		}
-		if("002".equals(jobresult.getOperation_type())){
-			jobresult.setRequest(jobresult.getImpression());
-			jobresult.setUv(0);
-			jobresult.setImpression(0);
+		if(jobresult!=null){
+			if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
+				jobresult.setRequest(jobresult.getImpression());
+				jobresult.setUv(0);
+				jobresult.setImpression(0);
+			}
+			jobresults.add(jobresult);
 		}
-		jobresults.add(jobresult);
 		return jobresults;
 	}
 
@@ -308,6 +315,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	}
 	
 	private String getConditionFromParameter(Type type, ParameterDto parameterDto){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		List<String> resouces = parameterDto.getDataResource();
 		if(resouces==null || resouces.size()==0){
 			return null;
@@ -326,25 +334,25 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		StringBuilder conditionBuilder = new StringBuilder();
 		switch (type) {
 			case CAMPAIGN:
-				conditionBuilder.append(" where campaign_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				conditionBuilder.append(" where campaign_id in ( ").append(condition).append(" ) ");
 				break;
 			case PUBLICATION:
-				conditionBuilder.append(" where publication_id in ( ").append(condition).append(" ) ").append(" and operation_type in('001','002','003') ");
+				conditionBuilder.append(" where publication_id in ( ").append(condition).append(" ) ");
 				break;
 			case UNIT:
-				conditionBuilder.append(" where creative_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				conditionBuilder.append(" where creative_id in ( ").append(condition).append(" ) ");
 				break;
 			case ZONE:
-				conditionBuilder.append(" where zone_id in ( ").append(condition).append(" ) ").append(" and operation_type in('001','002','003') ");
+				conditionBuilder.append(" where zone_id in ( ").append(condition).append(" ) ");
 				break;
 			case LOCATION:
-				conditionBuilder.append(" where city_code in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				conditionBuilder.append(" where city_code in ( ").append(condition).append(" ) ");
 				break;
 			case MONITOR:
-				conditionBuilder.append(" where campaign_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				conditionBuilder.append(" where campaign_id in ( ").append(condition).append(" ) ");
 				break;
 			case MONITORUNIT:
-				conditionBuilder.append(" where creative_id in ( ").append(condition).append(" ) ").append(" and operation_type = '003' ");
+				conditionBuilder.append(" where creative_id in ( ").append(condition).append(" ) ");
 				break;
 			default:
 				conditionBuilder.append(" where 1 ");
@@ -401,9 +409,9 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 					}
 				}else{
 					String feild = replace(itemList.get(i));
-					if(!"campaign_owner".equalsIgnoreCase(feild)
-							&& !"request".equalsIgnoreCase(feild) 
-							&& !(sb.indexOf(feild)>0)){
+					if(!"request".equalsIgnoreCase(feild) 
+							&& !(sb.indexOf(feild)>0)
+							&& !(sb_item.indexOf(feild)>0)){
 						sb_item = addFiled(sb_item, feild);
 					}
 				}
@@ -444,13 +452,18 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	
 	private String replace(String str){
 		return str.replace("campaign_name", "campaign_id")
+		.replace("campaign_owner", "campaign_id")
 		.replace("device_brands", "device_name")
 		.replace("zone_name", "zone_id")
-		.replace("zone_id", "zone_id")
+		.replace("zone_type", "zone_id")
+		.replace("zone_size", "zone_id")
 		.replace("province", "province_code")
 		.replace("city", "city_code")
 		.replace("adv_name", "creative_id")
 		.replace("adv_id", "creative_id")
+		.replace("adv_size", "creative_id")
+		.replace("adv_type", "creative_id")
+		.replace("adv_ext", "creative_id")
 		.replace("inv_id", "publication_id")
 		.replace("inv_name", "publication_id");
 	}

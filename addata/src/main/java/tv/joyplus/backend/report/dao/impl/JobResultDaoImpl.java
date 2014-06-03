@@ -4,19 +4,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import tv.joyplus.backend.report.dao.JobResultDao;
 import tv.joyplus.backend.report.dto.JobResultDto;
+import tv.joyplus.backend.report.exception.ReportBaseException;
+import tv.joyplus.backend.utility.CommonUtility;
+import tv.joyplus.backend.utility.Const;
 
 public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 
-	public void saveJobResults(List<JobResultDto> results) {
+	protected Log log = LogFactory.getLog(JobResultDaoImpl.class);
+	
+	public void  saveJobResults(List<JobResultDto> results) {
 		
 		String strSQL = null;
 		
 		if (results == null) {
-			return;
+			throw new ReportBaseException(Const.EXCEPTION_NULL_PARAME, "save parameter null", null);
 		}
 		
 		Iterator<JobResultDto> itResult = results.iterator();
@@ -50,12 +57,12 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 				strCreativeName = (String) mapCreative.get("adv_name");
 				strCreativeUnitType = (String) mapCreative.get("creative_unit_type");
 				String strCreativeType = (String) mapCreative.get("adv_type");
-				if (strCreativeUnitType.compareTo("open") != 0) {
+				if (!Const.CREATIVE_TYPE_OPEN.equals(strCreativeUnitType)) {
 					strCreativeFile = (String) mapCreative.get("adv_creative_url");
 				} else {
-					if (strCreativeType.compareTo("2") == 0) {
+					if (Const.CREATIVE_TYPE_VIDEO.equals(strCreativeType)) {
 						strCreativeFile = (String) mapCreative.get("adv_creative_url_3");
-					} else if (strCreativeType.compareTo("4") == 0) {
+					} else if (Const.CREATIVE_TYPE_ZIP.equals(strCreativeType)) {
 						strCreativeFile = (String) mapCreative.get("adv_creative_url_2");
 					}
 				}
@@ -64,7 +71,7 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 					strCreativeExtension = strCreativeFile.substring(strCreativeFile.lastIndexOf(".") + 1);
 				}
 				
-				if (strCreativeType.compareTo("5") == 0) {
+				if (Const.CREATIVE_TYPE_VIDEOANDZIP.equals(strCreativeType)) {
 					strCreativeFile = (String) mapCreative.get("adv_creative_url_2");
 					if (strCreativeFile != null) {
 						strCreativeExtension = strCreativeFile.substring(strCreativeFile.lastIndexOf(".") + 1);
@@ -74,8 +81,14 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 						strCreativeExtension = strCreativeExtension + "、" + strCreativeFile.substring(strCreativeFile.lastIndexOf(".") + 1);
 					}
 				}
-				
-				strCreativeSize = (String) mapCreative.get("adv_width") + "x" + (String) mapCreative.get("adv_height");
+				String width = String.valueOf(mapCreative.get("adv_width")) ;
+				String height = String.valueOf(mapCreative.get("adv_height")) ;
+				if(!CommonUtility.isEmptyString(width) 
+						&& !CommonUtility.isEmptyString(height)
+						&&!"null".equalsIgnoreCase(width)
+						&&!"null".equalsIgnoreCase(height)){
+					strCreativeSize =  width + "x" + height;
+				}
 			}
 			
 			//获取媒体信息
@@ -98,7 +111,15 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 				Map<String, Object> mapZone = itZone.next();
 				strZoneName = (String) mapZone.get("zone_name");
 				strZoneType = (String) mapZone.get("zone_type");
-				strZoneSize = (String) mapZone.get("zone_width") + "x" + (String) mapZone.get("zone_height");
+				String width = String.valueOf(mapZone.get("zone_width")) ;
+				String height = String.valueOf(mapZone.get("zone_height")) ;
+				if(!CommonUtility.isEmptyString(width) 
+						&& !CommonUtility.isEmptyString(height)
+						&&!"null".equalsIgnoreCase(width)
+						&&!"null".equalsIgnoreCase(height)){
+					strZoneSize =  width + "x" + height;
+				}
+//				strZoneSize = (String) mapZone.get("zone_width") + "x" + (String) mapZone.get("zone_height");
 			}
 			
 			//获取地域信息
@@ -140,9 +161,9 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 		}
 	}
 
-	public void updateReportStatus(String reportId) {
-		String strSQL = "UPDATE md_customize_report set status=1 where report_id=?";
-		getJdbcTemplate().update(strSQL, reportId);
+	public void updateReportStatus(String reportId, int status) {
+		String strSQL = "UPDATE md_customize_report set status=? where report_id=?";
+		getJdbcTemplate().update(strSQL, status,reportId);
 	}
 
 }

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.task.TaskExecutor;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -11,10 +13,13 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import tv.joyplus.backend.report.dao.JobResultDao;
 import tv.joyplus.backend.report.dao.ProcessDao;
+import tv.joyplus.backend.report.dao.impl.ProcessDaoImpl;
 import tv.joyplus.backend.report.dto.JobResultDto;
 import tv.joyplus.backend.report.dto.ParameterDto;
+import tv.joyplus.backend.report.exception.ReportBaseException;
 import tv.joyplus.backend.report.jsonparse.ReportParser;
 import tv.joyplus.backend.report.task.ReportTask;
+import tv.joyplus.backend.utility.Const;
 
 public class ReportTaskImpl implements ReportTask {
 	
@@ -25,6 +30,7 @@ public class ReportTaskImpl implements ReportTask {
 	private ProcessDao processDao;
 	
 	private ReportParser jsonParser;
+	Log log = LogFactory.getLog(ProcessDaoImpl.class);
 	
 	public JobResultDao getJobResultDao() {
 		return jobResultDao;
@@ -69,9 +75,30 @@ public class ReportTaskImpl implements ReportTask {
         }
 
         public void run() {
-            System.out.println(message);
+        	ParameterDto parameterDto = null;
+        	List<JobResultDto> results = null;
+        	try {
+        		parameterDto = parseParameter(message);
+        		results = queryData(parameterDto);
+        		getJobResultDao().saveJobResults(results);
+			} catch (ReportBaseException e) {
+				// TODO: handle exception
+				log.error("ReportBaseException id : " + e.getExceptionId() + "\t error message :" + e.getErrorMessage() + "\t caseBy :" + e.getException());
+				if(parameterDto!=null){
+					getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_FAILE);
+					log.error("Report " + parameterDto.getReportId() + " generate faile");
+				}
+			}catch (Exception e) {
+				// TODO: handle exception
+				log.error(e.getMessage());
+				if(parameterDto!=null){
+					getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_FAILE);
+					log.error("Report " + parameterDto.getReportId() + " generate faile");
+				}
+			}
+        	log.info("Report " + parameterDto.getReportId() + " generate success");
+        	getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_SUCCESS);
         }
-
     }
     
     public ReportTaskImpl() {
@@ -105,18 +132,8 @@ public class ReportTaskImpl implements ReportTask {
 		ParameterDto parameterDto = null;
 		try {
 			parameterDto =  jsonParser.parseParameter(jsonString);
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new ReportBaseException(Const.EXCEPTION_JSONPARSE, "json parse faile : " + jsonString ,e);
 		}
 		return parameterDto;
 	}
@@ -127,9 +144,6 @@ public class ReportTaskImpl implements ReportTask {
 	}
 
 	public void processReport(String jsonString) {
-		ParameterDto parameterDto = this.parseParameter(jsonString);
-		List<JobResultDto> results = this.queryData(parameterDto);
-		this.getJobResultDao().saveJobResults(results);
-		this.getJobResultDao().updateReportStatus(parameterDto.getReportId());
+		taskExecutor.execute(new ProcessQuery(jsonString));
 	}
 }

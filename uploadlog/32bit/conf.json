@@ -1,0 +1,10 @@
+
+
+{
+    "access_key":               "oSA3Q2aE1Wt771hCZI2j1GQ6iCLqT75C0ThGAsx5",
+    "secret_key":               "AFnuA_eS8cdwdQ_RZ1Czgrs-va8OKeeV9pYjTtMZ",
+
+    "bucket":                   "uploadlog",
+    "sync_dir":                 "<本地log源目录>",
+    "debug_level":              1
+}

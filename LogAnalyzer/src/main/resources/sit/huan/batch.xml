@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" 
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/batch 
+		http://www.springframework.org/schema/batch/spring-batch.xsd 
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.1.xsd 
+		http://www.springframework.org/schema/jdbc 
+		http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd">
+	<import resource="classpath:ApplicationContext.xml" />
+	<context:property-placeholder location="classpath:huan/huan.properties"
+		order="1" ignore-unresolvable="true" />
+	<context:annotation-config />
+	<job id="logTransforJob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="logTransforStep">
+			<tasklet ref="logTransforTask" />
+		</step>
+	</job>
+	<bean id="logTransforTask" class="tv.joyplus.backend.huan.core.LogTransforTasklet">
+		<property name="businessId" value="${business.id}" />
+	</bean>
+	
+	<job id="logLoadJob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="logLoadStep" next="logUnzipStep">
+			<tasklet ref="logLoadTask" />
+		</step>
+		<step id="logUnzipStep">
+			<tasklet ref="logUnzipTask" />
+		</step>
+	</job>
+	
+	<job id="logAnalyzerJob" xmlns="http://www.springframework.org/schema/batch">
+		<decision decider="decider" id="decision">
+			<next on="UNKNOWN" to="logAnalyzeStep"></next>
+			<end on="COMPLETED"></end>
+		</decision>
+		<step id="logAnalyzeStep" next="decision">
+			<tasklet>
+				<chunk reader="logItemReader" processor="logItemProcessor"
+					writer="logItemWriter" commit-interval="${commit.num}" />
+			</tasklet>
+		</step>
+	</job>
+	<bean id="logLoadTask" class="tv.joyplus.backend.huan.core.LogLoadTasklet">
+		<property name="downloadDir" value="${log.download.dir}" />
+	</bean>
+	<bean id="logUnzipTask" class="tv.joyplus.backend.huan.core.LogUnzipTasklet">
+		<property name="unzipDir" value="${log.dir}" />
+		<property name="mimeArchive">
+			<map>
+				<entry key="application/x-tar">
+					<value>tar</value>
+				</entry>
+				<entry key="application/zip">
+					<value>zip</value>
+				</entry>
+			</map>
+		</property>
+		<property name="mimeCompress">
+			<map>
+				<entry key="application/x-bzip">
+					<value>bzip2</value>
+				</entry>
+				<entry key="application/x-gzip">
+					<value>gz</value>
+				</entry>
+				<entry key="application/x-compressed">
+					<value>gz</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	<bean id="logItemReader" class="org.springframework.batch.item.file.FlatFileItemReader"
+		scope="step">
+		<property name="resource" value="#{jobExecutionContext['input.file']}" />
+		<property name="lineMapper">
+			<bean
+				class="org.springframework.batch.item.file.mapping.PassThroughLineMapper" />
+		</property>
+	</bean>
+	<bean id="logItemProcessor" class="tv.joyplus.backend.huan.core.LogItemProcessor"
+		scope="step">
+		<property name="filename" value="#{jobExecutionContext['input.file.name']}" />
+		<property name="zones">
+			<map>
+				<entry key="infopush.debug.log">
+					<value>200</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	<bean id="logItemWriter" class="tv.joyplus.backend.huan.core.LogItemWriter"
+		scope="step">
+	</bean>
+
+
+	<bean id="dataSourceAddata"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${addata.jdbc.driverClassName}" />
+		<property name="url" value="${addata.jdbc.url}" />
+		<property name="username" value="${addata.jdbc.username}" />
+		<property name="password" value="${addata.jdbc.password}" />
+	</bean>
+
+	<bean id="dataSourceProcess"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${process.jdbc.driverClassName}" />
+		<property name="url" value="${process.jdbc.url}" />
+		<property name="username" value="${process.jdbc.username}" />
+		<property name="password" value="${process.jdbc.password}" />
+	</bean>
+
+	<bean name="logInfoDBProcessor" class="tv.joyplus.backend.huan.dao.impl.LogInfoDaoDBImpl">
+		<property name="dataSource">
+			<ref local="dataSourceAddata" />
+		</property>
+	</bean>
+	<bean name="logDataDBProcessor" class="tv.joyplus.backend.huan.dao.impl.LogDataDaoDBImpl">
+		<property name="dataSource">
+			<ref local="dataSourceProcess" />
+		</property>
+	</bean>
+
+	<bean id="decider" class="tv.joyplus.backend.huan.core.LogDecision" />
+
+	<bean class="tv.joyplus.backend.qiniu.dao.impl.QiniuDaoImpl">
+		<property name="accessKey" value="${qiniu.accessKey}" />
+		<property name="secretKey" value="${qiniu.secretKey}" />
+		<property name="bucket" value="${qiniu.bucket}" />
+		<property name="domain" value="${qiniu.domain}" />
+	</bean>
+
+	<bean class="tv.joyplus.backend.huan.dao.impl.DownloadFileInfoImpl">
+		<property name="dataSource">
+			<ref local="dataSourceProcess" />
+		</property>
+	</bean>
+	<bean class="tv.joyplus.backend.huan.dao.impl.AnalyzerFileInfoImpl">
+		<property name="dataSource">
+			<ref local="dataSourceProcess" />
+		</property>
+	</bean>
+	<bean class="tv.joyplus.backend.huan.dao.impl.LogProcessDaoImpl">
+		<property name="dataSource">
+			<ref local="dataSourceProcess" />
+		</property>
+		<property name="tubeName" value="${beanstalk.tube.process}" />
+	</bean>
+	<bean class="com.trendrr.beanstalk.BeanstalkClient">
+		<property name="addr" value="${beanstalk.server}" />
+		<property name="port" value="${beanstalk.port}" />
+	</bean>
+	
+	<bean id="logAnalyzerJobLauncher" class="tv.joyplus.backend.huan.LogAnalyzerLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+		<property name="jobLauncher" ref="jobLauncher" />
+		<property name="job" ref="logAnalyzerJob" />
+	</bean>
+	
+	<bean id="logAnalyzerJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="logAnalyzerJobLauncher" />  
+ 		<property name="targetMethod" value="execute" />
+	</bean>
+	
+	<bean id="cronTriggerLogAnalyzer" lazy-init="false"
+                class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="logAnalyzerJobDetail" />
+		<property name="cronExpression" value="${quartz.cron.expression.logAnalyzer}" />
+	</bean>
+	
+	
+	<bean id="logLoadJobLauncher" class="tv.joyplus.backend.huan.LogLoadLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+		<property name="jobLauncher" ref="jobLauncher" />
+		<property name="job" ref="logLoadJob" />
+	</bean>
+	
+	<bean id="logLoadJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="logLoadJobLauncher" />  
+ 		<property name="targetMethod" value="execute" />
+	</bean>
+	
+	<bean id="cronTriggerLogLoad" lazy-init="false"
+                class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="logLoadJobDetail" />
+		<property name="cronExpression" value="${quartz.cron.expression.logLoad}" />
+	</bean>
+	
+	
+	<bean id="logTransforJobLauncher" class="tv.joyplus.backend.huan.LogTransforLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+		<property name="jobLauncher" ref="jobLauncher" />
+		<property name="job" ref="logTransforJob" />
+	</bean>
+	
+	
+	<bean id="logTransforJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="logTransforJobLauncher" />  
+ 		<property name="targetMethod" value="execute" />
+	</bean>
+	
+	<bean id="cronTriggerLogTransfor" 
+                class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="logTransforJobDetail" />
+		<property name="cronExpression" value="${quartz.cron.expression.logTransfor}" />
+	</bean>
+	
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="cronTriggerLogLoad" />
+				<ref bean="cronTriggerLogAnalyzer" />
+				<ref bean="cronTriggerLogTransfor" />
+			</list>
+		</property>
+	</bean>
+</beans>
