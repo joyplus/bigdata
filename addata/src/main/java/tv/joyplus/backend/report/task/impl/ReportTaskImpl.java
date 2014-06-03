@@ -83,7 +83,7 @@ public class ReportTaskImpl implements ReportTask {
         		getJobResultDao().saveJobResults(results);
 			} catch (ReportBaseException e) {
 				// TODO: handle exception
-				log.error("ReportBaseException id : " + e.getExceptionId() + "\t error message :" + e.getErrorMessage() + "\t caseBy :" + e.getExceptionMessage());
+				log.error("ReportBaseException id : " + e.getExceptionId() + "\t error message :" + e.getErrorMessage() + "\t caseBy :" + e.getException());
 				if(parameterDto!=null){
 					getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_FAILE);
 					log.error("Report " + parameterDto.getReportId() + " generate faile");
@@ -133,7 +133,7 @@ public class ReportTaskImpl implements ReportTask {
 		try {
 			parameterDto =  jsonParser.parseParameter(jsonString);
 		} catch (Exception e) {
-			throw new ReportBaseException(Const.EXCEPTION_JSONPARSE, "json parse faile : " + jsonString ,e.getMessage());
+			throw new ReportBaseException(Const.EXCEPTION_JSONPARSE, "json parse faile : " + jsonString ,e);
 		}
 		return parameterDto;
 	}

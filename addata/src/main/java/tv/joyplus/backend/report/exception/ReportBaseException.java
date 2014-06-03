@@ -7,22 +7,22 @@ public class ReportBaseException extends RuntimeException {
 	 */
 	private static final long serialVersionUID = -1444208094241940204L;
 	
-	private int exceptionId;
+	private String exceptionId;
 	private String errorMessage;
-	private String exceptionMessage;
+	private Exception exception;
 	
-	public ReportBaseException(int exceptionId, String errorMessage, String exceptionMessage){
+	public ReportBaseException(String exceptionId, String errorMessage, Exception exception){
 		super();
 		this.setExceptionId(exceptionId);
 		this.setErrorMessage(errorMessage);
-		this.setExceptionMessage(exceptionMessage);
+		this.setException(exception);
 	}
 
-	public int getExceptionId() {
+	public String getExceptionId() {
 		return exceptionId;
 	}
 
-	public void setExceptionId(int exceptionId) {
+	public void setExceptionId(String exceptionId) {
 		this.exceptionId = exceptionId;
 	}
 
@@ -34,11 +34,11 @@ public class ReportBaseException extends RuntimeException {
 		this.errorMessage = errorMessage;
 	}
 
-	public String getExceptionMessage() {
-		return exceptionMessage;
+	public Exception getException() {
+		return exception;
 	}
 
-	public void setExceptionMessage(String exceptionMessage) {
-		this.exceptionMessage = exceptionMessage;
+	public void setException(Exception exception) {
+		this.exception = exception;
 	}
 }

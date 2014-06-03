@@ -23,7 +23,7 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 		String strSQL = null;
 		
 		if (results == null) {
-			throw new ReportBaseException(Const.EXCEPTION_NULL_PARAME, "save parameter null", "");
+			throw new ReportBaseException(Const.EXCEPTION_NULL_PARAME, "save parameter null", null);
 		}
 		
 		Iterator<JobResultDto> itResult = results.iterator();

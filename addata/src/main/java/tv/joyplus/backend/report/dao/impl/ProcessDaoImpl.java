@@ -27,7 +27,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	public List<JobResultDto> queryData(ParameterDto parameterDto) {
 		// TODO Auto-generated method stub
 		if(parameterDto==null){
-			throw new ReportBaseException(Const.EXCEPTION_NULL_PARAME, "query parameter null", "");
+			throw new ReportBaseException(Const.EXCEPTION_NULL_PARAME, "query parameter null", null);
 		}
 		if(parameterDto.getType()!=null){
 			if(parameterDto.getType().equals(Type.CAMPAIGN.toString())){
@@ -45,11 +45,11 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}else if(parameterDto.getType().equals(Type.LOCATION.toString())){
 				return queryByLocation(parameterDto);
 			}else{
-				throw new ReportBaseException(Const.EXCEPTION_UNKOWN_TYPE, "unkown type  parameter ", parameterDto.getType());
+				throw new ReportBaseException(Const.EXCEPTION_UNKOWN_TYPE, "unkown type  parameter" + parameterDto.getType(), null);
 			}
 			
 		}else{
-			throw new ReportBaseException(Const.EXCEPTION_UNKOWN_TYPE, "unkown type  parameter ", "parameterDto.getType() is null");
+			throw new ReportBaseException(Const.EXCEPTION_UNKOWN_TYPE, "unkown type  parameter , parameterDto.getType() is null", null);
 		}
 	}
 	
@@ -161,7 +161,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			rows = getJdbcTemplate().queryForList(sql);
 		} catch (DataAccessException e) {
 			// TODO: handle exception
-			throw new ReportBaseException(Const.EXCEPTION_BADSQL, "query faile", e.getMessage());
+			throw new ReportBaseException(Const.EXCEPTION_BADSQL, "query faile", e);
 		}
 		
 		log.debug("result size = \t" + rows.size());
