@@ -9,12 +9,14 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import tv.joyplus.backend.report.dao.ProcessDao;
 import tv.joyplus.backend.report.dto.JobResultDto;
 import tv.joyplus.backend.report.dto.ParameterDto;
 import tv.joyplus.backend.report.dto.ParameterDto.Type;
+import tv.joyplus.backend.report.exception.ReportBaseException;
 import tv.joyplus.backend.utility.CommonUtility;
 import tv.joyplus.backend.utility.Const;
 
@@ -25,10 +27,9 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	public List<JobResultDto> queryData(ParameterDto parameterDto) {
 		// TODO Auto-generated method stub
 		if(parameterDto==null){
-			log.error("null parameterDto, queryData faild");
-			return null;
+			throw new ReportBaseException(Const.EXCEPTION_NULL_PARAME, "query parameter null", null);
 		}
-		try{
+		if(parameterDto.getType()!=null){
 			if(parameterDto.getType().equals(Type.CAMPAIGN.toString())){
 				return queryByCampaignId(parameterDto);
 			}else if(parameterDto.getType().equals(Type.UNIT.toString())){
@@ -44,12 +45,11 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}else if(parameterDto.getType().equals(Type.LOCATION.toString())){
 				return queryByLocation(parameterDto);
 			}else{
-				log.error("unkown type");
-				return null;
+				throw new ReportBaseException(Const.EXCEPTION_UNKOWN_TYPE, "unkown type  parameter" + parameterDto.getType(), null);
 			}
-		}catch(Exception e){
-			log.error(e.getMessage(),e);
-			return null;
+			
+		}else{
+			throw new ReportBaseException(Const.EXCEPTION_UNKOWN_TYPE, "unkown type  parameter , parameterDto.getType() is null", null);
 		}
 	}
 	
@@ -156,7 +156,14 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		log.info(sqlBuilder.toString());
 		String sql = sqlBuilder.toString();
 		List<JobResultDto> jobResultDtos = new ArrayList<JobResultDto>();
-		List<Map<String, Object>> rows = getJdbcTemplate().queryForList(sql);
+		List<Map<String, Object>> rows = null;
+		try {
+			rows = getJdbcTemplate().queryForList(sql);
+		} catch (DataAccessException e) {
+			// TODO: handle exception
+			throw new ReportBaseException(Const.EXCEPTION_BADSQL, "query faile", e);
+		}
+		
 		log.debug("result size = \t" + rows.size());
 		Iterator<Map<String, Object>> it = rows.iterator();
 		while(it.hasNext()){
