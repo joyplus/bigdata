@@ -237,7 +237,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		if(type == Type.PUBLICATION || type == Type.ZONE){
 			jobResultDtos = mergeRequsetAndImpression(jobResultDtos);
 		}
-		log.debug("return size = \t" + rows.size());
+		log.debug("return size = \t" + jobResultDtos.size());
 		for(JobResultDto jobResultDto : jobResultDtos){
 			log.debug(jobResultDto.toString());
 		}
@@ -506,7 +506,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		boolean isRegion_code = false;
 		if(jobResultDtoA.getRegion_code()!=null){
 			if(jobResultDtoA.getRegion_code().equals(jobResultDtoB.getRegion_code())){
-				isDateStartEquals = true;
+				isRegion_code = true;
 			}
 		}else{
 			if(jobResultDtoB.getRegion_code() == null){
