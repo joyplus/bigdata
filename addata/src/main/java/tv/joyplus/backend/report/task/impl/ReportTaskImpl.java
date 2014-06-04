@@ -81,6 +81,8 @@ public class ReportTaskImpl implements ReportTask {
         		parameterDto = parseParameter(message);
         		results = queryData(parameterDto);
         		getJobResultDao().saveJobResults(results);
+        		log.info("Report " + parameterDto.getReportId() + " generate success");
+            	getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_SUCCESS);
 			} catch (ReportBaseException e) {
 				// TODO: handle exception
 				log.error("ReportBaseException id : " + e.getExceptionId() + "\t error message :" + e.getErrorMessage() + "\t caseBy :" + e.getException());
@@ -96,8 +98,6 @@ public class ReportTaskImpl implements ReportTask {
 					log.error("Report " + parameterDto.getReportId() + " generate faile");
 				}
 			}
-        	log.info("Report " + parameterDto.getReportId() + " generate success");
-        	getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_SUCCESS);
         }
     }
     
