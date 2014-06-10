@@ -53,6 +53,7 @@
 		<property name="dataSource">
 			<ref local="dataSourceProcess" />
 		</property>
+		<property name="business_id" value="${business_id}" />
 	</bean>
 	<bean name="jacksonParser" class="tv.joyplus.backend.report.jsonparse.ReportParser">
 	</bean>

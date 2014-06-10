@@ -27,11 +27,11 @@ import tv.joyplus.backend.report.dto.ParameterDto;
  *   
  *   INSERT INTO  `process`.`md_device_request_log` (`equipment_sn` ,`equipment_key` ,`device_id` ,`device_name` ,`user_pattern` ,`ad_date` ,`datetime` ,`client_time` ,`operation_type` ,`operation_extra` ,`publication_id` ,`zone_id` ,`campaign_id` ,`creative_id` ,`client_ip` ,`screen_type` ,`province_code` ,`city_code` ,`business_id`)
 	 VALUES (
-	 '',  'e04bb348b65e5c80b15792325c186d76', NULL ,  'E780U',  '',  '2012-01-10',  '2012-01-10 12:00:00', NULL ,  '003',  '',  '48',  '135',  '44',  '10',  '113.90.108.178', NULL ,  'CN_19',  'CN_19_199',  '0'
+	 '',  'e04bb348b65e5c80b15792325c186d76', NULL ,  'E780U',  '',  '2012-01-10',  '2012-01-10 12:00:00', NULL ,  '003',  '',  '48',  '135',  '44',  '10',  '113.90.108.178', NULL ,  'CN_19',  'CN_19_199',  'MDADV'
 	 );
 	 INSERT INTO  `process`.`md_device_request_log` (`equipment_sn` ,`equipment_key` ,`device_id` ,`device_name` ,`user_pattern` ,`ad_date` ,`datetime` ,`client_time` ,`operation_type` ,`operation_extra` ,`publication_id` ,`zone_id` ,`campaign_id` ,`creative_id` ,`client_ip` ,`screen_type` ,`province_code` ,`city_code` ,`business_id`)
 	 VALUES (
-	 '',  'e04bb348b65e5c80b15792325c186d76', NULL ,  'E780U',  '',  '2012-01-10',  '2012-01-10 12:00:00', NULL ,  '002',  '',  '48',  '135',  '44',  '10',  '113.90.108.178', NULL ,  'CN_19',  'CN_19_199',  '0'
+	 '',  'e04bb348b65e5c80b15792325c186d76', NULL ,  'E780U',  '',  '2012-01-10',  '2012-01-10 12:00:00', NULL ,  '002',  '',  '48',  '135',  '44',  '10',  '113.90.108.178', NULL ,  'CN_19',  'CN_19_199',  'MDADV'
 	 );
  * 
  * 

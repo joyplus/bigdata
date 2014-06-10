@@ -23,9 +23,19 @@ import tv.joyplus.backend.utility.Const;
 public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 
 	protected Log log = LogFactory.getLog(ProcessDaoImpl.class);
+	private String business_id;
+
+	public String getBusiness_id() {
+		return business_id;
+	}
+
+	public void setBusiness_id(String business_id) {
+		this.business_id = business_id;
+	}
 
 	public List<JobResultDto> queryData(ParameterDto parameterDto) {
 		// TODO Auto-generated method stub
+		log.info(business_id);
 		if(parameterDto==null){
 			throw new ReportBaseException(Const.EXCEPTION_NULL_PARAME, "query parameter null", null);
 		}
@@ -381,6 +391,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				.append(dateFormat.format(parameterDto.getDateRange()[1]))
 				.append("' ");
 		}
+		conditionBuilder.append("and business_id='").append(business_id).append("'");
 		return conditionBuilder.toString();
 	}
 	private String getGroupByFromList(ParameterDto parameterDto){
