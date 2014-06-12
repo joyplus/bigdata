@@ -21,4 +21,12 @@ public interface Const {
 	public static final String EXCEPTION_UNKOWN_TYPE = 	"00003";
 	public static final String EXCEPTION_DATEPARSE = 	"00004";
 	public static final String EXCEPTION_NULL_PARAME = 	"00005";
+	
+	
+	public static final String CACHE_DVERTISER_CAMPAIGN_NAME_BY_CAMPAIGNID 	= "_CACHE_DVERTISER_CAMPAIGN_NAME_BY_CAMPAIGNID_";
+	public static final String CACHE_AD_UNITS_BYID 							= "_CACHE_AD_UNITS_BYID_";
+	public static final String CACHE_PUBLICATIONS_BYID 						= "_CACHE_PUBLICATIONS_BYID_";
+	public static final String CACHE_REGIONAL_TARGETING_BYCODE 				= "_CACHE_REGIONAL_TARGETING_BYCODE_";
+	public static final String CACHE_DEVICE_DATA_BYNAME 					= "_CACHE_DEVICE_DATA_BYNAME_";
+	public static final String CACHE_ZONES_BYID 							= "_CACHE_ZONES_BYID_";
 }
