@@ -52,15 +52,15 @@ public class LogInfoDaoDBImpl extends JdbcDaoSupport implements LogInfoDao {
 	
 
 	@Override
-	public void updateMaxId(final LogData data) {
+	public void updateMaxId(final LogInfo info) {
 		String sql = "UPDATE md_log_info SET max_id=? WHERE title=? AND imgurl=?";
 		getJdbcTemplate().update(sql, new PreparedStatementSetter(){
 
 			@Override
 			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setLong(1, data.getId());
-				ps.setString(2, data.getTitle());
-				ps.setString(3, data.getImgurl());
+				ps.setLong(1, info.getMaxId());
+				ps.setString(2, info.getTitle());
+				ps.setString(3, info.getImgurl());
 			}});
 	}
 
