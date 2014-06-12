@@ -8,7 +8,7 @@ import tv.joyplus.backend.huan.beans.LogInfo;
 public interface LogInfoDao {
 	public void batchLogInfo(List<? extends LogInfo> list);
 	public List<LogInfo> findLogInfo();
-	public void updateMaxId(LogData data);
+	public void updateMaxId(LogInfo info);
 	public long getCampaignId(long creativeId);
 	public long getPublicationId(long zoneId);
 }
