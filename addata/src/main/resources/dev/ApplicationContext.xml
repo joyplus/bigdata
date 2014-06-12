@@ -18,7 +18,7 @@
 	<bean id="reportTask" class="tv.joyplus.backend.report.task.impl.ReportTaskImpl">
 		<property name="taskExecutor" ref="simpleAsyncTaskExecutor" />
 		<property name="processDao" ref="processDBProcessor" />
-		<property name="jobResultDao" ref="jobResultDBProcessor" />
+		<property name="jobResultDao" ref="jobResultDBProcessorWithCache" />
 		<property name="jsonParser" ref="jacksonParser" />
 	</bean>
 
@@ -49,11 +49,32 @@
 			<ref local="dataSourceAddata" />
 		</property>
 	</bean>
+	
+	<bean name="jobResultDBProcessorWithCache" class="tv.joyplus.backend.report.dao.impl.JobResultDaoImplWithCache">
+		<property name="dataSource">
+			<ref local="dataSourceAddata" />
+		</property>
+		<property name="memCache">
+			<ref local="memCache" />
+		</property>
+		<property name="business_id" value="${business_id}" />
+	</bean>
 	<bean name="processDBProcessor" class="tv.joyplus.backend.report.dao.impl.ProcessDaoImpl">
 		<property name="dataSource">
 			<ref local="dataSourceProcess" />
 		</property>
+		<property name="business_id" value="${business_id}" />
 	</bean>
-	<bean name="jacksonParser" class="tv.joyplus.backend.report.jsonparse.ReportParser">
+	<bean name="jacksonParser" class="tv.joyplus.backend.report.jsonparse.ReportParser" />
+	<bean name="memCache" class="tv.joyplus.backend.report.memcache.MemCached">
+		<constructor-arg index="0">
+			<value>${memcache.servers}</value>
+		</constructor-arg>
+		<constructor-arg index="1">
+			<value >${memcache.weights}</value>
+		</constructor-arg>
+		<constructor-arg index="2">
+			<value>${memcache.cachetime}</value>
+		</constructor-arg>
 	</bean>
 </beans>

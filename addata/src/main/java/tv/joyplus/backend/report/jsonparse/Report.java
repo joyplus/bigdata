@@ -4,6 +4,7 @@ public class Report {
 
 	private int report_id;
 	private String queryJson;
+	private String timestamp;
 	public int getReport_id() {
 		return report_id;
 	}
@@ -15,5 +16,11 @@ public class Report {
 	}
 	public void setQueryJson(String queryJson) {
 		this.queryJson = queryJson;
+	}
+	public String getTimestamp() {
+		return timestamp;
+	}
+	public void setTimestamp(String timestamp) {
+		this.timestamp = timestamp;
 	}
 }
