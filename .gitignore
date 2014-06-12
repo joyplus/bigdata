@@ -1,7 +1,7 @@
 *.class
 
 # Package Files #
-*.jar
+#*.jar
 *.war
 *.ear
 
@@ -19,5 +19,7 @@ LogAnalyzer/.classpath
 addata/bin
 
 addata/build
+
+addata/gradle
 
 
