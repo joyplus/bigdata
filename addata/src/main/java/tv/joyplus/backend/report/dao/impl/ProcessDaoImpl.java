@@ -139,8 +139,14 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			if(!CommonUtility.isEmptyString(groupBy)){
 				sqlBuilder.append(" group by ").append(groupBy);
 				sqlBuilder.append(", frequency");
+				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_part");
+				}
 			}else{
 				sqlBuilder.append("group by frequency");
+				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_part");
+				}
 			}
 		}else{
 			StringBuilder sqlBuilderChild1 = new StringBuilder();
@@ -175,8 +181,14 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			if(!CommonUtility.isEmptyString(groupBy)){
 				sqlBuilder.append(" group by ").append(groupBy);
 				sqlBuilder.append(", frequency");
+				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_part");
+				}
 			}else{
 				sqlBuilder.append("group by frequency");
+				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_part");
+				}
 			}
 		}
 		log.info(sqlBuilder.toString());
