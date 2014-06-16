@@ -83,11 +83,11 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			String groupBy = getGroupByFromList(parameterDto);
 			if(type == Type.PUBLICATION || type == Type.ZONE){
 				sqlBuilder.append(" and operation_type in ('001','002', '003') ");
-				sqlBuilder.append(" group by ").append(groupBy);
 				if(!CommonUtility.isEmptyString(groupBy)){
+					sqlBuilder.append(" group by ").append(groupBy);
 					sqlBuilder = addFiled(sqlBuilder, "operation_type_temp");
 				}else{
-					sqlBuilder.append(" operation_type_temp");
+					sqlBuilder.append(" group by operation_type_temp");
 				}
 				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
 					sqlBuilder = addFiled(sqlBuilder, "time_part");
@@ -120,11 +120,11 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}
 			sqlBuilderChild1.append(" and operation_type = '003' ");
 			String groupBy = getGroupByFromList(parameterDto);
-			sqlBuilderChild1.append(" group by ").append(groupBy);
 			if(!CommonUtility.isEmptyString(groupBy)){
+				sqlBuilderChild1.append(" group by ").append(groupBy);
 				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "equipment_key");
 			}else{
-				sqlBuilderChild1.append(" equipment_key");
+				sqlBuilderChild1.append(" group by equipment_key");
 			}
 			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
 				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
