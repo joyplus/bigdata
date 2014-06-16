@@ -21,6 +21,7 @@
 		<property name="jobResultDao" ref="jobResultDBProcessorWithCache" />
 		<property name="jsonParser" ref="jacksonParser" />
 	</bean>
+	
 
 	<bean id="bsClient" class="com.trendrr.beanstalk.BeanstalkClient">
 		<property name="addr" value="${beanstalk.addr}" />
@@ -34,6 +35,14 @@
 		<property name="url" value="${addata.jdbc.url}" />
 		<property name="username" value="${addata.jdbc.username}" />
 		<property name="password" value="${addata.jdbc.password}" />
+	</bean>
+	
+	<bean id="dataSourceHive"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${hive.jdbc.driverClassName}" />
+		<property name="url" value="${hive.jdbc.url}" />
+		<property name="username" value="${hive.jdbc.username}" />
+		<property name="password" value="${hive.jdbc.password}" />
 	</bean>
 
 	<bean id="dataSourceProcess"
@@ -65,6 +74,15 @@
 		</property>
 		<property name="business_id" value="${business_id}" />
 	</bean>
+	
+	<bean name="processHiveProcessor" class="tv.joyplus.backend.report.dao.impl.ProcessDaoImplWithHive">
+		<property name="dataSource">
+			<ref local="dataSourceHive" />
+		</property>
+		<property name="business_id" value="${business_id}" />
+		<property name="hive_table_name" value="${hive.table.name}" />
+	</bean>
+	
 	<bean name="jacksonParser" class="tv.joyplus.backend.report.jsonparse.ReportParser" />
 	<bean name="memCache" class="tv.joyplus.backend.report.memcache.MemCached">
 		<constructor-arg index="0">
