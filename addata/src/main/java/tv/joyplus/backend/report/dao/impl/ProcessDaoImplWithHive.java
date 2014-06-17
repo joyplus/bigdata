@@ -402,39 +402,71 @@ public class ProcessDaoImplWithHive extends JdbcDaoSupport implements ProcessDao
 		log.debug("mergeRequsetAndImpression");
 		Iterator<JobResultDto> iterator = jobResultDtos.iterator();
 		List<JobResultDto> jobresults = new ArrayList<JobResultDto>();
-		JobResultDto jobresult = null;
+//		JobResultDto jobresult = null;
+//		while(iterator.hasNext()){
+//			if(jobresult == null){
+//				jobresult = iterator.next();
+//			}else{
+//				JobResultDto jobresult_1 = iterator.next();
+//				if(isSameItemExceptOperationType(jobresult, jobresult_1)){
+//					if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
+//						jobresult_1.setRequest(jobresult.getImpression());
+//						jobresult_1.setUv(jobresult.getUv());
+//						jobresult = jobresult_1;
+//					}else{
+//						jobresult.setRequest(jobresult_1.getImpression());
+//					}
+//				}else{
+//					if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
+//						jobresult.setRequest(jobresult.getImpression());
+//						jobresult.setUv(0);
+//						jobresult.setImpression(0);
+//					}
+//					jobresults.add(jobresult);
+//					jobresult = jobresult_1;
+//				}
+//			}
+//		}
+//		if(jobresult!=null){
+//			if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
+//				jobresult.setRequest(jobresult.getImpression());
+//				jobresult.setUv(0);
+//				jobresult.setImpression(0);
+//			}
+//			jobresults.add(jobresult);
+//		}
 		while(iterator.hasNext()){
-			if(jobresult == null){
-				jobresult = iterator.next();
+			JobResultDto jobresult = iterator.next();
+			if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
+				jobresult.setRequest(jobresult.impression);
+				jobresult.setImpression(0);
+				jobresult.setUv(0);
+			}else if(Const.OPERATION_TYPE_IMPRESSION.equals(jobresult.getOperation_type())){
+				jobresult.setRequest(0);
+			}
+			if(jobresults.size()==0){
+				jobresults.add(jobresult);
 			}else{
-				JobResultDto jobresult_1 = iterator.next();
-				if(isSameItemExceptOperationType(jobresult, jobresult_1)){
-					if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
-						jobresult_1.setRequest(jobresult.getImpression());
-						jobresult_1.setUv(jobresult.getUv());
-						jobresult = jobresult_1;
-					}else{
-						jobresult.setRequest(jobresult_1.getImpression());
+				boolean hasFlag = false;
+				for (int i = 0; i < jobresults.size(); i++) {
+					JobResultDto jobresult_1 = jobresults.get(i);
+					if(isSameItemExceptOperationType(jobresult, jobresult_1)){
+						if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
+							jobresult_1.setRequest(jobresult.impression);
+						}else if(Const.OPERATION_TYPE_IMPRESSION.equals(jobresult.getOperation_type())){
+							jobresult_1.setImpression(jobresult.getImpression());
+							jobresult_1.setUv(jobresult.getUv());
+						}
+						hasFlag = true;
+						break;
 					}
-				}else{
-					if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
-						jobresult.setRequest(jobresult.getImpression());
-						jobresult.setUv(0);
-						jobresult.setImpression(0);
-					}
+				}
+				if(!hasFlag){
 					jobresults.add(jobresult);
-					jobresult = jobresult_1;
 				}
 			}
 		}
-		if(jobresult!=null){
-			if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
-				jobresult.setRequest(jobresult.getImpression());
-				jobresult.setUv(0);
-				jobresult.setImpression(0);
-			}
-			jobresults.add(jobresult);
-		}
+			
 		return jobresults;
 	}
 
