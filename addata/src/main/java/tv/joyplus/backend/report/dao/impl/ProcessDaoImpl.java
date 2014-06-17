@@ -82,7 +82,11 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			
 			String groupBy = getGroupByFromList(parameterDto);
 			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilder.append(" and operation_type in ('001','002', '003') ");
+				if(parameterDto.getItems().contains("request")){
+					sqlBuilder.append(" and operation_type in ('001','002', '003') ");
+				}else{
+					sqlBuilder.append(" and operation_type = '003' ");
+				}
 				if(!CommonUtility.isEmptyString(groupBy)){
 					sqlBuilder.append(" group by ").append(groupBy);
 					sqlBuilder = addFiled(sqlBuilder, "operation_type_temp");

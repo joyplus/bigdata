@@ -101,7 +101,11 @@ public class ProcessDaoImplWithHive extends JdbcDaoSupport implements ProcessDao
 			
 			String groupBy = getGroupByFromList(parameterDto);
 			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilder.append(" and operation_type in ('001','002', '003') ");
+				if(parameterDto.getItems().contains("request")){
+					sqlBuilder.append(" and operation_type in ('001','002', '003') ");
+				}else{
+					sqlBuilder.append(" and operation_type = '003' ");
+				}
 				if(!CommonUtility.isEmptyString(groupBy)){
 					sqlBuilder.append(" group by ").append(groupBy);
 					sqlBuilder = addFiled(sqlBuilder, "operation_type_temp");
@@ -230,7 +234,7 @@ public class ProcessDaoImplWithHive extends JdbcDaoSupport implements ProcessDao
 				sqlBuilderChild1.append("(select * , year(dt) as time_year, month(dt) as time_month, day(dt) as time_day, weekofyear(dt) as time_week "
 						+ "from ").append(hive_table_name).append(")child1 ");
 			}else{
-				sqlBuilderChild1.append("hive_table_name");
+				sqlBuilderChild1.append(hive_table_name);
 			}
 			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
