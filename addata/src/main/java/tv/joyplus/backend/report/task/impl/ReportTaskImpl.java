@@ -1,15 +1,10 @@
 package tv.joyplus.backend.report.task.impl;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.task.TaskExecutor;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 import tv.joyplus.backend.report.dao.JobResultDao;
 import tv.joyplus.backend.report.dao.ProcessDao;
@@ -30,6 +25,9 @@ public class ReportTaskImpl implements ReportTask {
 	private ProcessDao processDao;
 	
 	private ReportParser jsonParser;
+	
+	private int maxResult;
+	
 	Log log = LogFactory.getLog(ProcessDaoImpl.class);
 	
 	public JobResultDao getJobResultDao() {
@@ -64,6 +62,14 @@ public class ReportTaskImpl implements ReportTask {
 	public void setJsonParser(ReportParser jsonParser) {
 		this.jsonParser = jsonParser;
 	}
+	
+	public int getMaxResult() {
+		return maxResult;
+	}
+
+	public void setMaxResult(int maxResult) {
+		this.maxResult = maxResult;
+	}
 
 
 	private class ProcessQuery implements Runnable {
@@ -80,9 +86,15 @@ public class ReportTaskImpl implements ReportTask {
         	try {
         		parameterDto = parseParameter(message);
         		results = queryData(parameterDto);
-        		getJobResultDao().saveJobResults(results);
-        		log.info("Report " + parameterDto.getReportId() + " generate success");
-            	getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_SUCCESS);
+        		if(results.size()<maxResult){
+        			getJobResultDao().saveJobResults(results);
+            		log.info("Report " + parameterDto.getReportId() + " generate success");
+                	getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_SUCCESS);
+        		}else{
+        			log.info("Report " + parameterDto.getReportId() + " generate faile because resultset is too large");
+                	getJobResultDao().updateReportStatus(parameterDto.getReportId(),Const.RESULT_STATUS_TOO_LARGE);
+        		}
+        		
 			} catch (ReportBaseException e) {
 				// TODO: handle exception
 				log.error("ReportBaseException id : " + e.getExceptionId() + "\t error message :" + e.getErrorMessage() + "\t caseBy :" + e.getException());
