@@ -20,6 +20,7 @@
 		<property name="processDao" ref="processDBProcessor" />
 		<property name="jobResultDao" ref="jobResultDBProcessorWithCache" />
 		<property name="jsonParser" ref="jacksonParser" />
+		<property name="maxResult" value="${report_max_result}" />
 	</bean>
 	
 
