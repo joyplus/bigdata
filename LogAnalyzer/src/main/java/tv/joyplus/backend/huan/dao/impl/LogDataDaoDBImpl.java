@@ -1,5 +1,6 @@
 package tv.joyplus.backend.huan.dao.impl;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -64,5 +65,12 @@ public class LogDataDaoDBImpl extends JdbcDaoSupport implements LogDataDao {
 				}
 			}, new BeanPropertyRowMapper<LogData>(LogData.class));
 	}
+
+	@Override
+	public Connection GetConnection() {
+		return getConnection();
+	}
+	
+	
 	
 }

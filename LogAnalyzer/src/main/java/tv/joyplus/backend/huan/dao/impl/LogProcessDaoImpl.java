@@ -30,13 +30,25 @@ public class LogProcessDaoImpl extends JdbcDaoSupport implements LogProcessDao {
 			for(Map p : list) {
 				String serialize = Pherialize.serialize(p);
 				byte[] data = Pherialize.serialize(serialize).getBytes();
-				log.debug(new String(data));
 				beanstalk.put(1L, 0, 120, data);
 			}
 		} catch (BeanstalkException e) {
-			throw new TaskException("");
+			log.error(e.getMessage());
 		}
 	}
+	
+	@Override
+	public void process(Map map) {
+		try {
+			beanstalk.useTube(tubeName);
+			String serialize = Pherialize.serialize(map);
+			byte[] data = Pherialize.serialize(serialize).getBytes();
+			beanstalk.put(1L, 0, 120, data);
+		} catch (BeanstalkException e) {
+			log.error(e.getMessage());
+		}
+	}
+
 	public void setTubeName(String tubeName) {
 		this.tubeName = tubeName;
 	}

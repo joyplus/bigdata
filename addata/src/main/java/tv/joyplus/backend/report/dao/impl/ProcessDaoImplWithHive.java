@@ -20,10 +20,11 @@ import tv.joyplus.backend.report.exception.ReportBaseException;
 import tv.joyplus.backend.utility.CommonUtility;
 import tv.joyplus.backend.utility.Const;
 
-public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
+public class ProcessDaoImplWithHive extends JdbcDaoSupport implements ProcessDao {
 
-	protected Log log = LogFactory.getLog(ProcessDaoImpl.class);
+	protected Log log = LogFactory.getLog(ProcessDaoImplWithHive.class);
 	private String business_id;
+	private String hive_table_name;
 
 	public String getBusiness_id() {
 		return business_id;
@@ -31,6 +32,14 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 
 	public void setBusiness_id(String business_id) {
 		this.business_id = business_id;
+	}
+	
+	public String getHive_table_name() {
+		return hive_table_name;
+	}
+
+	public void setHive_table_name(String hive_table_name) {
+		this.hive_table_name = hive_table_name;
 	}
 
 	public List<JobResultDto> queryData(ParameterDto parameterDto) {
@@ -69,11 +78,21 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		if(parameterDto.getFrequency()<0){
 			String condition = getConditionFromParameter(type,parameterDto);
 			sqlBuilder.append("select ");
-			sqlBuilder.append(getDataFeild(parameterDto, false, true));
-			if(type == Type.PUBLICATION || type == Type.ZONE){
-				sqlBuilder.append(", if( operation_type='001', '002', operation_type ) as operation_type_temp ");
+			sqlBuilder.append(getDataFeild(parameterDto, false));
+			sqlBuilder.append(" from ");
+			if((type == Type.PUBLICATION || type == Type.ZONE) && !ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+				sqlBuilder.append("(select * ,if(operation_type='001', '002', operation_type) as operation_type_temp, "
+						+ "year(dt) as time_year, month(dt) as time_month, day(dt) as time_day, weekofyear(dt) as time_week "
+						+ "from ").append(hive_table_name).append(")child1 ");
+			}else if((type == Type.PUBLICATION || type == Type.ZONE) && ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+				sqlBuilder.append("(select * ,if(operation_type='001', '002', operation_type) as operation_type_temp "
+						+ "from ").append(hive_table_name).append(")child1 ");
+			}else if((type != Type.PUBLICATION && type != Type.ZONE) && !ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+				sqlBuilder.append("(select * , year(dt) as time_year, month(dt) as time_month, day(dt) as time_day, weekofyear(dt) as time_week "
+						+ "from ").append(hive_table_name).append(")child1 ");
+			}else{
+				sqlBuilder.append(hive_table_name);
 			}
-			sqlBuilder.append(" from md_device_request_log ");
 			if(condition == null){
 				sqlBuilder.append(" where 1 ");
 			}else{
@@ -93,19 +112,46 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				}else{
 					sqlBuilder.append(" group by operation_type_temp");
 				}
-				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-					sqlBuilder = addFiled(sqlBuilder, "time_part");
+				if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_year");
+					sqlBuilder = addFiled(sqlBuilder, "time_month");
+					sqlBuilder = addFiled(sqlBuilder, "time_day");
+				}else if(ParameterDto.DataCycle.BYMONTH.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_year");
+					sqlBuilder = addFiled(sqlBuilder, "time_month");
+				}else if(ParameterDto.DataCycle.BYWEEK.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_year");
+					sqlBuilder = addFiled(sqlBuilder, "time_week");
 				}
 			}else{
 				sqlBuilder.append(" and operation_type = '003' ");
 				if(!CommonUtility.isEmptyString(groupBy)){
 					sqlBuilder.append(" group by ").append(groupBy);
-					if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-						sqlBuilder = addFiled(sqlBuilder, "time_part");
+					if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
+						sqlBuilder = addFiled(sqlBuilder, "time_year");
+						sqlBuilder = addFiled(sqlBuilder, "time_month");
+						sqlBuilder = addFiled(sqlBuilder, "time_day");
+					}else if(ParameterDto.DataCycle.BYMONTH.toString().equalsIgnoreCase(parameterDto.getDataType())){
+						sqlBuilder = addFiled(sqlBuilder, "time_year");
+						sqlBuilder = addFiled(sqlBuilder, "time_month");
+					}else if(ParameterDto.DataCycle.BYWEEK.toString().equalsIgnoreCase(parameterDto.getDataType())){
+						sqlBuilder = addFiled(sqlBuilder, "time_year");
+						sqlBuilder = addFiled(sqlBuilder, "time_week");
 					}
 				}else{
-					if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-						sqlBuilder.append(" group by time_part");
+					if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
+						sqlBuilder.append(" group by ");
+						sqlBuilder = addFiled(sqlBuilder, "time_year");
+						sqlBuilder = addFiled(sqlBuilder, "time_month");
+						sqlBuilder = addFiled(sqlBuilder, "time_day");
+					}else if(ParameterDto.DataCycle.BYMONTH.toString().equalsIgnoreCase(parameterDto.getDataType())){
+						sqlBuilder.append(" group by ");
+						sqlBuilder = addFiled(sqlBuilder, "time_year");
+						sqlBuilder = addFiled(sqlBuilder, "time_month");
+					}else if(ParameterDto.DataCycle.BYWEEK.toString().equalsIgnoreCase(parameterDto.getDataType())){
+						sqlBuilder.append(" group by ");
+						sqlBuilder = addFiled(sqlBuilder, "time_year");
+						sqlBuilder = addFiled(sqlBuilder, "time_week");
 					}
 				}
 			}
@@ -113,9 +159,83 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		}else if(parameterDto.getFrequency()>10){
 			StringBuilder sqlBuilderChild1 = new StringBuilder();
 			sqlBuilderChild1.append("select ");
-			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
+			sqlBuilderChild1.append(getDataFeild(parameterDto, true));
 			sqlBuilderChild1.append(", if( count( * ) >10, 11, count( * ) ) as frequency, count( * ) as impression_count ");
-			sqlBuilderChild1.append(" from md_device_request_log ");
+			sqlBuilderChild1.append(" from ");
+			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+				sqlBuilderChild1.append("(select * , year(dt) as time_year, month(dt) as time_month, day(dt) as time_day, weekofyear(dt) as time_week "
+						+ "from ").append(hive_table_name).append(")child1 ");
+			}else{
+				sqlBuilderChild1.append(hive_table_name);
+			}
+//			sqlBuilderChild1.append(" from process_prod.md_device_request_log ");
+			String condition = getConditionFromParameter(type,parameterDto);
+			if(condition == null){
+				sqlBuilderChild1.append(" where 1 ");
+			}else{
+				sqlBuilderChild1.append(condition);
+			}
+			sqlBuilderChild1.append(" and operation_type = '003' ");
+			String groupBy = getGroupByFromList(parameterDto);
+			
+			if(!CommonUtility.isEmptyString(groupBy)){
+				sqlBuilderChild1.append(" group by ").append(groupBy);
+				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "equipment_key");
+			}else{
+				sqlBuilderChild1.append(" group by equipment_key");
+			}
+			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+				if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_year");
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_month");
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_day");
+				}else if(ParameterDto.DataCycle.BYMONTH.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_year");
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_month");
+				}else if(ParameterDto.DataCycle.BYWEEK.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_year");
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_week");
+				}
+			}
+			sqlBuilder.append("select ");
+			sqlBuilder.append(getDataFeild(parameterDto, true));
+			sqlBuilder.append(", frequency, count(*) as uv, sum(impression_count) as impression ");
+			sqlBuilder.append(" from (");
+			sqlBuilder.append(sqlBuilderChild1.toString());
+			sqlBuilder.append(" )child2 ");
+			sqlBuilder.append(" where frequency > '10' ");
+			if(!CommonUtility.isEmptyString(groupBy)){
+				sqlBuilder.append(" group by ").append(groupBy);
+				sqlBuilder.append(", frequency");
+			}else{
+				sqlBuilder.append("group by frequency");
+			}
+			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+				if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_year");
+					sqlBuilder = addFiled(sqlBuilder, "time_month");
+					sqlBuilder = addFiled(sqlBuilder, "time_day");
+				}else if(ParameterDto.DataCycle.BYMONTH.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_year");
+					sqlBuilder = addFiled(sqlBuilder, "time_month");
+				}else if(ParameterDto.DataCycle.BYWEEK.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_year");
+					sqlBuilder = addFiled(sqlBuilder, "time_week");
+				}
+			}
+		}else{
+			StringBuilder sqlBuilderChild1 = new StringBuilder();
+			sqlBuilderChild1.append("select ");
+			sqlBuilderChild1.append(getDataFeild(parameterDto, true));
+			sqlBuilderChild1.append(",count( * ) as frequency ");
+//			sqlBuilderChild1.append(" from process_prod.md_device_request_log ");
+			sqlBuilderChild1.append(" from ");
+			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+				sqlBuilderChild1.append("(select * , year(dt) as time_year, month(dt) as time_month, day(dt) as time_day, weekofyear(dt) as time_week "
+						+ "from ").append(hive_table_name).append(")child1 ");
+			}else{
+				sqlBuilderChild1.append(hive_table_name);
+			}
 			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
 				sqlBuilderChild1.append(" where 1 ");
@@ -131,67 +251,42 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				sqlBuilderChild1.append(" group by equipment_key");
 			}
 			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
-			}
-			sqlBuilder.append("select ");
-			sqlBuilder.append(getDataFeild(parameterDto, true, false));
-			sqlBuilder.append(", frequency, count(*) as uv, sum(impression_count) as impression ");
-			sqlBuilder.append(" from (");
-			sqlBuilder.append(sqlBuilderChild1.toString());
-			sqlBuilder.append(" )child1 ");
-			sqlBuilder.append(" where frequency > '10' ");
-			if(!CommonUtility.isEmptyString(groupBy)){
-				sqlBuilder.append(" group by ").append(groupBy);
-				sqlBuilder.append(", frequency");
-				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-					sqlBuilder = addFiled(sqlBuilder, "time_part");
-				}
-			}else{
-				sqlBuilder.append("group by frequency");
-				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-					sqlBuilder = addFiled(sqlBuilder, "time_part");
+				if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_year");
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_month");
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_day");
+				}else if(ParameterDto.DataCycle.BYMONTH.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_year");
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_month");
+				}else if(ParameterDto.DataCycle.BYWEEK.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_year");
+					sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_week");
 				}
 			}
-		}else{
-			StringBuilder sqlBuilderChild1 = new StringBuilder();
-			sqlBuilderChild1.append("select ");
-			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
-			sqlBuilderChild1.append(",count( * ) as frequency ");
-			sqlBuilderChild1.append(" from md_device_request_log ");
-			String condition = getConditionFromParameter(type,parameterDto);
-			if(condition == null){
-				sqlBuilderChild1.append(" where 1 ");
-			}else{
-				sqlBuilderChild1.append(condition);
-			}
-			sqlBuilderChild1.append(" and operation_type = '003' ");
-			String groupBy = getGroupByFromList(parameterDto);
-			sqlBuilderChild1.append(" group by ").append(groupBy);
-			if(!CommonUtility.isEmptyString(groupBy)){
-				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "equipment_key");
-			}else{
-				sqlBuilderChild1.append(" equipment_key");
-			}
-			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-				sqlBuilderChild1 = addFiled(sqlBuilderChild1, "time_part");
-			}
 			sqlBuilder.append("select ");
-			sqlBuilder.append(getDataFeild(parameterDto, true, false));
+			sqlBuilder.append(getDataFeild(parameterDto, true));
 			sqlBuilder.append(", frequency, count(*) as uv, sum(frequency) as impression ");
 			sqlBuilder.append(" from (");
 			sqlBuilder.append(sqlBuilderChild1.toString());
-			sqlBuilder.append(" )child1 ");
+			sqlBuilder.append(" )child2 ");
 			sqlBuilder.append(" where frequency <= '").append(parameterDto.getFrequency()).append("' ");
 			if(!CommonUtility.isEmptyString(groupBy)){
 				sqlBuilder.append(" group by ").append(groupBy);
 				sqlBuilder.append(", frequency");
-				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-					sqlBuilder = addFiled(sqlBuilder, "time_part");
-				}
 			}else{
 				sqlBuilder.append("group by frequency");
-				if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-					sqlBuilder = addFiled(sqlBuilder, "time_part");
+			}
+			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
+				if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_year");
+					sqlBuilder = addFiled(sqlBuilder, "time_month");
+					sqlBuilder = addFiled(sqlBuilder, "time_day");
+				}else if(ParameterDto.DataCycle.BYMONTH.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_year");
+					sqlBuilder = addFiled(sqlBuilder, "time_month");
+				}else if(ParameterDto.DataCycle.BYWEEK.toString().equalsIgnoreCase(parameterDto.getDataType())){
+					sqlBuilder = addFiled(sqlBuilder, "time_year");
+					sqlBuilder = addFiled(sqlBuilder, "time_week");
 				}
 			}
 		}
@@ -206,7 +301,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			throw new ReportBaseException(Const.EXCEPTION_BADSQL, "query faile", e);
 		}
 		
-		log.info("result size = \t" + rows.size());
+		log.debug("result size = \t" + rows.size());
 		Iterator<Map<String, Object>> it = rows.iterator();
 		while(it.hasNext()){
 			Map<String, Object> jobResultMap = it.next();  
@@ -246,21 +341,37 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			if(jobResultMap.containsKey("operation_type_temp")){
 				jobResultDto.setOperation_type((String) jobResultMap.get("operation_type_temp"));
 			}
+			String time_year = null;
+			String time_month = null;
+			String time_day = null;
+			String time_week = null;
+			if(jobResultMap.containsKey("time_year")){
+				time_year = String.valueOf(jobResultMap.get("time_year"));
+			}
+			if(jobResultMap.containsKey("time_month")){
+				time_month = String.valueOf(jobResultMap.get("time_month"));
+			}
+			if(jobResultMap.containsKey("time_day")){
+				time_day = String.valueOf(jobResultMap.get("time_day"));
+			}
+			if(jobResultMap.containsKey("time_week")){
+				time_week = String.valueOf(jobResultMap.get("time_week"));
+			}
 			Calendar calendar = Calendar.getInstance();
 			try{
 				if(ParameterDto.DataCycle.BYWEEK.toString().equalsIgnoreCase(parameterDto.getDataType())){
 					SimpleDateFormat format = new SimpleDateFormat("yyyyww");
-					calendar.setTime(format.parse((String)jobResultMap.get("time_part")));
+					calendar.setTime(format.parse(time_year+time_week));
 					calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 					jobResultDto.setDate_start(dateFormat.format((parameterDto.getDateRange()[0].getTime()>=calendar.getTime().getTime())? parameterDto.getDateRange()[0] : calendar.getTime()));
 					calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
 					jobResultDto.setDate_end(dateFormat.format((parameterDto.getDateRange()[1].getTime()<=calendar.getTime().getTime())? parameterDto.getDateRange()[1] : calendar.getTime()));
 				}else if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
-					jobResultDto.setDate_start((String)jobResultMap.get("time_part"));
-					jobResultDto.setDate_end((String)jobResultMap.get("time_part"));
+					jobResultDto.setDate_start(time_year + "-" + time_month + "-" + time_day);
+					jobResultDto.setDate_end(time_year + "-" + time_month + "-" + time_day);
 				}else if(ParameterDto.DataCycle.BYMONTH.toString().equalsIgnoreCase(parameterDto.getDataType())){
 					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
-					calendar.setTime(format.parse((String)jobResultMap.get("time_part")));
+					calendar.setTime(format.parse(time_year + "-" + time_month));
 					calendar.set(Calendar.DAY_OF_MONTH, 1);
 					jobResultDto.setDate_start(dateFormat.format((parameterDto.getDateRange()[0].getTime()>=calendar.getTime().getTime())? parameterDto.getDateRange()[0] : calendar.getTime()));
 					calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
@@ -279,7 +390,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		if(type == Type.PUBLICATION || type == Type.ZONE){
 			jobResultDtos = mergeRequsetAndImpression(jobResultDtos);
 		}
-		log.info("return size = \t" + jobResultDtos.size());
+		log.debug("return size = \t" + jobResultDtos.size());
 		for(JobResultDto jobResultDto : jobResultDtos){
 			log.debug(jobResultDto.toString());
 		}
@@ -291,6 +402,39 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		log.debug("mergeRequsetAndImpression");
 		Iterator<JobResultDto> iterator = jobResultDtos.iterator();
 		List<JobResultDto> jobresults = new ArrayList<JobResultDto>();
+//		JobResultDto jobresult = null;
+//		while(iterator.hasNext()){
+//			if(jobresult == null){
+//				jobresult = iterator.next();
+//			}else{
+//				JobResultDto jobresult_1 = iterator.next();
+//				if(isSameItemExceptOperationType(jobresult, jobresult_1)){
+//					if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
+//						jobresult_1.setRequest(jobresult.getImpression());
+//						jobresult_1.setUv(jobresult.getUv());
+//						jobresult = jobresult_1;
+//					}else{
+//						jobresult.setRequest(jobresult_1.getImpression());
+//					}
+//				}else{
+//					if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
+//						jobresult.setRequest(jobresult.getImpression());
+//						jobresult.setUv(0);
+//						jobresult.setImpression(0);
+//					}
+//					jobresults.add(jobresult);
+//					jobresult = jobresult_1;
+//				}
+//			}
+//		}
+//		if(jobresult!=null){
+//			if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
+//				jobresult.setRequest(jobresult.getImpression());
+//				jobresult.setUv(0);
+//				jobresult.setImpression(0);
+//			}
+//			jobresults.add(jobresult);
+//		}
 		while(iterator.hasNext()){
 			JobResultDto jobresult = iterator.next();
 			if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
@@ -323,37 +467,6 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}
 		}
 			
-//			if(jobresult == null){
-//				jobresult = iterator.next();
-//			}else{
-//				JobResultDto jobresult_1 = iterator.next();
-//				if(isSameItemExceptOperationType(jobresult, jobresult_1)){
-//					if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
-//						jobresult_1.setRequest(jobresult.getImpression());
-//						jobresult_1.setUv(jobresult.getUv());
-//						jobresult = jobresult_1;
-//					}else{
-//						jobresult.setRequest(jobresult_1.getImpression());
-//					}
-//				}else{
-//					if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
-//						jobresult.setRequest(jobresult.getImpression());
-//						jobresult.setUv(0);
-//						jobresult.setImpression(0);
-//					}
-//					jobresults.add(jobresult);
-//					jobresult = jobresult_1;
-//				}
-//			}
-//		}
-//		if(jobresult!=null){
-//			if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
-//				jobresult.setRequest(jobresult.getImpression());
-//				jobresult.setUv(0);
-//				jobresult.setImpression(0);
-//			}
-//			jobresults.add(jobresult);
-//		}
 		return jobresults;
 	}
 
@@ -433,7 +546,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		if(parameterDto.getDateRange().length>=2){
 			conditionBuilder.append(" and ad_date >= '")
 				.append(dateFormat.format(parameterDto.getDateRange()[0]))
-				.append(" ' and ad_date <= ' ")
+				.append("' and ad_date <= '")
 				.append(dateFormat.format(parameterDto.getDateRange()[1]))
 				.append("' ");
 		}
@@ -462,7 +575,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 	 * @param hasTimePart
 	 * @return
 	 */
-	private String getDataFeild(ParameterDto parameterDto, boolean hasFrequency, boolean hasTimePart){
+	private String getDataFeild(ParameterDto parameterDto, boolean hasFrequency){
 		StringBuilder sb = new StringBuilder();
 		String groupBy = getGroupByFromList(parameterDto);
 		if(!CommonUtility.isEmptyString(groupBy)){
@@ -491,20 +604,22 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			}
 		}
 		sb = addFiled(sb, replace(sb_item.toString()));
-		if(hasTimePart){
-			if(ParameterDto.DataCycle.BYWEEK.toString().equalsIgnoreCase(parameterDto.getDataType())){
-				sb = addFiled(sb, "DATE_FORMAT(datetime,'%Y%u') as time_part");
-			}else if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
-				sb = addFiled(sb, "DATE_FORMAT(datetime,'%Y%-%m-%d') as time_part");
-			}else if(ParameterDto.DataCycle.BYMONTH.toString().equalsIgnoreCase(parameterDto.getDataType())){
-				sb = addFiled(sb, "DATE_FORMAT(datetime,'%Y-%m') as time_part");
-			}
-		}else{
-			if(!ParameterDto.DataCycle.TOTAL.toString().equalsIgnoreCase(parameterDto.getDataType())){
-				sb = addFiled(sb, "time_part");
+		if(ParameterDto.DataCycle.BYWEEK.toString().equalsIgnoreCase(parameterDto.getDataType())){
+			sb = addFiled(sb, "time_year");
+			sb = addFiled(sb, "time_week");
+		}else if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
+			sb = addFiled(sb, "time_year");
+			sb = addFiled(sb, "time_month");
+			sb = addFiled(sb, "time_day");
+		}else if(ParameterDto.DataCycle.BYMONTH.toString().equalsIgnoreCase(parameterDto.getDataType())){
+			sb = addFiled(sb, "time_year");
+			sb = addFiled(sb, "time_month");
+		}
+		if(!hasFrequency){
+			if(parameterDto.getType().equals(Type.PUBLICATION.toString()) || parameterDto.getType().equals(Type.ZONE.toString())){
+				sb = addFiled(sb, "operation_type_temp");
 			}
 		}
-		
 		String groupByFromPrama = sb.toString();
 		if(CommonUtility.isEmptyString(groupByFromPrama)){
 			groupByFromPrama = " * ";
@@ -588,5 +703,4 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 		}
 		return isIdsEquals && isFrequencyEquals && isDateStartEquals && isDateEndEquals && isRegion_code;
 	}
-	
 }
