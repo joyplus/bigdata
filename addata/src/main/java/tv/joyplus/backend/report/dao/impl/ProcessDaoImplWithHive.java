@@ -598,7 +598,7 @@ public class ProcessDaoImplWithHive extends JdbcDaoSupport implements ProcessDao
 					if(!"request".equalsIgnoreCase(feild) 
 							&& !(sb.indexOf(feild)>0)
 							&& !(sb_item.indexOf(feild)>0)){
-						sb_item = addFiled(sb_item, feild);
+						sb_item = addFiled(sb_item, "max("+feild+") as " + feild);
 					}
 				}
 			}

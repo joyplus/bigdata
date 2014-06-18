@@ -17,7 +17,7 @@
 
 	<bean id="reportTask" class="tv.joyplus.backend.report.task.impl.ReportTaskImpl">
 		<property name="taskExecutor" ref="simpleAsyncTaskExecutor" />
-		<property name="processDao" ref="processDBProcessor" />
+		<property name="processDao" ref="processHiveProcessor" />
 		<property name="jobResultDao" ref="jobResultDBProcessorWithCache" />
 		<property name="jsonParser" ref="jacksonParser" />
 	</bean>
