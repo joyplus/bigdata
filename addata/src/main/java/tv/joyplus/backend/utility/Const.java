@@ -14,6 +14,7 @@ public interface Const {
 	
 	public static final int RESULT_STATUS_SUCCESS = 1;
 	public static final int RESULT_STATUS_FAILE = 2;
+	public static final int RESULT_STATUS_TOO_LARGE = 3;
 
 	
 	public static final String EXCEPTION_BADSQL = 		"00001";
