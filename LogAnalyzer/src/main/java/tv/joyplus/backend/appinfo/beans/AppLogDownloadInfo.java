@@ -11,7 +11,6 @@ public class AppLogDownloadInfo {
 	private String mimeType;
 	private long size;
 	private long putTime;
-	private int zip;
 	private int status;
 	private Timestamp createTime;
 	public long getId() {
@@ -62,12 +61,6 @@ public class AppLogDownloadInfo {
 	public void setPutTime(long putTime) {
 		this.putTime = putTime;
 	}
-	public int getZip() {
-		return zip;
-	}
-	public void setZip(int zip) {
-		this.zip = zip;
-	}
 	public int getStatus() {
 		return status;
 	}
@@ -80,7 +73,7 @@ public class AppLogDownloadInfo {
 	public void setCreateTime(Timestamp createTime) {
 		this.createTime = createTime;
 	}
-	public static String tableName() {
-		return "md_app_log_download_info";
+	public static String TableName() {
+		return "ap_app_log_download_info";
 	}
 }

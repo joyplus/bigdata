@@ -2,6 +2,7 @@ package tv.joyplus.backend.appinfo.dao.impl;
 
 import java.util.List;
 
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import tv.joyplus.backend.appinfo.beans.AppLogAnalyzeInfo;
@@ -12,32 +13,32 @@ public class AppLogAnalyzeDaoImpl extends JdbcDaoSupport implements
 
 	@Override
 	public void save(AppLogAnalyzeInfo instance) {
-		// TODO Auto-generated method stub
-
+		String sql = "INSERT INTO " + AppLogAnalyzeInfo.TableName() + "(path,status,create_time) VALUES(?,?,?)";
+		getJdbcTemplate().update(sql, new Object[]{instance.getPath(), instance.getStatus(), instance.getCreate_time()});
 	}
 
 	@Override
 	public List<AppLogAnalyzeInfo> list() {
-		// TODO Auto-generated method stub
-		return null;
+		String sql = "SELECT * FROM " + AppLogAnalyzeInfo.TableName();
+		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper<AppLogAnalyzeInfo>(AppLogAnalyzeInfo.class));
 	}
 
 	@Override
 	public List<AppLogAnalyzeInfo> listUnAnalyzed() {
-		// TODO Auto-generated method stub
-		return null;
+		String sql = "SELECT * FROM " + AppLogAnalyzeInfo.TableName() + " WHERE status=0";
+		return getJdbcTemplate().query(sql, new BeanPropertyRowMapper<AppLogAnalyzeInfo>(AppLogAnalyzeInfo.class));
 	}
 
 	@Override
 	public void updateStatus(long id, int status) {
-		// TODO Auto-generated method stub
-
+		String sql = "UPDATE " + AppLogAnalyzeInfo.TableName() + " SET status=? WHERE id=?";
+		getJdbcTemplate().update(sql, new Object[]{status, id});
 	}
 
 	@Override
 	public void updateStatus(AppLogAnalyzeInfo instance) {
-		// TODO Auto-generated method stub
-
+		String sql = "UPDATE " + AppLogAnalyzeInfo.TableName() + " SET status=? WHERE id=?";
+		getJdbcTemplate().update(sql, new Object[]{instance.getStatus(), instance.getId()});
 	}
 
 }

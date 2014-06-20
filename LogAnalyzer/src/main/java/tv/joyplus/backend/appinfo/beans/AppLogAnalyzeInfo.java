@@ -9,7 +9,6 @@ public class AppLogAnalyzeInfo {
 	public final static byte STATUS_EXIST = 0x04;		//已存在
 	private long id;
 	private String path;
-	private String filename;
 	private int status;
 	private Timestamp create_time;
 	public long getId() {
@@ -24,12 +23,6 @@ public class AppLogAnalyzeInfo {
 	public void setPath(String path) {
 		this.path = path;
 	}
-	public String getFilename() {
-		return filename;
-	}
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
 	public int getStatus() {
 		return status;
 	}
@@ -42,7 +35,7 @@ public class AppLogAnalyzeInfo {
 	public void setCreate_time(Timestamp create_time) {
 		this.create_time = create_time;
 	}
-	public static String tableName() {
-		return "md_app_log_analyze_info";
+	public static String TableName() {
+		return "ap_app_log_analyze_info";
 	}
 }

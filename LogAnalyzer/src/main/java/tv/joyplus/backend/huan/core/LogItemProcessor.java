@@ -18,6 +18,7 @@ public class LogItemProcessor implements ItemProcessor<String, LogData> {
 	@Override
 	public LogData process(String line) throws Exception {
 		return this.praseLogInfo(line);
+		
 	}
 	
 	private LogData praseLogInfo(String line) {

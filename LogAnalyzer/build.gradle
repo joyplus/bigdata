@@ -81,5 +81,5 @@ jar {
 }
 
 configurations {
-	mainClassName = $mainClass
+	mainClassName = "$mainClass"
 }

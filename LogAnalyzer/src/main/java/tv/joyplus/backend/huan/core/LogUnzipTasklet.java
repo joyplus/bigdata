@@ -84,6 +84,7 @@ public class LogUnzipTasklet implements Tasklet {
             	new File(saveDir, entry.getName()).mkdirs();
             }else{
             	File f = new File(saveDir, entry.getName());
+            	f.getParentFile().mkdirs();
             	//文件存在
             	if(f.exists()) {
             		//已存在的文件放入临时目录

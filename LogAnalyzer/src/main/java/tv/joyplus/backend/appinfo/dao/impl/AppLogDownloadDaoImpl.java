@@ -13,8 +13,8 @@ public class AppLogDownloadDaoImpl extends JdbcDaoSupport implements
 
 	@Override
 	public List<String> listAllIdent() {
-		// TODO Auto-generated method stub
-		return null;
+		String sql = "SELECT ident FROM " + AppLogDownloadInfo.TableName();
+		return getJdbcTemplate().queryForList(sql, String.class);
 	}
 
 	@Override
@@ -31,8 +31,11 @@ public class AppLogDownloadDaoImpl extends JdbcDaoSupport implements
 
 	@Override
 	public void save(AppLogDownloadInfo instance) {
-		// TODO Auto-generated method stub
-
+		String sql = "INSERT INTO " + AppLogDownloadInfo.TableName() + "(ident,url,path,filename,"
+				+ "mime_type,size,put_time,status,create_time) VALUES(?,?,?,?,?,?,?,?,?)";
+		getJdbcTemplate().update(sql, new Object[]{instance.getIdent(), instance.getUrl(), 
+				instance.getPath(), instance.getFilename(), instance.getMimeType(), instance.getSize(),
+				instance.getPutTime(), 0, instance.getCreateTime()});
 	}
 
 	@Override

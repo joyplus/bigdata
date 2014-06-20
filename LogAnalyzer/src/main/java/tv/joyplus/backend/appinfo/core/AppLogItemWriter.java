@@ -1,7 +1,6 @@
 package tv.joyplus.backend.appinfo.core;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -9,34 +8,16 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import tv.joyplus.backend.huan.beans.LogData;
-import tv.joyplus.backend.huan.beans.LogInfo;
-import tv.joyplus.backend.huan.dao.LogDataDao;
-import tv.joyplus.backend.huan.dao.LogInfoDao;
+import tv.joyplus.backend.appinfo.beans.AppLogInfo;
+import tv.joyplus.backend.appinfo.dao.AppLogDao;
 
-public class AppLogItemWriter implements ItemWriter<LogData> {
+public class AppLogItemWriter implements ItemWriter<AppLogInfo> {
 	private static final Log log = LogFactory.getLog(AppLogItemWriter.class);
 	@Autowired
-	private LogDataDao logDataDao;
-	@Autowired
-	private LogInfoDao logInfoDao;
+	private AppLogDao appLogDao;
 	@Override
-	public void write(List<? extends LogData> list) throws SQLException {
-		logDataDao.batchLogData(list);
-		
-		List<LogInfo> infos = new ArrayList<LogInfo>();
-		for(LogData d : list) {
-			LogInfo i = new LogInfo();
-			i.setAdurl(d.getAdurl());
-			i.setCreativeId(0);
-			i.setImgurl(d.getImgurl());
-			i.setZoneId(d.getZoneId());
-			i.setMaxId(0);
-			i.setSid(d.getSid());
-			i.setTitle(d.getTitle());
-			infos.add(i);
-		}
-		logInfoDao.batchLogInfo(infos);
+	public void write(List<? extends AppLogInfo> list) throws SQLException {
+		appLogDao.batchSave(list);
 		log.info("write done -> "+list.size());
 	}
 }

@@ -1,61 +1,46 @@
 package tv.joyplus.backend.appinfo.core;
 
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.ItemProcessor;
 
-import tv.joyplus.backend.huan.beans.LogData;
+import tv.joyplus.backend.appinfo.beans.AppLogInfo;
+import tv.joyplus.backend.appinfo.beans.AppLogInfoV1;
+import tv.joyplus.backend.exception.TaskException;
 
-public class AppLogItemProcessor implements ItemProcessor<String, LogData> {
+public class AppLogItemProcessor implements ItemProcessor<String, AppLogInfo> {
 	private static final Log log = LogFactory.getLog(AppLogItemProcessor.class);
-	private static String PATTERN_STRING = "\\[(.*?)\\].*?dnum\\=(.*?),devmodel\\=(.*?),version\\=(.*?),ip\\=(.*?),imgurl\\=(.*?),adurl\\=(.*?),sid\\=(.*?),title\\=(.*)";
-	private String filename;
-	private Map<String, Integer> zones;
+	private Properties deviceInfo;
 	@Override
-	public LogData process(String line) throws Exception {
-		return this.praseLogInfo(line);
+	public AppLogInfo process(String line) throws Exception {
+		return praseLogInfo(line);
 	}
 	
-	private LogData praseLogInfo(String line) {
-		Pattern p = Pattern.compile(PATTERN_STRING);
-		Matcher m = p.matcher(line);
-		if(m.find()) {
-			LogData log = new LogData();
-			log.setAdDate(m.group(1));
-			log.setEquipmentKey(m.group(2));
-			log.setDeviceName(m.group(3));
-			log.setVersion(m.group(4));
-			log.setIp(m.group(5));
-			log.setImgurl(m.group(6));
-			log.setAdurl(m.group(7));
-			log.setSid(m.group(8));
-			log.setTitle(m.group(9));
-			log.setZoneId(analyzeZoneId());
-			return log;
+	private AppLogInfo praseLogInfo(String line) {
+		try {
+			return createAppLogInfo(line);
+		} catch (TaskException e) {
+			log.error(e.getMessage());
 		}
 		return null;
 	}
-	private long analyzeZoneId(){
-		if(filename==null) {
-			return 0;
+	private AppLogInfo createAppLogInfo(String line) throws TaskException {
+		if(line==null || line.trim().length()<=0) {
+			return null;
 		}
-		//根据filename获取zone_id
-		String name = filename.substring(0, filename.length()-14);
-		if(zones.containsKey(name)) {
-			return zones.get(name);
+		String version = "";
+		if(deviceInfo!=null) {
+			version = deviceInfo.getProperty("version", "");
+			if("1.0".equals(version)) {
+				return new AppLogInfoV1(deviceInfo, line);
+			}
 		}
-		return 0;
+		return null;
 	}
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
-
-	public void setZones(Map<String, Integer> zones) {
-		this.zones = zones;
+	
+	public void setDeviceInfo(Properties deviceInfo) {
+		this.deviceInfo = deviceInfo;
 	}
 	
 }

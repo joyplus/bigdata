@@ -35,7 +35,6 @@ public class AppLogAnalyzeLauncher {
 					log.info("previews job doesn't stopped, this job will exit");
 				}
 			}
-			
 			log.info("job done");
 		} catch (Exception e) {
 			log.error(e.getMessage());

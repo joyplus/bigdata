@@ -1,6 +1,11 @@
 package tv.joyplus.backend.appinfo.core;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -13,42 +18,50 @@ import org.springframework.batch.core.job.flow.JobExecutionDecider;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import tv.joyplus.backend.appinfo.beans.AppLogAnalyzeInfo;
+import tv.joyplus.backend.appinfo.dao.AppLogAnalyzeDao;
 import tv.joyplus.backend.huan.beans.AnalyzerFileInfo;
-import tv.joyplus.backend.huan.dao.AnalyzerFileInfoDao;
 
 public class AppLogDecision implements JobExecutionDecider {
 	private static final Log log = LogFactory.getLog(AppLogDecision.class);
-	private static final String INPUT_FILE = "input.file";
+	private static final String INPUT_FILE_PATH = "input.file.path";
 	private static final String INPUT_FILE_ID = "input.file.id";
-	private static final String INPUT_FILE_NAME = "input.file.name";
-	private Queue<AnalyzerFileInfo> inputFiles;
+	private static final String INPUT_FILE_PROPERTIES = "input.file.properties";
+	private Queue<AppLogAnalyzeInfo> inputFiles;
 	@Autowired
-	private AnalyzerFileInfoDao analyzerFileInfoDao;
+	private AppLogAnalyzeDao analyzerFileInfoDao;
 	@Override
 	public FlowExecutionStatus decide(JobExecution jobExecution, StepExecution stepExecution) {
 		ExecutionContext context = jobExecution.getExecutionContext();
-		log.debug(context);
-		//加载所有待解析的log文件
-		if(!jobExecution.getExecutionContext().containsKey(INPUT_FILE)) {
-			List<AnalyzerFileInfo> files = analyzerFileInfoDao.listUnAnalyzed();
-			inputFiles = new LinkedBlockingQueue<AnalyzerFileInfo>(files);
+		//加载所有待解析目录
+		if(!context.containsKey(INPUT_FILE_PATH)) {
+			List<AppLogAnalyzeInfo> files = analyzerFileInfoDao.listUnAnalyzed();
+			inputFiles = new LinkedBlockingQueue<AppLogAnalyzeInfo>(files);
 		}
-		AnalyzerFileInfo file = inputFiles.poll();
+		AppLogAnalyzeInfo file = inputFiles.poll();
 		
 		//如果有已解析的文件，更新数据库状态为已解析
-		if(context.containsKey(INPUT_FILE_ID)) {
+		if(context.containsKey(INPUT_FILE_PATH)) {
 			log.debug("update id:" + context.getLong(INPUT_FILE_ID));
 			analyzerFileInfoDao.updateStatus(context.getLong(INPUT_FILE_ID), AnalyzerFileInfo.STATUS_PROCESSED);
 		}
 		if(file!=null) {
-			log.debug("poll one:"+file.getPath());
-			context.put(INPUT_FILE, "file:"+file.getPath());
-			context.put(INPUT_FILE_ID, file.getId());
-			context.put(INPUT_FILE_NAME, file.getFilename());
-            return FlowExecutionStatus.UNKNOWN;
+			Properties prop = new Properties();
+			try {
+				prop.load(new FileInputStream(new File(file.getPath() + "/DevicesInfo")));
+				log.debug("poll one:"+file.getPath());
+				context.put(INPUT_FILE_PATH, "file:"+file.getPath()+"/*.log");
+				context.put(INPUT_FILE_PROPERTIES, prop);
+				context.put(INPUT_FILE_ID, file.getId());
+				return FlowExecutionStatus.UNKNOWN;
+			} catch (IOException e) {
+				log.error(e.getMessage());
+			}
 		}
 		log.debug("poll complated");
+		inputFiles = null;
+		file = null;
+		context.clearDirtyFlag();
 		return FlowExecutionStatus.COMPLETED;
 	}
-
 }

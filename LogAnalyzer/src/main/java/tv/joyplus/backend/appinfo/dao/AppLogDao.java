@@ -6,5 +6,5 @@ import tv.joyplus.backend.appinfo.beans.AppLogInfo;
 
 public interface AppLogDao {
 	public void save(AppLogInfo instance);
-	public void batchSave(List<AppLogInfo> list);
+	public void batchSave(List<? extends AppLogInfo> list);
 }
