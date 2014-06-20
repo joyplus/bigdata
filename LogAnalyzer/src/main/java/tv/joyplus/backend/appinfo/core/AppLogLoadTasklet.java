@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
@@ -28,6 +29,7 @@ import tv.joyplus.backend.appinfo.dao.AppLogAnalyzeDao;
 import tv.joyplus.backend.appinfo.dao.AppLogDownloadDao;
 import tv.joyplus.backend.qiniu.QiniuItem;
 import tv.joyplus.backend.qiniu.dao.QiniuDao;
+import tv.joyplus.backend.utils.FormatTool;
 
 public class AppLogLoadTasklet implements Tasklet {
 	private static Log log = LogFactory.getLog(AppLogLoadTasklet.class);
@@ -52,7 +54,9 @@ public class AppLogLoadTasklet implements Tasklet {
 		List<String> existFileList = downloadDao.listAllIdent();
 		
 		// 待下载文件列表
-		List<QiniuItem> list = qiniuDao.list();
+		String prifix = FormatTool.date("yyyy-MM-dd", new Date());
+		log.debug("prifix-> " + prifix);
+		List<QiniuItem> list = qiniuDao.list(prifix);
 		
 		for (QiniuItem item : list) {
 			if (existFileList.contains(item.getKey())) {

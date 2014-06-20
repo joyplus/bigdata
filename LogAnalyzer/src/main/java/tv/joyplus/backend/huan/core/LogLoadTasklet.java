@@ -37,7 +37,7 @@ public class LogLoadTasklet implements Tasklet {
 		//已下载文件列表
 		List<String> existFileList = downloadFileInfoDao.listAllIdent();
 		//待下载文件列表
-		List<QiniuItem> list = qiniuDao.list();
+		List<QiniuItem> list = qiniuDao.list("");
 		for(QiniuItem item : list) {
 			if(existFileList.contains(item.getKey())) {
 				continue;

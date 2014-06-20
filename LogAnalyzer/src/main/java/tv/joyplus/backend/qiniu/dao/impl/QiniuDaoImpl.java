@@ -23,7 +23,7 @@ import com.qiniu.api.rsf.RSFClient;
 
 public class QiniuDaoImpl implements QiniuDao{
 	private static Log log = LogFactory.getLog(QiniuDaoImpl.class);
-	private final static int LIMIT = 10;
+	private final static int LIMIT = 0;
 	private String accessKey;
 	private String secretKey;
 	private String bucket;
@@ -45,14 +45,14 @@ public class QiniuDaoImpl implements QiniuDao{
 	}
 
 	@Override
-	public List<QiniuItem> list() {
+	public List<QiniuItem> list(String prifix) {
 		Mac mac = new Mac(accessKey, secretKey);
 		RSFClient client = new RSFClient(mac);
 		String marker = "";
 		List<ListItem> all = new ArrayList<ListItem>();
 		ListPrefixRet ret = null;
 		while (true) {
-			ret = client.listPrifix(bucket, "", marker, LIMIT);
+			ret = client.listPrifix(bucket, prifix, marker, LIMIT);
 			marker = ret.marker;
 			all.addAll(ret.results);
 			if (!ret.ok()) {
