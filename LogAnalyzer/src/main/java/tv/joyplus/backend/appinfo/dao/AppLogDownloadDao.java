@@ -5,10 +5,12 @@ import java.util.List;
 import tv.joyplus.backend.appinfo.beans.AppLogDownloadInfo;
 
 public interface AppLogDownloadDao {
+	public AppLogDownloadInfo get();
 	public List<String> listAllIdent();
 	public List<AppLogDownloadInfo> list();
-	public List<AppLogDownloadInfo> listUnzip();
 	public void save(AppLogDownloadInfo instance);
-	public void updateZip(AppLogDownloadInfo instance);
-	public void updateZip(long id, long status);
+	public void batchSave(final List<? extends AppLogDownloadInfo> list);
+	public int updateStatus(long id, int status);
+	public int updateStatus(AppLogDownloadInfo instance);
+	public boolean existIdent(String ident);
 }

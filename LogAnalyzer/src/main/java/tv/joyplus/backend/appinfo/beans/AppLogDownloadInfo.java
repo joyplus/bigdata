@@ -3,6 +3,9 @@ package tv.joyplus.backend.appinfo.beans;
 import java.sql.Timestamp;
 
 public class AppLogDownloadInfo {
+	public static final int STATUS_UNDOWNLOAD = 0; //未下载
+	public static final int STATUS_DOWNLOADING = 1;//下载中
+	public static final int STATUS_DOWNLOADED = 2; //已下载
 	private long id;
 	private String ident;
 	private String url;

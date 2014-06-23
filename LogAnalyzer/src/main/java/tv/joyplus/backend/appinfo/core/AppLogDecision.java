@@ -57,6 +57,11 @@ public class AppLogDecision implements JobExecutionDecider {
 			} catch (IOException e) {
 				log.error(e.getMessage());
 			}
+			
+			if(!inputFiles.isEmpty()) {
+				context.remove(INPUT_FILE_PROPERTIES);
+				return FlowExecutionStatus.UNKNOWN;
+			}
 		}
 		log.debug("poll complated");
 		inputFiles = null;
