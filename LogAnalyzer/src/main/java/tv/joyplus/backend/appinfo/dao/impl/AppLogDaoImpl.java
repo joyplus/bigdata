@@ -47,12 +47,27 @@ public class AppLogDaoImpl extends JdbcDaoSupport implements AppLogDao {
 
 	private void prepareAppLogInfo(PreparedStatement ps, AppLogInfoV1 info)
 			throws SQLException {
-		// version,device_name,mac,display_w,display_h,ip,app_name,front,time_start,time_end,base_compent,top_compent,status,create_time
-		Object[] mObject = new Object[] { info.getVersion(),
-				info.getDevicesname(), info.getMac(), info.getDisplayW(),
-				info.getDisplayH(), info.getIp(), info.getAppName(),
-				info.getFront(), info.getTimeStart(), info.getTimeEnd(),
-				info.getBaseCompent(), info.getTopCompent(), info.getStatus(),
+		// version,device_name,sdk_version,mac,display_w,display_h,ip,package_name,app_name,version_code,version_name,first_install_time,last_update_time,front,time_start,time_end,base_compent,top_compent,status,create_time
+		Object[] mObject = new Object[] { 
+				info.getVersion(),
+				info.getDevicesname(), 
+				info.getSdkVersion(), 
+				info.getMac(), 
+				info.getDisplayW(),
+				info.getDisplayH(), 
+				info.getIp(),
+				info.getPackageName(),
+				info.getAppName(),
+				info.getVersionCode(),
+				info.getVersionName(),
+				info.getFirstInstallTime(),
+				info.getLastUpdateTime(),
+				info.getFront(), 
+				info.getTimeStart(), 
+				info.getTimeEnd(),
+				info.getBaseCompent(), 
+				info.getTopCompent(), 
+				info.getStatus(),
 				new Timestamp(Calendar.getInstance().getTimeInMillis()) };
 		prepareAppLogInfo(ps, mObject);
 
@@ -71,8 +86,10 @@ public class AppLogDaoImpl extends JdbcDaoSupport implements AppLogDao {
 		}
 		getJdbcTemplate().batchUpdate("INSERT INTO "
 			+ AppLogInfo.TableName()
-			+ " (version,device_name,mac,display_w,display_h,ip,app_name,front,time_start,"
-			+ "time_end,base_compent,top_compent,status,create_time) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+			+ " (version,device_name,sdk_version,mac,display_w,display_h,ip,"
+			+ "package_name,app_name,version_code,version_name,first_install_time,"
+			+ "last_update_time,front,time_start,time_end,base_compent,top_compent,status,create_time) "
+			+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 			setter);
 	}
 

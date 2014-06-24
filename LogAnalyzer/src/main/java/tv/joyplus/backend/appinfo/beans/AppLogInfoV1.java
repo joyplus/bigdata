@@ -1,5 +1,6 @@
 package tv.joyplus.backend.appinfo.beans;
 
+import java.sql.Timestamp;
 import java.util.Properties;
 
 import tv.joyplus.backend.exception.TaskException;
@@ -23,28 +24,85 @@ public class AppLogInfoV1 extends AppDeviceInfoV1{
 			throw new TaskException("info unuse");
 		}
 		String[] strs = line.split(",");
-		if(strs==null || strs.length!=6) {
+		if(strs==null || strs.length!=11) {
 			throw new TaskException("info unuse");
 		}
-		appName = strs[0];
-		front = strs[1];
-		timeStart = Long.valueOf(strs[2])/1000;
-		timeEnd = Long.valueOf(strs[3])/1000;
-		baseCompent = strs[4];
-		topCompent = strs[5];
+		packageName = removeQuotation(strs[0]);
+		appName = removeQuotation(strs[1]);
+		versionCode = removeQuotation(strs[2]);
+		versionName = removeQuotation(strs[3]);
+		firstInstallTime = new Timestamp(Long.valueOf(removeQuotation(strs[4])));
+		lastUpdateTime = new Timestamp(Long.valueOf(removeQuotation(strs[5])));
+		front = removeQuotation(strs[6]);
+		timeStart = new Timestamp(Long.valueOf(removeQuotation(strs[7])));
+		timeEnd = new Timestamp(Long.valueOf(removeQuotation(strs[8])));
+		baseCompent = removeQuotation(strs[9]);
+		topCompent = removeQuotation(strs[10]);
+		if(packageName==null || packageName.length()<=0) {
+			packageName = topCompent.split("/")[0];
+		}
+		
+		if(packageName==null || packageName.length()<=0) {
+			throw new TaskException("unknow package name");
+		}
 	}
+	
+	private String removeQuotation(String str) throws TaskException{
+		if(str==null || str.trim().length()<=2) {
+			return null;
+		}
+		if('"'==str.charAt(0) && '"'==str.charAt(str.length()-1)) {
+			return str.substring(1, str.length()-1);
+		}
+		throw new TaskException("info unuse"); 
+	}
+	private String packageName;
 	private String appName;
+	private String versionCode;
+	private String versionName;
+	private Timestamp firstInstallTime;
+	private Timestamp lastUpdateTime;
 	private String front;
-	private long timeStart;
-	private long timeEnd;
+	private Timestamp timeStart;
+	private Timestamp timeEnd;
 	private String baseCompent;
 	private String topCompent;
 	
+	public String getPackageName() {
+		return packageName;
+	}
+	public void setPackageName(String packageName) {
+		this.packageName = packageName;
+	}
 	public String getAppName() {
 		return appName;
 	}
 	public void setAppName(String appName) {
 		this.appName = appName;
+	}
+	public String getVersionCode() {
+		return versionCode;
+	}
+	public void setVersionCode(String versionCode) {
+		this.versionCode = versionCode;
+	}
+	public String getVersionName() {
+		return versionName;
+	}
+	public void setVersionName(String versionName) {
+		this.versionName = versionName;
+	}
+	public Timestamp getFirstInstallTime() {
+		return firstInstallTime;
+	}
+	public void setFirstInstallTime(Timestamp firstInstallTime) {
+		this.firstInstallTime = firstInstallTime;
+	}
+	public Timestamp getLastUpdateTime() {
+		return lastUpdateTime;
+	}
+	public void setLastUpdateTime(Timestamp lastUpdateTime) {
+		this.lastUpdateTime = lastUpdateTime;
 	}
 	public String getFront() {
 		return front;
@@ -52,16 +110,16 @@ public class AppLogInfoV1 extends AppDeviceInfoV1{
 	public void setFront(String front) {
 		this.front = front;
 	}
-	public long getTimeStart() {
+	public Timestamp getTimeStart() {
 		return timeStart;
 	}
-	public void setTimeStart(long timeStart) {
+	public void setTimeStart(Timestamp timeStart) {
 		this.timeStart = timeStart;
 	}
-	public long getTimeEnd() {
+	public Timestamp getTimeEnd() {
 		return timeEnd;
 	}
-	public void setTimeEnd(long timeEnd) {
+	public void setTimeEnd(Timestamp timeEnd) {
 		this.timeEnd = timeEnd;
 	}
 	public String getBaseCompent() {

@@ -14,6 +14,7 @@ public abstract class AppDeviceInfoV1 extends AppLogInfo {
 		}
 	}
 	protected String devicesname;
+	protected String sdkVersion;
 	protected String mac;
 	protected String displayW;
 	protected String displayH;
@@ -23,6 +24,12 @@ public abstract class AppDeviceInfoV1 extends AppLogInfo {
 	}
 	public void setDevicesname(String devicesname) {
 		this.devicesname = devicesname;
+	}
+	public String getSdkVersion() {
+		return sdkVersion;
+	}
+	public void setSdkVersion(String sdkVersion) {
+		this.sdkVersion = sdkVersion;
 	}
 	public String getMac() {
 		return mac;
@@ -55,6 +62,7 @@ public abstract class AppDeviceInfoV1 extends AppLogInfo {
 		}
 		version = prop.getProperty("version", "");
 		devicesname = prop.getProperty("devicesname","");
+		sdkVersion = prop.getProperty("sdk");
 		mac = prop.getProperty("mac","");
 		displayW = prop.getProperty("display_w","");
 		displayH = prop.getProperty("display_h","");
