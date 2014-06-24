@@ -31,8 +31,10 @@ public class AppLogInfoV1 extends AppDeviceInfoV1{
 		appName = removeQuotation(strs[1]);
 		versionCode = removeQuotation(strs[2]);
 		versionName = removeQuotation(strs[3]);
-		firstInstallTime = new Timestamp(Long.valueOf(removeQuotation(strs[4])));
-		lastUpdateTime = new Timestamp(Long.valueOf(removeQuotation(strs[5])));
+		
+		//sdk version大于8 才会取得到值
+		firstInstallTime = removeQuotation(strs[4]).length()<=0?null:new Timestamp(Long.valueOf(removeQuotation(strs[4])));
+		lastUpdateTime = removeQuotation(strs[5]).length()<=0?null:new Timestamp(Long.valueOf(removeQuotation(strs[5])));
 		front = removeQuotation(strs[6]);
 		timeStart = new Timestamp(Long.valueOf(removeQuotation(strs[7])));
 		timeEnd = new Timestamp(Long.valueOf(removeQuotation(strs[8])));
@@ -49,7 +51,7 @@ public class AppLogInfoV1 extends AppDeviceInfoV1{
 	
 	private String removeQuotation(String str) throws TaskException{
 		if(str==null || str.trim().length()<=2) {
-			return null;
+			return "";
 		}
 		if('"'==str.charAt(0) && '"'==str.charAt(str.length()-1)) {
 			return str.substring(1, str.length()-1);
