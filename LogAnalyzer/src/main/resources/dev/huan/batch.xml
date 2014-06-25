@@ -41,7 +41,7 @@
 		</decision>
 		<step id="logAnalyzeStep" next="decision">
 			<tasklet>
-				<chunk reader="logItemReader" processor="logItemProcessor"
+				<chunk reader="logItemReader" processor=" "
 					writer="logItemWriter" commit-interval="${commit.num}" />
 			</tasklet>
 		</step>

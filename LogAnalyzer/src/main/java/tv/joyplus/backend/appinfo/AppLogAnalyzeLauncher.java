@@ -1,4 +1,4 @@
-package tv.joyplus.backend.huan;
+package tv.joyplus.backend.appinfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,8 +9,8 @@ import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 
-public class LogAnalyzerLauncher {
-	private final static Log log = LogFactory.getLog(LogAnalyzerLauncher.class);
+public class AppLogAnalyzeLauncher {
+	private final static Log log = LogFactory.getLog(AppLogAnalyzeLauncher.class);
 	private static JobParameters oldJobParameters = null;
 	private JobRepository jobRepository;
 	private JobLauncher jobLauncher;
@@ -35,7 +35,6 @@ public class LogAnalyzerLauncher {
 					log.info("previews job doesn't stopped, this job will exit");
 				}
 			}
-			
 			log.info("job done");
 		} catch (Exception e) {
 			log.error(e.getMessage());

@@ -1,6 +1,6 @@
 package tv.joyplus.backend.exception;
 
-public class TaskException extends RuntimeException {
+public class TaskException extends Throwable{
 	private String code;
 
 	public TaskException(String message) {

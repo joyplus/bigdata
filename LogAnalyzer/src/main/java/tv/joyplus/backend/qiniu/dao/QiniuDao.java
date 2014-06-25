@@ -15,7 +15,7 @@ public interface QiniuDao {
 	 * 获取文件列表信息
 	 * @return
 	 */
-	public List<QiniuItem> list();
+	public List<QiniuItem> list(String prifix);
 	/**
 	 * 获取单个文件信息
 	 * @param Key
