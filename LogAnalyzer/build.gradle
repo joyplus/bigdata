@@ -23,7 +23,7 @@ def loadConfiguration() {
 		sourceSets.main.resources.srcDirs = ['src/main/resources/dev']
 	
 	def mainLaunch = hasProperty( 'launch' ) ? launch : 'huan'
-	
+	setProperty 'mainLaunch', mainLaunch
 	if( mainLaunch.equals( 'huan' ))
 		setProperty 'mainClass', 'tv.joyplus.backend.huan.Launcher'
 	else if( mainLaunch.equals( 'applog' ))
@@ -77,7 +77,7 @@ jar {
     manifest {
 		attributes 'Implementation-Title': baseName, 'Implementation-Version': version
     }
-    archiveName = "$baseName-$version-$environment.$extension"
+    archiveName = "$baseName-$version-$mainLaunch-$environment.$extension"
 }
 
 configurations {
