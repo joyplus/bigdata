@@ -66,6 +66,7 @@
 	<bean id="appLogItemProcessor" class="tv.joyplus.backend.appinfo.core.AppLogItemProcessor"
 		scope="step">
 		<property name="deviceInfo" value="#{jobExecutionContext['input.file.properties']}" />
+        <property name="businessId" value="${business.id}"/>
 	</bean>
 	<bean id="appLogItemWriter" class="tv.joyplus.backend.appinfo.core.AppLogItemWriter"
 		scope="step">
@@ -141,28 +142,10 @@
 	</bean>
 	
 	
-	<bean id="appLogLoadJobLauncherYestoday" class="tv.joyplus.backend.appinfo.AppLogLoadYestodayLauncher">
-		<property name="jobLauncher" ref="jobLauncher" />
-		<property name="job" ref="appLogLoadJob" />
-	</bean>
-	
-	<bean id="appLogLoadJobDetailYestoday" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-		<property name="targetObject" ref="appLogLoadJobLauncherYestoday" />  
- 		<property name="targetMethod" value="execute" />
-	</bean>
-	
-	<bean id="cronTriggerAppLogLoadYestoday" lazy-init="false"
-			class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-		<property name="jobDetail" ref="appLogLoadJobDetailYestoday" />
-		<property name="cronExpression" value="${quartz.cron.expression.appLogLoadYestoday}" />
-	</bean>
-	
-	
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
 			<list>
 				<ref bean="cronTriggerAppLogLoad" />
-				<ref bean="cronTriggerAppLogLoadYestoday" />
 				<ref bean="cronTriggerAppLogAnalyze" />
 			</list>
 		</property>

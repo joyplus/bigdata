@@ -10,6 +10,11 @@ public class AppLogInfoV1 extends AppDeviceInfoV1{
 	public AppLogInfoV1() throws TaskException {
 		this(null);
 	}
+
+    public AppLogInfoV1(Properties prop, String line, String businessId) throws TaskException {
+        this(prop, line);
+        this.businessId = businessId;
+    }
 	public AppLogInfoV1(Properties prop) throws TaskException {
 		super(prop);
 	}

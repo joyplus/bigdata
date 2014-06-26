@@ -12,6 +12,7 @@ import tv.joyplus.backend.exception.TaskException;
 public class AppLogItemProcessor implements ItemProcessor<String, AppLogInfo> {
 	private static final Log log = LogFactory.getLog(AppLogItemProcessor.class);
 	private Properties deviceInfo;
+    private String businessId;
 	@Override
 	public AppLogInfo process(String line) throws Exception {
 		return praseLogInfo(line);
@@ -33,7 +34,7 @@ public class AppLogItemProcessor implements ItemProcessor<String, AppLogInfo> {
 		if(deviceInfo!=null) {
 			version = deviceInfo.getProperty("version", "");
 			if("1.0".equals(version)) {
-				return new AppLogInfoV1(deviceInfo, line);
+				return new AppLogInfoV1(deviceInfo, line, businessId);
 			}
 		}
 		return null;
@@ -42,5 +43,8 @@ public class AppLogItemProcessor implements ItemProcessor<String, AppLogInfo> {
 	public void setDeviceInfo(Properties deviceInfo) {
 		this.deviceInfo = deviceInfo;
 	}
-	
+
+    public void setBusinessId(String businessId) {
+        this.businessId = businessId;
+    }
 }

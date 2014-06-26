@@ -8,6 +8,7 @@ public abstract class AppLogInfo {
 	protected String version;
 	protected int status;
 	protected Timestamp createTime;
+    protected String businessId;
 	public long getId() {
 		return id;
 	}
@@ -32,7 +33,13 @@ public abstract class AppLogInfo {
 	public void setCreateTime(Timestamp createTime) {
 		this.createTime = createTime;
 	}
-	public static String TableName() {
+    public String getBusinessId() {
+        return businessId;
+    }
+    public void setBusinessId(String businessId) {
+        this.businessId = businessId;
+    }
+    public static String TableName() {
 		return "ap_app_log";
 	}
 }

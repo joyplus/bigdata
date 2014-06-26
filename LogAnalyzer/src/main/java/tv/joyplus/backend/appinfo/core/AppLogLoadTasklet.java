@@ -23,6 +23,8 @@ import tv.joyplus.backend.utils.FormatTool;
 
 public class AppLogLoadTasklet implements Tasklet {
 	private static Log log = LogFactory.getLog(AppLogLoadTasklet.class);
+    private static final int BEFORE_SIZE = 2;
+    private static final int BEFORE_DURATION = 10*60*1000;
 	@Autowired
 	private QiniuDao qiniuDao;
 	@Autowired
@@ -38,18 +40,21 @@ public class AppLogLoadTasklet implements Tasklet {
 
 		// 待下载文件列表
 		log.debug("time->"+time+";date->"+new Date(time));
-		String prifix = FormatTool.date("yyyy-MM-dd-HH", new Date(time));
-		log.debug("prifix-> " + prifix);
-		List<QiniuItem> list = qiniuDao.list(prifix);
-		List<AppLogDownloadInfo> infoList = new ArrayList<AppLogDownloadInfo>();
-		for (QiniuItem item : list) {
-			if (downloadDao.existIdent(item.getKey())) {
-				continue;
-			}
-			AppLogDownloadInfo info = newAppLogDownloadInfo(item);
-			infoList.add(info);
-		}
-		downloadDao.batchSave(infoList);
+        for(int i=0; i<BEFORE_SIZE; i++) {
+            String prifix = FormatTool.date("yyyy-MM-dd-HH-mm", new Date(time-(BEFORE_DURATION*(i+1))));
+            prifix = prifix.substring(0, prifix.length() - 1);
+            log.debug("prifix-> " + prifix);
+            List<QiniuItem> list = qiniuDao.list(prifix);
+            List<AppLogDownloadInfo> infoList = new ArrayList<AppLogDownloadInfo>();
+            for (QiniuItem item : list) {
+                if (downloadDao.existIdent(item.getKey())) {
+                    continue;
+                }
+                AppLogDownloadInfo info = newAppLogDownloadInfo(item);
+                infoList.add(info);
+            }
+            downloadDao.batchSave(infoList);
+        }
 		log.info("log load tasklet done");
 		return RepeatStatus.FINISHED;
 	}
