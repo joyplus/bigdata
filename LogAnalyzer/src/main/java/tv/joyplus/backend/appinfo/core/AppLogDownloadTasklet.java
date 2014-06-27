@@ -6,7 +6,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.List;
 
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.FileHeader;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -38,6 +42,7 @@ public class AppLogDownloadTasklet implements Tasklet {
 	private AppLogAnalyzeDao analyzeDao;
 	private String downloadDir;
 	private String unzipDir;
+    private String unzipPassword;
 
 	@Override
 	public RepeatStatus execute(StepContribution contribution,
@@ -94,51 +99,34 @@ public class AppLogDownloadTasklet implements Tasklet {
 		
 		try {
 			File file = new File(info.getPath()+info.getFilename());
-			deArchive(saveDir, file, "zip");
-			addToAnalyzerTable(saveDir.getPath(), 0);
+            unzip(saveDir, file);
+			addToAnalyzerTable(saveDir.getPath(), AppLogAnalyzeInfo.STATUS_UNPROCESSE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
 	}
-	/**
-	 * 解压tar,zip文件
-	 * 
-	 * @param file
-	 * @param archiveType
-	 * @throws ArchiveException 
-	 * @throws IOException 
-	 * @throws Exception
-	 */
-	private void deArchive(File saveDir, File file, String archiveType) throws Exception {
-		ArchiveInputStream in = new ArchiveStreamFactory()
-				.createArchiveInputStream(archiveType,
-						new FileInputStream(file));
-		ArchiveEntry entry = null;
-		while ((entry = in.getNextEntry()) != null) {
-			if (entry.isDirectory()) {
-				new File(saveDir, entry.getName()).mkdirs();
-			} else {
-				File f = new File(saveDir, entry.getName());
-				f.getParentFile().mkdirs();
-				// 文件存在 覆盖
-				if (f.exists()) {
-					FileOutputStream out = new FileOutputStream(f);
-					IOUtils.copy(in, out);
-					log.error(f.getName() + " existed");
-				} else {
-					FileOutputStream out = new FileOutputStream(f);
-					IOUtils.copy(in, out);
-					log.debug("unanalyzed file:" + f.getPath());
-				}
-			}
-		}
-	}
 
-	
+    /**
+     * 解压zip文件
+     * @param saveDir
+     * @param zipFile
+     */
+    private void unzip(File saveDir, File zipFile) throws Exception {
+        log.debug("unzip begin save path:" + saveDir.getPath());
+        ZipFile zFile = new ZipFile(zipFile);
+        if(!zFile.isValidZipFile()) {
+            throw new ZipException("bad zip file");
+        }
+        if(zFile.isEncrypted()) {
+            zFile.setPassword(unzipPassword);
+        }
+        zFile.extractAll(saveDir.getPath());
+    }
+
 	/**
 	 * 解压文件信息存入数据库
 	 * @param path
-	 * @param filename
+	 * @param status
 	 */
 	private void addToAnalyzerTable(String path, int status) {
 		AppLogAnalyzeInfo info = new AppLogAnalyzeInfo();
@@ -153,4 +141,7 @@ public class AppLogDownloadTasklet implements Tasklet {
 	public void setUnzipDir(String unzipDir) {
 		this.unzipDir = unzipDir;
 	}
+    public void setUnzipPassword(String unzipPassword) {
+        this.unzipPassword = unzipPassword;
+    }
 }

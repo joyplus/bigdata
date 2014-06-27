@@ -47,7 +47,7 @@ public class AppLogDaoImpl extends JdbcDaoSupport implements AppLogDao {
 
 	private void prepareAppLogInfo(PreparedStatement ps, AppLogInfoV1 info)
 			throws SQLException {
-		// version,device_name,sdk_version,mac,display_w,display_h,ip,package_name,app_name,version_code,version_name,first_install_time,last_update_time,front,time_start,time_end,base_compent,top_compent,status,create_time
+		// version,device_name,sdk_version,mac,display_w,display_h,ip,package_name,app_name,version_code,version_name,first_install_time,last_update_time,front,time_start,time_end,base_compent,top_compent,status,create_time,business_id
 		Object[] mObject = new Object[] { 
 				info.getVersion(),
 				info.getDevicesname(), 
@@ -68,7 +68,8 @@ public class AppLogDaoImpl extends JdbcDaoSupport implements AppLogDao {
 				info.getBaseCompent(), 
 				info.getTopCompent(), 
 				info.getStatus(),
-				new Timestamp(Calendar.getInstance().getTimeInMillis()) };
+				new Timestamp(Calendar.getInstance().getTimeInMillis()),
+                info.getBusinessId()};
 		prepareAppLogInfo(ps, mObject);
 
 	}
@@ -88,8 +89,8 @@ public class AppLogDaoImpl extends JdbcDaoSupport implements AppLogDao {
 			+ AppLogInfo.TableName()
 			+ " (version,device_name,sdk_version,mac,display_w,display_h,ip,"
 			+ "package_name,app_name,version_code,version_name,first_install_time,"
-			+ "last_update_time,front,time_start,time_end,base_compent,top_compent,status,create_time) "
-			+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+			+ "last_update_time,front,time_start,time_end,base_compent,top_compent,status,create_time,business_id) "
+			+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 			setter);
 	}
 
