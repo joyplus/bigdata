@@ -36,14 +36,15 @@
 	<bean id="appLogDownloadTask" class="tv.joyplus.backend.appinfo.core.AppLogDownloadTasklet" scope="step">
 		<property name="downloadDir" value="${app.log.download.dir}" />
 		<property name="unzipDir" value="${app.log.dir}" />
+        <property name="unzipPassword" value="${zip.password}" />
 	</bean>
 	
 	<job id="appLogAnalyzeJob" xmlns="http://www.springframework.org/schema/batch">
-		<decision decider="logDecider" id="logDecider">
+		<decision decider="logDecider" id="logDecision">
 			<next on="UNKNOWN" to="appLogAnalyzeStep"></next>
 			<end on="COMPLETED"></end>
 		</decision>
-		<step id="appLogAnalyzeStep" next="logDecider">
+		<step id="appLogAnalyzeStep" next="logDecision">
 			<tasklet>
 				<chunk reader="appLogItemReader" processor="appLogItemProcessor"
 					writer="appLogItemWriter" commit-interval="${commit.num}" />

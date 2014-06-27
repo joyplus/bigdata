@@ -29,8 +29,6 @@ public class AppLogLoadTasklet implements Tasklet {
 	private QiniuDao qiniuDao;
 	@Autowired
 	private AppLogDownloadDao downloadDao;
-	@Autowired
-	private AppLogAnalyzeDao analyzeDao;
 	private String downloadDir;
 	private long time;
 
@@ -44,7 +42,7 @@ public class AppLogLoadTasklet implements Tasklet {
             String prifix = FormatTool.date("yyyy-MM-dd-HH-mm", new Date(time-(BEFORE_DURATION*(i+1))));
             prifix = prifix.substring(0, prifix.length() - 1);
             log.debug("prifix-> " + prifix);
-            List<QiniuItem> list = qiniuDao.list(prifix);
+            List<QiniuItem> list = qiniuDao.list("2014-06-27-14-00-35");
             List<AppLogDownloadInfo> infoList = new ArrayList<AppLogDownloadInfo>();
             for (QiniuItem item : list) {
                 if (downloadDao.existIdent(item.getKey())) {
