@@ -15,12 +15,19 @@ loadConfiguration()
 def loadConfiguration() {
 	def environment = hasProperty( 'env' ) ? env : 'dev'
 	setProperty 'environment', environment
-    if( environment.equals( 'sit' ))
-	sourceSets.main.resources.srcDirs = ['src/main/resources/sit']
+	if( environment.equals( 'sit' ))
+		sourceSets.main.resources.srcDirs = ['src/main/resources/sit']
 	else if(environment.equals( 'product' ))
-	sourceSets.main.resources.srcDirs = ['src/main/resources/product']
+		sourceSets.main.resources.srcDirs = ['src/main/resources/product']
 	else
-	sourceSets.main.resources.srcDirs = ['src/main/resources/dev']
+		sourceSets.main.resources.srcDirs = ['src/main/resources/dev']
+	
+	def mainLaunch = hasProperty( 'launch' ) ? launch : 'huan'
+	setProperty 'mainLaunch', mainLaunch
+	if( mainLaunch.equals( 'huan' ))
+		setProperty 'mainClass', 'tv.joyplus.backend.huan.Launcher'
+	else if( mainLaunch.equals( 'applog' ))
+		setProperty 'mainClass', 'tv.joyplus.backend.appinfo.Launcher'
 }
 
 repositories {
@@ -70,9 +77,9 @@ jar {
     manifest {
 		attributes 'Implementation-Title': baseName, 'Implementation-Version': version
     }
-    archiveName = "$baseName-$version-$environment.$extension"
+    archiveName = "$baseName-$version-$mainLaunch-$environment.$extension"
 }
 
 configurations {
-	mainClassName = 'tv.joyplus.backend.huan.Launcher'
+	mainClassName = "$mainClass"
 }
