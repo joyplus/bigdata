@@ -52,6 +52,8 @@ public class AppLogInfoV1 extends AppDeviceInfoV1{
 		if(packageName==null || packageName.length()<=0) {
 			throw new TaskException("unknow package name");
 		}
+
+        if()
 	}
 	
 	private String removeQuotation(String str) throws TaskException{
