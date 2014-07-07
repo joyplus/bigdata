@@ -19,7 +19,9 @@ def loadConfiguration() {
 		sourceSets.main.resources.srcDirs = ['src/main/resources/sit']
 	else if(environment.equals( 'product' ))
 		sourceSets.main.resources.srcDirs = ['src/main/resources/product']
-	else
+	else if(environment.equals( 'kjadv' ))
+        sourceSets.main.resources.srcDirs = ['src/main/resources/kjadv']
+    else
 		sourceSets.main.resources.srcDirs = ['src/main/resources/dev']
 	
 	def mainLaunch = hasProperty( 'launch' ) ? launch : 'huan'
