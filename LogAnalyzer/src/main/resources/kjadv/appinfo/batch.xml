@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" 
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/batch 
+		http://www.springframework.org/schema/batch/spring-batch.xsd 
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.1.xsd 
+		http://www.springframework.org/schema/jdbc 
+		http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd">
+	<import resource="classpath:ApplicationContext.xml" />
+	<context:property-placeholder location="classpath:appinfo/appinfo.properties"
+		order="1" ignore-unresolvable="true" />
+	<context:annotation-config />
+	
+	<job id="appLogLoadJob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="appLogLoadStep">
+			<tasklet ref="appLogLoadTask" />
+		</step>
+	</job>
+	
+	<bean id="appLogLoadTask" class="tv.joyplus.backend.appinfo.core.AppLogLoadTasklet" scope="step">
+		<property name="downloadDir" value="${app.log.download.dir}" />
+		<property name="time" value="#{jobParameters['time']}" />
+	</bean>
+	
+	<job id="appLogDownloadJob" xmlns="http://www.springframework.org/schema/batch">
+		<step id="appDownlogLoadStep">
+			<tasklet ref="appLogDownloadTask" />
+		</step>
+	</job>
+	<bean id="appLogDownloadTask" class="tv.joyplus.backend.appinfo.core.AppLogDownloadTasklet" scope="step">
+		<property name="downloadDir" value="${app.log.download.dir}" />
+		<property name="unzipDir" value="${app.log.dir}" />
+        <property name="unzipPassword" value="${zip.password}" />
+	</bean>
+	
+	<job id="appLogAnalyzeJob" xmlns="http://www.springframework.org/schema/batch">
+		<decision decider="logDecider" id="logDecision">
+			<next on="UNKNOWN" to="appLogAnalyzeStep"></next>
+			<end on="COMPLETED"></end>
+		</decision>
+		<step id="appLogAnalyzeStep" next="logDecision">
+			<tasklet>
+				<chunk reader="appLogItemReader" processor="appLogItemProcessor"
+					writer="appLogItemWriter" commit-interval="${commit.num}" />
+			</tasklet>
+		</step>
+	</job>
+	
+	<bean id="appLogItemReader" class="org.springframework.batch.item.file.MultiResourceItemReader"
+		scope="step">
+		<property name="resources" value="#{jobExecutionContext['input.file.path']}" />
+		<property name="delegate" ref="flatFileItemReader" />
+	</bean>
+	<bean id="flatFileItemReader" 
+		class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+		<property name="lineMapper">
+			<bean
+				class="org.springframework.batch.item.file.mapping.PassThroughLineMapper" />
+		</property>
+	</bean>
+	<bean id="appLogItemProcessor" class="tv.joyplus.backend.appinfo.core.AppLogItemProcessor"
+		scope="step">
+		<property name="deviceInfo" value="#{jobExecutionContext['input.file.properties']}" />
+        <property name="businessId" value="${business.id}"/>
+	</bean>
+	<bean id="appLogItemWriter" class="tv.joyplus.backend.appinfo.core.AppLogItemWriter"
+		scope="step">
+	</bean>
+
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<bean id="logDecider" class="tv.joyplus.backend.appinfo.core.AppLogDecision"/>
+
+	<bean class="tv.joyplus.backend.qiniu.dao.impl.QiniuDaoImpl">
+		<property name="accessKey" value="${qiniu.accessKey}" />
+		<property name="secretKey" value="${qiniu.secretKey}" />
+		<property name="bucket" value="${qiniu.bucket}" />
+		<property name="domain" value="${qiniu.domain}" />
+	</bean>
+
+	<bean class="tv.joyplus.backend.appinfo.dao.impl.AppLogDownloadDaoImpl">
+		<property name="dataSource">
+			<ref local="dataSource" />
+		</property>
+	</bean>
+	<bean class="tv.joyplus.backend.appinfo.dao.impl.AppLogAnalyzeDaoImpl">
+		<property name="dataSource">
+			<ref local="dataSource" />
+		</property>
+	</bean>
+	<bean class="tv.joyplus.backend.appinfo.dao.impl.AppLogDaoImpl">
+		<property name="dataSource">
+			<ref local="dataSource" />
+		</property>
+	</bean>
+	
+	<bean id="appLogAnalyzeJobLauncher" class="tv.joyplus.backend.appinfo.AppLogAnalyzeLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+		<property name="jobLauncher" ref="jobLauncher" />
+		<property name="job" ref="appLogAnalyzeJob" />
+	</bean>
+	
+	<bean id="appLogAnalyzeJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="appLogAnalyzeJobLauncher" />  
+ 		<property name="targetMethod" value="execute" />
+	</bean>
+	
+	<bean id="cronTriggerAppLogAnalyze" lazy-init="false"
+			class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="appLogAnalyzeJobDetail" />
+		<property name="cronExpression" value="${quartz.cron.expression.appLogAnalyze}" />
+	</bean>
+	
+	
+	<bean id="appLogLoadJobLauncher" class="tv.joyplus.backend.appinfo.AppLogLoadLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+		<property name="jobLauncher" ref="jobLauncher" />
+		<property name="job" ref="appLogLoadJob" />
+	</bean>
+	
+	<bean id="appLogLoadJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="appLogLoadJobLauncher" />  
+ 		<property name="targetMethod" value="execute" />
+	</bean>
+	
+	<bean id="cronTriggerAppLogLoad" lazy-init="false"
+			class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="appLogLoadJobDetail" />
+		<property name="cronExpression" value="${quartz.cron.expression.appLogLoad}" />
+	</bean>
+	
+	
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="cronTriggerAppLogLoad" />
+				<ref bean="cronTriggerAppLogAnalyze" />
+			</list>
+		</property>
+	</bean>
+</beans>
