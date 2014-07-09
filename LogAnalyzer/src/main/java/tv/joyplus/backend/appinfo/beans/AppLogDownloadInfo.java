@@ -16,6 +16,7 @@ public class AppLogDownloadInfo {
 	private long putTime;
 	private int status;
 	private Timestamp createTime;
+    private String businessId;
 	public long getId() {
 		return id;
 	}
@@ -76,7 +77,16 @@ public class AppLogDownloadInfo {
 	public void setCreateTime(Timestamp createTime) {
 		this.createTime = createTime;
 	}
-	public static String TableName() {
+
+    public String getBusinessId() {
+        return businessId;
+    }
+
+    public void setBusinessId(String businessId) {
+        this.businessId = businessId;
+    }
+
+    public static String TableName() {
 		return "ap_app_log_download_info";
 	}
 }

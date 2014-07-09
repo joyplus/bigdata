@@ -1,8 +1,8 @@
 package tv.joyplus.backend.appinfo.dao;
 
-import java.util.List;
-
 import tv.joyplus.backend.appinfo.beans.AppLogDownloadInfo;
+
+import java.util.List;
 
 public interface AppLogDownloadDao {
 	public AppLogDownloadInfo get();
@@ -12,5 +12,5 @@ public interface AppLogDownloadDao {
 	public void batchSave(final List<? extends AppLogDownloadInfo> list);
 	public int updateStatus(long id, int status);
 	public int updateStatus(AppLogDownloadInfo instance);
-	public boolean existIdent(String ident);
+	public boolean existIdent(String ident, String businessId);
 }
