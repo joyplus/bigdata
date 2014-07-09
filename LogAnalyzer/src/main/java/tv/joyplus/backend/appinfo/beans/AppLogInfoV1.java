@@ -1,9 +1,9 @@
 package tv.joyplus.backend.appinfo.beans;
 
+import tv.joyplus.backend.exception.TaskException;
+
 import java.sql.Timestamp;
 import java.util.Properties;
-
-import tv.joyplus.backend.exception.TaskException;
 
 public class AppLogInfoV1 extends AppDeviceInfoV1{
 	
@@ -29,7 +29,7 @@ public class AppLogInfoV1 extends AppDeviceInfoV1{
 			throw new TaskException("info unuse");
 		}
 		String[] strs = line.split(",");
-		if(strs==null || strs.length!=11) {
+		if(strs==null || strs.length!=12) {
 			throw new TaskException("info unuse");
 		}
 		packageName = removeQuotation(strs[0]);
