@@ -9,16 +9,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Launcher {
-	public static final Log log = LogFactory.getLog(Launcher.class);
-	@SuppressWarnings("resource")
-	public static void main(String[] args) {
-		ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:appinfo/batch.xml");
-		JobLauncher jobLauncher = (JobLauncher) ctx.getBean("jobLauncher");
+    public static final Log log = LogFactory.getLog(Launcher.class);
+
+    @SuppressWarnings("resource")
+    public static void main(String[] args) {
+        ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:appinfo/batch.xml");
+        JobLauncher jobLauncher = (JobLauncher) ctx.getBean("jobLauncher");
         Job job = (Job) ctx.getBean("appLogDownloadJob");
         try {
             jobLauncher.run(job, new JobParameters());
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
-	}
+    }
 }
