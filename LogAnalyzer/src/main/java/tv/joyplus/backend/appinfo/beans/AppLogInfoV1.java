@@ -34,7 +34,7 @@ public class AppLogInfoV1 extends AppDeviceInfoV1 {
             throw new TaskException("info unuse");
         }
         packageName = removeQuotation(strs[0]);
-        appName = removeQuotation(strs[1]);
+        appName = removeQuotation(strs[1]).trim();
         versionCode = removeQuotation(strs[2]);
         versionName = removeQuotation(strs[3]);
 
