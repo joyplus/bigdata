@@ -67,7 +67,7 @@ public class AppLogLoadTasklet implements Tasklet {
         String prifix = FormatTool.date("yyyy-MM-dd-HH-mm", date);
         prifix = prifix.substring(0, prifix.length() - 1);
         log.debug("prifix-> " + prifix);
-        List<QiniuItem> list = qiniu.list(businessId, "prifix");
+        List<QiniuItem> list = qiniu.list(businessId, prifix);
         log.debug("business.id -> " + businessId + ", size ->" + list.size());
         List<AppLogDownloadInfo> infoList = new ArrayList<>();
         for (QiniuItem item : list) {
