@@ -149,7 +149,8 @@
 		<property name="dataSource">
 			<ref local="dataSourceProcess" />
 		</property>
-		<property name="tubeName" value="${beanstalk.tube.process}" />
+        <property name="tubeRequest" value="${beanstalk.tube.request}" />
+        <property name="tubeReporting" value="${beanstalk.tube.reporting}" />
 	</bean>
 	<bean class="com.trendrr.beanstalk.BeanstalkClient">
 		<property name="addr" value="${beanstalk.server}" />

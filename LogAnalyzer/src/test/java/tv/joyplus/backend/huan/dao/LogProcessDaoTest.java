@@ -1,22 +1,20 @@
 package tv.joyplus.backend.huan.dao;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.trendrr.beanstalk.BeanstalkClient;
+import com.trendrr.beanstalk.BeanstalkJob;
+import de.ailis.pherialize.Pherialize;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.trendrr.beanstalk.BeanstalkClient;
-import com.trendrr.beanstalk.BeanstalkJob;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import de.ailis.pherialize.Pherialize;
+import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration(locations = {"classpath:huan/batch.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -43,7 +41,7 @@ public class LogProcessDaoTest {
 		map.put("client_ip", "127.0.0.1");
 		map.put("business_id", "MDADV");
 		list.add(map);
-		logProcessDao.batch(list);
+		logProcessDao.sendToRequestLog(list);
 		beanstalk.watchTube("MDADV_REQUEST_DEVICE_LOG");
 		BeanstalkJob job = beanstalk.reserve(null);
 		beanstalk.deleteJob(job);

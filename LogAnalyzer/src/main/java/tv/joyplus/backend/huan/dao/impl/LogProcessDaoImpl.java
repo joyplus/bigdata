@@ -1,55 +1,83 @@
 package tv.joyplus.backend.huan.dao.impl;
 
-import java.util.List;
-import java.util.Map;
-
+import com.trendrr.beanstalk.BeanstalkClient;
+import com.trendrr.beanstalk.BeanstalkException;
+import de.ailis.pherialize.Pherialize;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
-
-import com.trendrr.beanstalk.BeanstalkClient;
-import com.trendrr.beanstalk.BeanstalkException;
-
-import de.ailis.pherialize.Mixed;
-import de.ailis.pherialize.Pherialize;
-import tv.joyplus.backend.exception.TaskException;
-import tv.joyplus.backend.huan.beans.LogProcess;
 import tv.joyplus.backend.huan.dao.LogProcessDao;
+
+import java.util.List;
+import java.util.Map;
 
 public class LogProcessDaoImpl extends JdbcDaoSupport implements LogProcessDao {
 
-	private final static Log log = LogFactory.getLog(LogProcessDaoImpl.class);
-	private String tubeName;
-	@Autowired
-	private BeanstalkClient beanstalk;
-	@Override
-	public void batch(List<Map> list) {
-		try {
-			beanstalk.useTube(tubeName);
-			for(Map p : list) {
-				String serialize = Pherialize.serialize(p);
-				byte[] data = Pherialize.serialize(serialize).getBytes();
-				beanstalk.put(1L, 0, 120, data);
-			}
-		} catch (BeanstalkException e) {
-			log.error(e.getMessage());
-		}
-	}
-	
-	@Override
-	public void process(Map map) {
-		try {
-			beanstalk.useTube(tubeName);
-			String serialize = Pherialize.serialize(map);
-			byte[] data = Pherialize.serialize(serialize).getBytes();
-			beanstalk.put(1L, 0, 120, data);
-		} catch (BeanstalkException e) {
-			log.error(e.getMessage());
-		}
-	}
+    private final static Log log = LogFactory.getLog(LogProcessDaoImpl.class);
+    private String tubeRequest;
+    private String tubeReporting;
+    @Autowired
+    private BeanstalkClient beanstalk;
 
-	public void setTubeName(String tubeName) {
-		this.tubeName = tubeName;
-	}
+    @Override
+    public void sendToRequestLog(List<Map> list) {
+        try {
+            beanstalk.useTube(tubeRequest);
+            for (Map p : list) {
+                String serialize = Pherialize.serialize(p);
+                byte[] data = Pherialize.serialize(serialize).getBytes();
+                beanstalk.put(1L, 0, 120, data);
+            }
+        } catch (BeanstalkException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendToRequestLog(Map map) {
+        try {
+            beanstalk.useTube(tubeRequest);
+            String serialize = Pherialize.serialize(map);
+            byte[] data = Pherialize.serialize(serialize).getBytes();
+            beanstalk.put(1L, 0, 120, data);
+        } catch (BeanstalkException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendToReporting(List<Map> list) {
+        try {
+            beanstalk.useTube(tubeReporting);
+            for (Map p : list) {
+                String serialize = Pherialize.serialize(p);
+                byte[] data = Pherialize.serialize(serialize).getBytes();
+                beanstalk.put(1L, 0, 120, data);
+            }
+        } catch (BeanstalkException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendToReporting(Map map) {
+        try {
+            beanstalk.useTube(tubeReporting);
+            String serialize = Pherialize.serialize(map);
+            byte[] data = Pherialize.serialize(serialize).getBytes();
+            beanstalk.put(1L, 0, 120, data);
+        } catch (BeanstalkException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+
+    public void setTubeRequest(String tubeRequest) {
+        this.tubeRequest = tubeRequest;
+    }
+
+    public void setTubeReporting(String tubeReporting) {
+        this.tubeReporting = tubeReporting;
+    }
 }
