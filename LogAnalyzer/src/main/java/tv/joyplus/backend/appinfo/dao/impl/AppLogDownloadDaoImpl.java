@@ -1,15 +1,14 @@
 package tv.joyplus.backend.appinfo.dao.impl;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
-
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
-
 import tv.joyplus.backend.appinfo.beans.AppLogDownloadInfo;
 import tv.joyplus.backend.appinfo.dao.AppLogDownloadDao;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 
 public class AppLogDownloadDaoImpl extends JdbcDaoSupport implements
 		AppLogDownloadDao {
@@ -42,10 +41,10 @@ public class AppLogDownloadDaoImpl extends JdbcDaoSupport implements
 	@Override
 	public void save(AppLogDownloadInfo instance) {
 		String sql = "INSERT INTO " + AppLogDownloadInfo.TableName() + "(ident,url,path,filename,"
-				+ "mime_type,size,put_time,status,create_time) VALUES(?,?,?,?,?,?,?,?,?)";
+				+ "mime_type,size,put_time,status,create_time,business_id) VALUES(?,?,?,?,?,?,?,?,?,?)";
 		getJdbcTemplate().update(sql, new Object[]{instance.getIdent(), instance.getUrl(), 
 				instance.getPath(), instance.getFilename(), instance.getMimeType(), instance.getSize(),
-				instance.getPutTime(), 0, instance.getCreateTime()});
+				instance.getPutTime(), 0, instance.getCreateTime(),instance.getBusinessId()});
 	}
 	
 	@Override
@@ -64,6 +63,7 @@ public class AppLogDownloadDaoImpl extends JdbcDaoSupport implements
 				ps.setLong(7, info.getPutTime());
 				ps.setInt(8, info.getStatus());
 				ps.setTimestamp(9, info.getCreateTime());
+                ps.setString(10, info.getBusinessId());
 			}
 			
 			@Override
@@ -89,10 +89,10 @@ public class AppLogDownloadDaoImpl extends JdbcDaoSupport implements
 	}
 	
 	@Override
-	public boolean existIdent(String ident) {
-		String sql = "SELECT COUNT(*) FROM " + AppLogDownloadInfo.TableName() + " WHERE ident=?";
+	public boolean existIdent(String ident, String businessId) {
+		String sql = "SELECT COUNT(*) FROM " + AppLogDownloadInfo.TableName() + " WHERE ident=? AND business_id=?";
 		try{
-			int count = getJdbcTemplate().queryForObject(sql, new Object[]{ident}, Integer.class);
+			int count = getJdbcTemplate().queryForObject(sql, new Object[]{ident, businessId}, Integer.class);
 			return count>0;
 		} catch (Exception e){}
 		return false;
@@ -103,7 +103,7 @@ public class AppLogDownloadDaoImpl extends JdbcDaoSupport implements
 			return;
 		}
 		getJdbcTemplate().batchUpdate("INSERT INTO " + AppLogDownloadInfo.TableName() + "(ident,url,path,filename,"
-				+ "mime_type,size,put_time,status,create_time) VALUES(?,?,?,?,?,?,?,?,?)",
+				+ "mime_type,size,put_time,status,create_time,business_id) VALUES(?,?,?,?,?,?,?,?,?,?)",
 			setter);
 	}
 
