@@ -4,6 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 public interface LogProcessDao {
-	public void batch(List<Map> list);
-	public void process(Map map);
+    public void sendToRequestLog(List<Map> list);
+
+    public void sendToRequestLog(Map map);
+
+    public void sendToReporting(List<Map> list);
+
+    public void sendToReporting(Map map);
 }
