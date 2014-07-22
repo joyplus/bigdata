@@ -7,10 +7,12 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import tv.joyplus.backend.appinfo.Config;
 import tv.joyplus.backend.appinfo.beans.AppLogDownloadInfo;
 import tv.joyplus.backend.appinfo.beans.AppLogProcessInfo;
 import tv.joyplus.backend.appinfo.dao.AppLogDownloadDao;
 import tv.joyplus.backend.appinfo.dao.AppLogProcessDao;
+import tv.joyplus.backend.config.ConfigManager;
 import tv.joyplus.backend.qiniu.QiniuItem;
 import tv.joyplus.backend.qiniu.QiniuManager;
 import tv.joyplus.backend.utils.FormatTool;
@@ -30,7 +32,8 @@ public class AppLogLoadTasklet implements Tasklet {
     private AppLogDownloadDao downloadDao;
     @Autowired
     private AppLogProcessDao processDao;
-    private String downloadDir;
+    @Autowired
+    private ConfigManager configManager;
     private long time;
     private String[] businessIds;
 
@@ -92,7 +95,7 @@ public class AppLogLoadTasklet implements Tasklet {
         info.setIdent(item.getKey());
         info.setFilename(qiniu.formatFilename(item.getKey()));
         info.setMimeType(item.getMimeType());
-        info.setPath(downloadDir);
+        info.setPath(configManager.getConfiguration(Config.LocationKey.AP_LOG_DOWNLOAD_DIR, businessId));
         info.setUrl(qiniu.downloadUrl(businessId, item.getKey()));
         info.setPutTime(item.getPutTime() / 10000000);
         info.setSize(item.getFsize());
@@ -103,9 +106,6 @@ public class AppLogLoadTasklet implements Tasklet {
         return info;
     }
 
-    public void setDownloadDir(String downloadDir) {
-        this.downloadDir = downloadDir;
-    }
 
     public void setTime(long time) {
         this.time = time;
