@@ -24,7 +24,6 @@
     </job>
 
     <bean id="appLogLoadTask" class="tv.joyplus.backend.appinfo.core.AppLogLoadTasklet" scope="step">
-        <property name="downloadDir" value="${app.log.download.dir}"/>
         <property name="time" value="#{jobParameters['time']}"/>
         <property name="businessIds" value="${business.id}"/>
     </bean>
@@ -35,8 +34,6 @@
         </step>
     </job>
     <bean id="appLogDownloadTask" class="tv.joyplus.backend.appinfo.core.AppLogDownloadTasklet" scope="step">
-        <property name="downloadDir" value="${app.log.download.dir}"/>
-        <property name="unzipDir" value="${app.log.dir}"/>
         <property name="unzipPassword" value="${zip.password}"/>
     </bean>
 
@@ -101,6 +98,13 @@
         </property>
     </bean>
 
+    <bean id="configManager" class="tv.joyplus.backend.config.ConfigManagerImpl">
+        <property name="businessIds" value="${business.id}"/>
+        <property name="dataSource">
+            <ref local="dataSource"/>
+        </property>
+    </bean>
+
     <bean id="appLogAnalyzeJobLauncher" class="tv.joyplus.backend.appinfo.AppLogAnalyzeLauncher">
         <property name="jobRepository" ref="jobRepository"/>
         <property name="jobLauncher" ref="jobLauncher"/>
@@ -113,9 +117,9 @@
     </bean>
 
     <bean id="cronTriggerAppLogAnalyze" lazy-init="false"
-          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+          class="tv.joyplus.backend.appinfo.AppLogAnalyzeLauncherWapper">
         <property name="jobDetail" ref="appLogAnalyzeJobDetail"/>
-        <property name="cronExpression" value="${quartz.cron.expression.appLogAnalyze}"/>
+        <property name="businessIds" value="${business.id}"/>
     </bean>
 
 
@@ -131,9 +135,9 @@
     </bean>
 
     <bean id="cronTriggerAppLogLoad" lazy-init="false"
-          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+          class="tv.joyplus.backend.appinfo.AppLogLoadLauncherWapper">
         <property name="jobDetail" ref="appLogLoadJobDetail"/>
-        <property name="cronExpression" value="${quartz.cron.expression.appLogLoad}"/>
+        <property name="businessIds" value="${business.id}"/>
     </bean>
 
     <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
@@ -144,4 +148,5 @@
             </list>
         </property>
     </bean>
+
 </beans>
