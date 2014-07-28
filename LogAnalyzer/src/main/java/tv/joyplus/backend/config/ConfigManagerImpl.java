@@ -47,15 +47,16 @@ public class ConfigManagerImpl extends JdbcDaoSupport implements ConfigManager {
         sql.append("SELECT * FROM ");
         sql.append(ConfigProperty.TableName());
         sql.append(" WHERE business_id IN (");
-        for(int i=0; i<count; i++) {
-            sql.append("'"+businessIds[i]+"'");
-            if(i < count-1) {
+        for (int i = 0; i < count; i++) {
+            sql.append("'" + businessIds[i] + "'");
+            if (i < count - 1) {
                 sql.append(",");
             }
         }
         sql.append(")");
 
         return getJdbcTemplate().query(sql.toString(), new BeanPropertyRowMapper<>(ConfigProperty.class));
+    }
 
 
     public void setBusinessIds(String businessIds) {
