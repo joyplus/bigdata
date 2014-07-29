@@ -24,39 +24,41 @@ public class AppLogAnalyzeLauncher {
     private Job job;
     @Autowired
     private AppLogAnalyzeDao analyzerFileInfoDao;
-    Map<String, JobParameter> jobParametersMap = new HashMap<>();;
+    Map<String, JobParameter> jobParametersMap = new HashMap<>();
+    ;
 
     public void execute() {
+        if (isRunning) {
+            log.info("previews job doesn't stopped, this job will exit");
+            return;
+        }
         try {
             log.info("job start");
-            if(!isRunning) {
-                isRunning = true;
-                log.info("previews job stopped, this job will start");
-                List<AppLogAnalyzeInfo> infos = analyzerFileInfoDao.listUnAnalyzed();
-                AppLogAnalyzeInfo info = null;
-                for(int i=0; i<infos.size(); i++) {
-                    info = infos.get(i);
-                    jobParametersMap.put("time", new JobParameter(System.currentTimeMillis()));
-                    jobParametersMap.put("path", new JobParameter(info.getPath()));
-                    jobParametersMap.put("business.id", new JobParameter(info.getBusinessId()));
-                    log.debug("analyze start ->" + info.getId());
-                    try {
-                        JobExecution jobExecution = jobLauncher.run(job, new JobParameters(jobParametersMap));
-                        while (jobExecution.isRunning()) {
-                            Thread.sleep(10);
-                        }
-                    } catch (Throwable e) {}
-                    log.debug("analyze end   ->" + info.getId());
-                    analyzerFileInfoDao.updateStatus(info.getId(), AppLogAnalyzeInfo.STATUS_PROCESSED);
+            isRunning = true;
+            log.info("previews job stopped, this job will start");
+            List<AppLogAnalyzeInfo> infos = analyzerFileInfoDao.listUnAnalyzed();
+            AppLogAnalyzeInfo info = null;
+            for (int i = 0; i < infos.size(); i++) {
+                info = infos.get(i);
+                jobParametersMap.put("time", new JobParameter(System.currentTimeMillis()));
+                jobParametersMap.put("path", new JobParameter(info.getPath()));
+                jobParametersMap.put("business.id", new JobParameter(info.getBusinessId()));
+                log.debug("analyze start ->" + info.getId());
+                try {
+                    JobExecution jobExecution = jobLauncher.run(job, new JobParameters(jobParametersMap));
+                    while (jobExecution.isRunning()) {
+                        Thread.sleep(10);
+                    }
+                } catch (Throwable e) {
                 }
-            }else{
-                log.info("previews job doesn't stopped, this job will exit");
+                log.debug("analyze end   ->" + info.getId());
+                analyzerFileInfoDao.updateStatus(info.getId(), AppLogAnalyzeInfo.STATUS_PROCESSED);
             }
             log.info("job done");
-            isRunning = false;
         } catch (Exception e) {
             log.error(e.getMessage());
         }
+        isRunning = false;
     }
 
     public void setJobRepository(JobRepository jobRepository) {
