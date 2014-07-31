@@ -23,7 +23,7 @@ public class AppLogProcessDaoImpl extends JdbcDaoSupport implements AppLogProces
             public void setValues(PreparedStatement ps) throws SQLException {
                 ps.setString(1, businessId);
             }
-        }, new BeanPropertyRowMapper<>(AppLogProcessInfo.class));
+        }, new BeanPropertyRowMapper<AppLogProcessInfo>(AppLogProcessInfo.class));
         if(list==null || list.size()<=0) {
             return null;
         }

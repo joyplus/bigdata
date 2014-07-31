@@ -26,7 +26,7 @@ public class ConfigManagerImpl extends JdbcDaoSupport implements ConfigManager {
 
     @Override
     protected void initTemplateConfig() {
-        Configs = new HashMap<>();
+        Configs = new HashMap<String, Map<String,String>>();
         List<ConfigProperty> configurations = loadConfigurations();
         for(final ConfigProperty c : configurations) {
             log.debug(c.toString());
@@ -55,7 +55,7 @@ public class ConfigManagerImpl extends JdbcDaoSupport implements ConfigManager {
         }
         sql.append(")");
 
-        return getJdbcTemplate().query(sql.toString(), new BeanPropertyRowMapper<>(ConfigProperty.class));
+        return getJdbcTemplate().query(sql.toString(), new BeanPropertyRowMapper<ConfigProperty>(ConfigProperty.class));
     }
 
 

@@ -49,6 +49,9 @@ public class AppLogDownloadDaoImpl extends JdbcDaoSupport implements
 	
 	@Override
 	public void batchSave(final List<? extends AppLogDownloadInfo> list) {
+        //change by Jas@20140731 for avoid null exception
+        if(list==null || list.size()<=0)return;
+        //end change by Jas
 		batch(new BatchPreparedStatementSetter() {
 			
 			@Override
@@ -92,8 +95,7 @@ public class AppLogDownloadDaoImpl extends JdbcDaoSupport implements
 	public boolean existIdent(String ident, String businessId) {
 		String sql = "SELECT COUNT(*) FROM " + AppLogDownloadInfo.TableName() + " WHERE ident=? AND business_id=?";
 		try{
-			int count = getJdbcTemplate().queryForObject(sql, new Object[]{ident, businessId}, Integer.class);
-			return count>0;
+			return getJdbcTemplate().queryForObject(sql, new Object[]{ident, businessId}, Integer.class)>0;
 		} catch (Exception e){}
 		return false;
 	}

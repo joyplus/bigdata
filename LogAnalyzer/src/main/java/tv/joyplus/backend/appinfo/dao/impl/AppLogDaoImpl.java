@@ -22,6 +22,9 @@ public class AppLogDaoImpl extends JdbcDaoSupport implements AppLogDao {
 
     @Override
     public void batchSave(final List<? extends AppLogInfo> list) {
+        //add by Jas@20140731 for avoid null exception
+        if(list==null||list.size()<=0)return;
+        //end add by Jas
         batch(new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i)

@@ -21,7 +21,7 @@ public class QiniuManager {
     public QiniuManager() throws Exception, TaskException {
         //初始化configs
         log.debug("init qiniu properties");
-        configs = new HashMap<>();
+        configs = new HashMap<String, QiniuConfig>();
         Properties prop = PropertiesLoaderUtils.loadProperties(new ClassPathResource("qiniu.properties"));
         String businessIds = prop.getProperty("business.ids", "");
         String[] ids = businessIds.split(",");

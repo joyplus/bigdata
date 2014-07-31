@@ -71,8 +71,11 @@ public class AppLogLoadTasklet implements Tasklet {
         prifix = prifix.substring(0, prifix.length() - 1);
         log.debug("prifix-> " + prifix);
         List<QiniuItem> list = qiniu.list(businessId, prifix);
+        //add by Jas@20140731 for avoid null exception.
+        if(list==null||list.size()<=0)return;
+        //end add by Jas
         log.debug("business.id -> " + businessId + ", size ->" + list.size());
-        List<AppLogDownloadInfo> infoList = new ArrayList<>();
+        List<AppLogDownloadInfo> infoList = new ArrayList<AppLogDownloadInfo>();
         for (QiniuItem item : list) {
             if (downloadDao.existIdent(item.getKey(), businessId)) {
                 continue;
