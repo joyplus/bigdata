@@ -5,11 +5,12 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import tv.joyplus.backend.exception.TaskException;
-
+import tv.joyplus.backend.utils.FormatTool;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import tv.joyplus.backend.appinfo.Config;
 
 /**
  * Created by zino on 14-7-8.
@@ -19,20 +20,17 @@ public class QiniuManager {
     private HashMap<String, QiniuConfig> configs;
 
     public QiniuManager() throws Exception, TaskException {
-        //初始化configs
-        log.debug("init qiniu properties");
         configs = new HashMap<String, QiniuConfig>();
-        Properties prop = PropertiesLoaderUtils.loadProperties(new ClassPathResource("qiniu.properties"));
+        Properties prop = PropertiesLoaderUtils.loadProperties(new ClassPathResource(Config.LocalFile.QINIU_PROPERTIES));
         String businessIds = prop.getProperty("business.ids", "");
-        String[] ids = businessIds.split(",");
-        if(ids.length<=0) {
-            throw new TaskException("qiniu properties error!");
+        if(!FormatTool.isEmpty(businessIds)) {
+            String[] ids = businessIds.split(",");
+            if (ids.length > 0) {// we allow no config qiniu.it will can't load filelist follow.
+                for (String businessId : ids) {
+                    configs.put(businessId, new QiniuConfig(businessId, prop));
+                }
+            }
         }
-        for(String businessId : ids) {
-            log.debug("business id->" + businessId);
-            configs.put(businessId, new QiniuConfig(businessId, prop));
-        }
-
     }
 
     public QiniuConfig getQiniuConfig(String businessId) {

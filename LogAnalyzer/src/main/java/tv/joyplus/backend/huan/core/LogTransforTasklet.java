@@ -74,7 +74,7 @@ public class LogTransforTasklet implements Tasklet {
                 long zoneId = resultSet.getLong("zone_id");
 
                 Map<String, Object> request = new HashMap<String, Object>();
-                Map<String, Object> reporting = new HashMap<>();
+                Map<String, Object> reporting = new HashMap<String, Object>();
                 request.put("equipment_sn", "");
                 request.put("equipment_key", resultSet.getString("equipment_key"));
                 request.put("device_name", resultSet.getString("device_name"));

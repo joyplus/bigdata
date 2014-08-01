@@ -54,7 +54,6 @@ public class ConfigManagerImpl extends JdbcDaoSupport implements ConfigManager {
             }
         }
         sql.append(")");
-
         return getJdbcTemplate().query(sql.toString(), new BeanPropertyRowMapper<ConfigProperty>(ConfigProperty.class));
     }
 
@@ -63,7 +62,10 @@ public class ConfigManagerImpl extends JdbcDaoSupport implements ConfigManager {
         log.debug("setBusinessIds");
         this.businessIds = businessIds.split(",");
     }
-
+    @Override
+    public String[] getBusinessIds(){
+        return businessIds;
+    }
     @Override
     public String toString() {
         String result = "{";

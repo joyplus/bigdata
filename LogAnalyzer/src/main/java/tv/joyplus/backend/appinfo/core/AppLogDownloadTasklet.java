@@ -50,7 +50,6 @@ public class AppLogDownloadTasklet implements Tasklet {
 
     private void start() throws Exception {
         //Runtime.getRuntime().gc();
-
         //获取一个将要下载的文件信息
         AppLogDownloadInfo info = downloadDao.get();
         if (info == null) {

@@ -24,7 +24,7 @@ public class AppLogAnalyzeLauncher {
     private Job job;
     @Autowired
     private AppLogAnalyzeDao analyzerFileInfoDao;
-    Map<String, JobParameter> jobParametersMap = new HashMap<>();
+    Map<String, JobParameter> jobParametersMap = new HashMap<String, JobParameter>();
     ;
 
     public void execute() {
