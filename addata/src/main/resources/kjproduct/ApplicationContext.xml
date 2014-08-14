@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+       	http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.1.xsd ">
+	<context:property-placeholder location="classpath:config.properties"
+		order="1" ignore-unresolvable="true" />
+	<context:annotation-config />
+	<bean id="simpleAsyncTaskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor">
+		<property name="daemon" value="true" />
+		<property name="concurrencyLimit" value="5" />
+		<property name="threadNamePrefix" value="simpleAsyncTaskExecutor" />
+	</bean>
+
+	<bean id="reportTask" class="tv.joyplus.backend.report.task.impl.ReportTaskImpl">
+		<property name="taskExecutor" ref="simpleAsyncTaskExecutor" />
+		<property name="processDao" ref="processHiveProcessor" />
+		<property name="jobResultDao" ref="jobResultDBProcessorWithCache" />
+		<property name="jsonParser" ref="jacksonParser" />
+		<property name="maxResult" value="${report_max_result}" />
+	</bean>
+	
+
+	<bean id="bsClient" class="com.trendrr.beanstalk.BeanstalkClient">
+		<property name="addr" value="${beanstalk.addr}" />
+		<property name="port" value="${beanstalk.port}" />
+		<property name="tube" value="${beanstalk.tube}" />
+	</bean>
+
+	<bean id="dataSourceAddata"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${addata.jdbc.driverClassName}" />
+		<property name="url" value="${addata.jdbc.url}" />
+		<property name="username" value="${addata.jdbc.username}" />
+		<property name="password" value="${addata.jdbc.password}" />
+	</bean>
+	
+	<bean id="dataSourceHive"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${hive.jdbc.driverClassName}" />
+		<property name="url" value="${hive.jdbc.url}" />
+		<property name="username" value="${hive.jdbc.username}" />
+		<property name="password" value="${hive.jdbc.password}" />
+	</bean>
+
+	<bean id="dataSourceProcess"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${process.jdbc.driverClassName}" />
+		<property name="url" value="${process.jdbc.url}" />
+		<property name="username" value="${process.jdbc.username}" />
+		<property name="password" value="${process.jdbc.password}" />
+	</bean>
+	
+	<bean name="jobResultDBProcessor" class="tv.joyplus.backend.report.dao.impl.JobResultDaoImpl">
+		<property name="dataSource">
+			<ref local="dataSourceAddata" />
+		</property>
+	</bean>
+	
+	<bean name="jobResultDBProcessorWithCache" class="tv.joyplus.backend.report.dao.impl.JobResultDaoImplWithCache">
+		<property name="dataSource">
+			<ref local="dataSourceAddata" />
+		</property>
+		<property name="memCache">
+			<ref local="memCache" />
+		</property>
+		<property name="business_id" value="${business_id}" />
+	</bean>
+	<bean name="processDBProcessor" class="tv.joyplus.backend.report.dao.impl.ProcessDaoImpl">
+		<property name="dataSource">
+			<ref local="dataSourceProcess" />
+		</property>
+		<property name="business_id" value="${business_id}" />
+	</bean>
+	
+	<bean name="processHiveProcessor" class="tv.joyplus.backend.report.dao.impl.ProcessDaoImplWithHive">
+		<property name="dataSource">
+			<ref local="dataSourceHive" />
+		</property>
+		<property name="business_id" value="${business_id}" />
+		<property name="hive_table_name" value="${hive.table.name}" />
+	</bean>
+	
+	<bean name="jacksonParser" class="tv.joyplus.backend.report.jsonparse.ReportParser" />
+	<bean name="memCache" class="tv.joyplus.backend.report.memcache.MemCached">
+		<constructor-arg index="0">
+			<value>${memcache.servers}</value>
+		</constructor-arg>
+		<constructor-arg index="1">
+			<value >${memcache.weights}</value>
+		</constructor-arg>
+		<constructor-arg index="2">
+			<value>${memcache.cachetime}</value>
+		</constructor-arg>
+	</bean>
+</beans>

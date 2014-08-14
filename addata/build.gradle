@@ -24,6 +24,8 @@ def loadConfiguration() {
 	sourceSets.main.resources.srcDirs = ['src/main/resources/sit']
 	else if(environment.equals( 'product' ))
 	sourceSets.main.resources.srcDirs = ['src/main/resources/product']
+	else if(environment.equals( 'kjproduct' ))
+	sourceSets.main.resources.srcDirs = ['src/main/resources/kjproduct']
 	else
 	sourceSets.main.resources.srcDirs = ['src/main/resources/dev']
 }
