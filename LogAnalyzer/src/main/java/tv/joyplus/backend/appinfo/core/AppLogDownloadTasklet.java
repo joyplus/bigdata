@@ -10,10 +10,12 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import tv.joyplus.backend.appinfo.Config;
 import tv.joyplus.backend.appinfo.beans.AppLogAnalyzeInfo;
 import tv.joyplus.backend.appinfo.beans.AppLogDownloadInfo;
 import tv.joyplus.backend.appinfo.dao.AppLogAnalyzeDao;
 import tv.joyplus.backend.appinfo.dao.AppLogDownloadDao;
+import tv.joyplus.backend.config.ConfigManager;
 import tv.joyplus.backend.qiniu.QiniuManager;
 
 import java.io.File;
@@ -29,8 +31,8 @@ public class AppLogDownloadTasklet implements Tasklet {
     private AppLogDownloadDao downloadDao;
     @Autowired
     private AppLogAnalyzeDao analyzeDao;
-    private String downloadDir;
-    private String unzipDir;
+    @Autowired
+    private ConfigManager configManager;
     private String unzipPassword;
 
     @Override
@@ -48,11 +50,6 @@ public class AppLogDownloadTasklet implements Tasklet {
 
     private void start() throws Exception {
         //Runtime.getRuntime().gc();
-        File root = new File(downloadDir);
-        try {
-            FileUtils.forceMkdir(root);
-        } catch (Exception e) {
-        }
 
         //获取一个将要下载的文件信息
         AppLogDownloadInfo info = downloadDao.get();
@@ -61,6 +58,14 @@ public class AppLogDownloadTasklet implements Tasklet {
             Thread.sleep(1000);
             return;
         }
+
+        File root = new File(configManager.getConfiguration(
+                Config.LocationKey.AP_LOG_DOWNLOAD_DIR, info.getBusinessId()));
+        try {
+            FileUtils.forceMkdir(root);
+        } catch (Exception e) {
+        }
+
         //更新状态为下载中
         downloadDao.updateStatus(info.getId(), AppLogDownloadInfo.STATUS_DOWNLOADING);
 
@@ -84,7 +89,7 @@ public class AppLogDownloadTasklet implements Tasklet {
      * @throws Exception
      */
     private void unzip(AppLogDownloadInfo info) {
-        File root = new File(unzipDir, info.getBusinessId());
+        File root = new File(configManager.getConfiguration(Config.LocationKey.AP_LOG_DIR, info.getBusinessId()), info.getBusinessId());
         String filename = info.getFilename();
         File saveDir = new File(root, filename);
         saveDir.mkdirs();
@@ -129,14 +134,6 @@ public class AppLogDownloadTasklet implements Tasklet {
         info.setCreate_time(new Timestamp(Calendar.getInstance().getTimeInMillis()));
         info.setBusinessId(businessId);
         analyzeDao.save(info);
-    }
-
-    public void setDownloadDir(String downloadDir) {
-        this.downloadDir = downloadDir;
-    }
-
-    public void setUnzipDir(String unzipDir) {
-        this.unzipDir = unzipDir;
     }
 
     public void setUnzipPassword(String unzipPassword) {
