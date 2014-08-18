@@ -251,9 +251,9 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				if(ParameterDto.DataCycle.BYWEEK.toString().equalsIgnoreCase(parameterDto.getDataType())){
 					SimpleDateFormat format = new SimpleDateFormat("yyyyww");
 					calendar.setTime(format.parse((String)jobResultMap.get("time_part")));
-					calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+					calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 					jobResultDto.setDate_start(dateFormat.format((parameterDto.getDateRange()[0].getTime()>=calendar.getTime().getTime())? parameterDto.getDateRange()[0] : calendar.getTime()));
-					calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
+					calendar.add(Calendar.DAY_OF_WEEK, 6);
 					jobResultDto.setDate_end(dateFormat.format((parameterDto.getDateRange()[1].getTime()<=calendar.getTime().getTime())? parameterDto.getDateRange()[1] : calendar.getTime()));
 				}else if(ParameterDto.DataCycle.BYDAY.toString().equalsIgnoreCase(parameterDto.getDataType())){
 					jobResultDto.setDate_start((String)jobResultMap.get("time_part"));
@@ -308,7 +308,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 					JobResultDto jobresult_1 = jobresults.get(i);
 					if(isSameItemExceptOperationType(jobresult, jobresult_1)){
 						if(Const.OPERATION_TYPE_REQUST.equals(jobresult.getOperation_type())){
-							jobresult_1.setRequest(jobresult.impression);
+							jobresult_1.setRequest(jobresult.getRequest());
 						}else if(Const.OPERATION_TYPE_IMPRESSION.equals(jobresult.getOperation_type())){
 							jobresult_1.setImpression(jobresult.getImpression());
 							jobresult_1.setUv(jobresult.getUv());
