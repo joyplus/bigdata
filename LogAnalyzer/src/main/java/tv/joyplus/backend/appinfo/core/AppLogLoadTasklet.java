@@ -43,7 +43,7 @@ public class AppLogLoadTasklet implements Tasklet {
         //add by Jas@20140801 for Loginfo state
         log.info("AppLogLoadTasklet execute @"+ new Date(System.currentTimeMillis()));
         for(String businessId : businessIds) {
-            if(FormatTool.isEmpty(businessId))continue;
+            if(FormatTool.isEmpty(businessId)||(!configManager.containsBusinessId(businessId)))continue;
             AppLogProcessInfo info = getLastTime(businessId);
             log.debug("businessId-->"+businessId+",time->" + time + ";date->" + new Date(time));
             for (long i = info.getLastExecuteTime().getTime(); i < (time - BEFORE_DURATION); i += BEFORE_DURATION) {
@@ -52,7 +52,7 @@ public class AppLogLoadTasklet implements Tasklet {
                 processDao.save(info);
             }
         }
-        //change b yJas@20140801 for Loginfo state
+        //change by Jas@20140801 for Loginfo state
         log.info("AppLogLoadTasklet execute done @"+ new Date(System.currentTimeMillis()));
         return RepeatStatus.FINISHED;
     }

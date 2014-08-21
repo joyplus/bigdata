@@ -13,7 +13,6 @@ import tv.joyplus.backend.huan.beans.OperationType;
 import tv.joyplus.backend.huan.dao.LogDataDao;
 import tv.joyplus.backend.huan.dao.LogInfoDao;
 import tv.joyplus.backend.huan.dao.LogProcessDao;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

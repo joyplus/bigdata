@@ -13,7 +13,9 @@ public class Config {
     }
 
     public static class LocationKey {
+        public static String APP_LOG_TAB = "app.log.table";
         public static String AP_LOG_DIR = "app.log.dir";
+        public static String APP_LOG_MUTLITHREAD = "app.log.mutlithread";
         public static String AP_LOG_DOWNLOAD_DIR = "app.log.download.dir";
     }
 }

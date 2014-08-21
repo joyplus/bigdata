@@ -10,11 +10,14 @@ public abstract class AppDeviceInfoV1 extends AppLogInfo {
     }
 
     public AppDeviceInfoV1(Properties prop) throws TaskException {
+        this(prop,null);
+    }
+    public AppDeviceInfoV1(Properties prop,String tableName) throws TaskException {
         if (prop != null) {
             transfor(prop);
         }
+        this.tableName = tableName;
     }
-
     protected String devicesname;
     protected String sdkVersion;
     protected String mac;

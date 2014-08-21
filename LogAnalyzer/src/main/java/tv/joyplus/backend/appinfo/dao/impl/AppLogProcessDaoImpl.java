@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import tv.joyplus.backend.appinfo.beans.AppLogProcessInfo;
 import tv.joyplus.backend.appinfo.dao.AppLogProcessDao;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;

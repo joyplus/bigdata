@@ -9,7 +9,8 @@ public abstract class AppLogInfo {
     protected int status;
     protected Timestamp createTime;
     protected String businessId;
-
+    //add by Jas
+    protected String tableName;
     public long getId() {
         return id;
     }
@@ -48,6 +49,14 @@ public abstract class AppLogInfo {
 
     public void setBusinessId(String businessId) {
         this.businessId = businessId;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 
     public static String TableName() {

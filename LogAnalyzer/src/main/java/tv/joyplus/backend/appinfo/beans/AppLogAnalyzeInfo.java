@@ -5,6 +5,9 @@ import java.sql.Timestamp;
 public class AppLogAnalyzeInfo {
     public final static byte STATUS_UNPROCESSE = 0x00;    //未处理
     public final static byte STATUS_PROCESSED = 0x01;    //已处理
+    public final static byte STATUS_UNKNOW    = 0x02;   //未知错误
+    public final static byte STATUS_FAIL       = 0x03;  //处理失败
+    public final static byte STATUS_PROCESSING = 0x04;//
     public final static byte STATUS_LOCK = 0x02;        //处理中
     public final static byte STATUS_EXIST = 0x04;        //已存在
     private long id;

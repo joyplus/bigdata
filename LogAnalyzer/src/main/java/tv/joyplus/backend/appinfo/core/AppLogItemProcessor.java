@@ -16,7 +16,8 @@ public class AppLogItemProcessor implements ItemProcessor<String, AppLogInfo> {
     private Properties deviceInfo;
     private String path;
     private String businessId;
-
+    //add by Jas
+    private String tabName;
     @Override
     public AppLogInfo process(String line) throws Exception {
         return praseLogInfo(line);
@@ -38,7 +39,7 @@ public class AppLogItemProcessor implements ItemProcessor<String, AppLogInfo> {
         if (deviceInfo != null) {
             String version = deviceInfo.getProperty("version", "");
             if ("1.0".equals(version)) {
-                return new AppLogInfoV1(deviceInfo, line, businessId);
+                return new AppLogInfoV1(deviceInfo, line, businessId,tabName);
             }
         }
         return null;
@@ -61,4 +62,5 @@ public class AppLogItemProcessor implements ItemProcessor<String, AppLogInfo> {
             deviceInfo = null;
         }
     }
+    public void setTabName(String tabName){this.tabName = tabName;}
 }

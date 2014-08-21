@@ -14,4 +14,7 @@ public interface AppLogAnalyzeDao {
     public void updateStatus(long id, int status);
 
     public void updateStatus(AppLogAnalyzeInfo instance);
+
+    //add by Jas
+    public AppLogAnalyzeInfo getUnAnalyzeOne();
 }
