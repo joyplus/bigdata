@@ -13,7 +13,6 @@ import tv.joyplus.backend.huan.beans.OperationType;
 import tv.joyplus.backend.huan.dao.LogDataDao;
 import tv.joyplus.backend.huan.dao.LogInfoDao;
 import tv.joyplus.backend.huan.dao.LogProcessDao;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -74,7 +73,7 @@ public class LogTransforTasklet implements Tasklet {
                 long zoneId = resultSet.getLong("zone_id");
 
                 Map<String, Object> request = new HashMap<String, Object>();
-                Map<String, Object> reporting = new HashMap<>();
+                Map<String, Object> reporting = new HashMap<String, Object>();
                 request.put("equipment_sn", "");
                 request.put("equipment_key", resultSet.getString("equipment_key"));
                 request.put("device_name", resultSet.getString("device_name"));

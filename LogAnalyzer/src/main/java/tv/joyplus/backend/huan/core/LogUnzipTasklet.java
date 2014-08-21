@@ -7,7 +7,6 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
@@ -22,7 +21,6 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import tv.joyplus.backend.huan.beans.AnalyzerFileInfo;
 import tv.joyplus.backend.huan.beans.DownloadFileInfo;
 import tv.joyplus.backend.huan.dao.AnalyzerFileInfoDao;
