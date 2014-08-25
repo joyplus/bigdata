@@ -73,7 +73,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			if(type == Type.PUBLICATION || type == Type.ZONE){
 				sqlBuilder.append(", if( operation_type='001', '002', operation_type ) as operation_type_temp ");
 			}
-			sqlBuilder.append(" from md_device_request_log ");
+			sqlBuilder.append(" from be_device_request_log ");
 			if(condition == null){
 				sqlBuilder.append(" where 1 ");
 			}else{
@@ -115,7 +115,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			sqlBuilderChild1.append("select ");
 			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
 			sqlBuilderChild1.append(", if( count( * ) >10, 11, count( * ) ) as frequency, count( * ) as impression_count ");
-			sqlBuilderChild1.append(" from md_device_request_log ");
+			sqlBuilderChild1.append(" from be_device_request_log ");
 			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
 				sqlBuilderChild1.append(" where 1 ");
@@ -157,7 +157,7 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			sqlBuilderChild1.append("select ");
 			sqlBuilderChild1.append(getDataFeild(parameterDto, true, true));
 			sqlBuilderChild1.append(",count( * ) as frequency ");
-			sqlBuilderChild1.append(" from md_device_request_log ");
+			sqlBuilderChild1.append(" from be_device_request_log ");
 			String condition = getConditionFromParameter(type,parameterDto);
 			if(condition == null){
 				sqlBuilderChild1.append(" where 1 ");
@@ -233,6 +233,9 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 			if(jobResultMap.containsKey("uv")){
 				jobResultDto.setUv(Integer.valueOf(String.valueOf(jobResultMap.get("uv"))));
 				
+			}
+			if(jobResultMap.containsKey("uv_ip")){
+				jobResultDto.setUv_ip(Integer.valueOf(String.valueOf(jobResultMap.get("uv_ip"))));
 			}
 			if(jobResultMap.containsKey("impression")){
 				jobResultDto.setImpression(Integer.valueOf(String.valueOf(jobResultMap.get("impression"))));
@@ -479,6 +482,10 @@ public class ProcessDaoImpl extends JdbcDaoSupport implements ProcessDao {
 				}else if(("uv").equalsIgnoreCase(itemList.get(i))){
 					if(!hasFrequency){
 						sb_item = addFiled(sb_item, "count(distinct equipment_key) as uv");
+					}
+				}else if(("uv_ip").equalsIgnoreCase(itemList.get(i))){
+					if(!hasFrequency){
+						sb_item = addFiled(sb_item, "count(distinct client_ip) as uv_ip");
 					}
 				}else{
 					String feild = replace(itemList.get(i));

@@ -329,6 +329,9 @@ public class ProcessDaoImplWithHive extends JdbcDaoSupport implements ProcessDao
 				jobResultDto.setUv(Integer.valueOf(String.valueOf(jobResultMap.get("uv"))));
 				
 			}
+			if(jobResultMap.containsKey("uv_ip")){
+				jobResultDto.setUv_ip(Integer.valueOf(String.valueOf(jobResultMap.get("uv_ip"))));
+			}
 			if(jobResultMap.containsKey("impression")){
 				jobResultDto.setImpression(Integer.valueOf(String.valueOf(jobResultMap.get("impression"))));
 			}
@@ -593,6 +596,10 @@ public class ProcessDaoImplWithHive extends JdbcDaoSupport implements ProcessDao
 				}else if(("uv").equalsIgnoreCase(itemList.get(i))){
 					if(!hasFrequency){
 						sb_item = addFiled(sb_item, "count(distinct equipment_key) as uv");
+					}
+				}else if(("uv_ip").equalsIgnoreCase(itemList.get(i))){
+					if(!hasFrequency){
+						sb_item = addFiled(sb_item, "count(distinct client_ip) as uv_ip");
 					}
 				}else{
 					String feild = replace(itemList.get(i));
