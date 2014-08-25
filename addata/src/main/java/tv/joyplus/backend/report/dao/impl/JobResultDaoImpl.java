@@ -148,14 +148,14 @@ public class JobResultDaoImpl extends JdbcDaoSupport implements JobResultDao {
 			
 			//插入数据库
 			strSQL = "INSERT INTO ad_job_result(job_id,date_start,date_end,hour,campaign_id,campaign_name,adv_id,adv_name,publication_id,"
-					+ "publication_name,zone_id,zone_name,advistiser_id,advistiser_name,request,impression,uv,quality_id,quality_name,"
+					+ "publication_name,zone_id,zone_name,advistiser_id,advistiser_name,request,impression,uv,uv_ip,quality_id,quality_name,"
 					+ "region_code,region_name,device_id,device_brand,device_name,device_movement,creative_unit_type,creative_extension,"
 					+ "creative_size,zone_type,zone_size,frequency)"
-					+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+					+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			getJdbcTemplate().update(strSQL, jobResultRow.job_id, jobResultRow.date_start, jobResultRow.date_end, jobResultRow.hour,
 					jobResultRow.campaign_id, strCampaignName, jobResultRow.adv_id, strCreativeName, jobResultRow.publication_id, strPublicationName,
 					jobResultRow.zone_id, strZoneName, jobResultRow.advistiser_id, strAdvertiser, jobResultRow.request, jobResultRow.impression,
-					jobResultRow.uv, 0, "", jobResultRow.region_code, strRegionName, iDeviceId, strDeviceBrand, jobResultRow.device_name,
+					jobResultRow.uv, jobResultRow.uv_ip,0, "", jobResultRow.region_code, strRegionName, iDeviceId, strDeviceBrand, jobResultRow.device_name,
 					strDeviceMovement, strCreativeUnitType, strCreativeExtension, strCreativeSize, strZoneType, strZoneSize, 
 					jobResultRow.frequency);
 		}
