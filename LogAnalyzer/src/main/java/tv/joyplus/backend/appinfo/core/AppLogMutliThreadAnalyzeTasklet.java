@@ -17,9 +17,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Jas on 14-8-20.
+ * Created by zino on 14-8-26.
  */
 public class AppLogMutliThreadAnalyzeTasklet implements Tasklet {
+
     private static Log log = LogFactory.getLog(AppLogMutliThreadAnalyzeTasklet.class);
     @Autowired
     private AppLogAnalyzeDao analyzerFileInfoDao;
@@ -53,8 +54,8 @@ public class AppLogMutliThreadAnalyzeTasklet implements Tasklet {
         private AppLogAnalyzeInfo appLogAnalyzeInfo;
         private String  tableName;
         public AnalyzeRunnable(AppLogAnalyzeInfo info ,String tableName){
-               appLogAnalyzeInfo = info;
-               this.tableName    = tableName;
+            appLogAnalyzeInfo = info;
+            this.tableName    = tableName;
         }
         @Override
         public void run() {
