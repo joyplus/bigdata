@@ -54,8 +54,11 @@ public class AppLogAnalyzeLauncher {
             log.info(" MutliThreadAnalyze 3 "+e.toString());
         } catch (JobParametersInvalidException e) {
             log.info(" MutliThreadAnalyze 4 "+e.toString());
+        } catch (Throwable e){
+            log.info(" MutliThreadAnalyze 5 "+e.toString());
+        }finally {
+            log.info(" MutliThreadAnalyze  Over OVER");
         }
-        log.info(" MutliThreadAnalyze  Over OVER");
     }
     private void SampleThreadAnalyze(){
         log.info(" SampleThreadAnalyze  ");
