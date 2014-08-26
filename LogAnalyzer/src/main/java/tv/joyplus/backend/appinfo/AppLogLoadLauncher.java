@@ -3,15 +3,13 @@ package tv.joyplus.backend.appinfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import tv.joyplus.backend.config.ConfigManager;
 
 import java.util.Date;
-
-import tv.joyplus.backend.config.ConfigManager;
 
 public class AppLogLoadLauncher {
     private final static Log log = LogFactory.getLog(AppLogLoadLauncher.class);

@@ -43,7 +43,7 @@ public class AppLogAnalyzeLauncher {
         log.debug("************************************* AppLogAnalyzeLauncher "+(new Date(System.currentTimeMillis()))+" ************************************************");
     }
     private void MutliThreadAnalyze(){
-        log.debug(" MutliThreadAnalyze  ");
+        log.info(" MutliThreadAnalyze  ");
         try {
             jobLauncher.run(mutliThreadjob,new JobParameters());
         } catch (JobExecutionAlreadyRunningException e) {
@@ -53,7 +53,7 @@ public class AppLogAnalyzeLauncher {
         }
     }
     private void SampleThreadAnalyze(){
-        log.debug(" SampleThreadAnalyze  ");
+        log.info(" SampleThreadAnalyze  ");
         if (isRunning) {
             log.info("previews job doesn't stopped, this job will exit");
             return;
