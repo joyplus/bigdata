@@ -29,7 +29,7 @@ public class AppLogMutliThreadAnalyzeTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         try {
-            if(!AnalyzeOneLog(analyzerFileInfoDao.getUnAnalyzeOne())){Thread.sleep(100);}
+            if(!AnalyzeOneLog(analyzerFileInfoDao.getUnAnalyzeOne())){Thread.sleep(1000);}
         } catch (Exception e) {
             log.error(e.getMessage());
         }
@@ -62,7 +62,7 @@ public class AppLogMutliThreadAnalyzeTasklet implements Tasklet {
             configManager.releaseTable(appLogAnalyzeInfo.getBusinessId(),tableName);//release table for other threads
         }
         private void AnalyzeOne(){
-            log.debug("******** MutliThread AnalyzeOne  Jas Start "+tableName+" and path="+appLogAnalyzeInfo.getId()+"************");
+            log.info("******** MutliThread AnalyzeOne  Jas Start "+tableName+" and path="+appLogAnalyzeInfo.getId()+"************");
             Map<String, JobParameter> jobParametersMap = new HashMap<String, JobParameter>();
             jobParametersMap.put("time", new JobParameter(System.currentTimeMillis()));
             jobParametersMap.put("path", new JobParameter(appLogAnalyzeInfo.getPath()));

@@ -55,7 +55,7 @@ public class ConfigManagerImpl extends JdbcDaoSupport implements ConfigManager {
         for(final ConfigProperty c : configurations) {
             //add by Jas for make sure only load analyze businessId config in this application.
             if(!containsBusinessId(c.getBusinessId()))continue;
-            log.debug(c.toString());
+            log.info("ConfigManager Add-->"+c.toString());
             if(Configs.containsKey(c.getConfigKey())){
                 Configs.get(c.getConfigKey()).put(c.getBusinessId(), c.getConfigValue());
             }else{
