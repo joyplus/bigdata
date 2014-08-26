@@ -36,7 +36,17 @@
     <bean id="appLogDownloadTask" class="tv.joyplus.backend.appinfo.core.AppLogDownloadTasklet" scope="step">
         <property name="unzipPassword" value="${zip.password}"/>
     </bean>
-
+    <!-- add by Jas for MutliThread analyze -->
+    <bean id="appLogMutliThreadAnalyzeTask" class="tv.joyplus.backend.appinfo.core.AppLogMutliThreadAnalyzeTasklet_V2" scope="step">
+        <property name="job" ref="appLogAnalyzeJob"/>
+        <property name="jobLauncher" ref="jobLauncher"/>
+    </bean>
+    <job id="appLogMutliThreadAnalyzeJob" xmlns="http://www.springframework.org/schema/batch">
+        <step id="appLogMutliThreadAnalyzeStep">
+            <tasklet ref="appLogMutliThreadAnalyzeTask"/>
+        </step>
+    </job>
+    <!-- end add by Jas -->
     <job id="appLogAnalyzeJob" xmlns="http://www.springframework.org/schema/batch">
         <step id="appLogAnalyzeStep">
             <tasklet>
@@ -62,6 +72,7 @@
           scope="step">
         <property name="path" value="#{jobParameters['path']}"/>
         <property name="businessId" value="#{jobParameters['business.id']}"/>
+        <property name="tabName" value="#{jobParameters['tabName']}"/>
     </bean>
     <bean id="appLogItemWriter" class="tv.joyplus.backend.appinfo.core.AppLogItemWriter"
           scope="step">
@@ -109,6 +120,7 @@
         <property name="jobRepository" ref="jobRepository"/>
         <property name="jobLauncher" ref="jobLauncher"/>
         <property name="job" ref="appLogAnalyzeJob"/>
+        <property name="mutliThreadjob" ref="appLogMutliThreadAnalyzeJob"/>
     </bean>
 
     <bean id="appLogAnalyzeJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">

@@ -37,7 +37,7 @@
         <property name="unzipPassword" value="${zip.password}"/>
     </bean>
     <!-- add by Jas for MutliThread analyze -->
-    <bean id="appLogMutliThreadAnalyzeTask" class="tv.joyplus.backend.appinfo.core.AppLogMutliThreadAnalyzeTasklet" scope="step">
+    <bean id="appLogMutliThreadAnalyzeTask" class="tv.joyplus.backend.appinfo.core.AppLogMutliThreadAnalyzeTasklet_V2" scope="step">
         <property name="job" ref="appLogAnalyzeJob"/>
         <property name="jobLauncher" ref="jobLauncher"/>
     </bean>
