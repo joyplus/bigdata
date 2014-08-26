@@ -19,9 +19,9 @@ import java.util.Map;
 /**
  * Created by zino on 14-8-26.
  */
-public class AppLogMutliThreadAnalyzeTasklet_V2 implements Tasklet {
+public class AppLogMutliThreadAnalyzeTasklet implements Tasklet {
 
-    private static Log log = LogFactory.getLog(AppLogMutliThreadAnalyzeTasklet_V2.class);
+    private static Log log = LogFactory.getLog(AppLogMutliThreadAnalyzeTasklet.class);
     @Autowired
     private AppLogAnalyzeDao analyzerFileInfoDao;
     @Autowired
