@@ -27,13 +27,8 @@ public class AppLogMutliThreadAnalyzeTasklet implements Tasklet {
     @Autowired
     private ConfigManager configManager;
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
-    private static int Count = 0;
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        if(((Count++)%50) == 0){
-            log.info("AppLogMutliThreadAnalyzeTasklet running *******");
-            Count = 0;
-        }
         try {
             if(!AnalyzeOneLog(analyzerFileInfoDao.getUnAnalyzeOne())){Thread.sleep(1000);}
         } catch (Exception e) {
@@ -49,7 +44,6 @@ public class AppLogMutliThreadAnalyzeTasklet implements Tasklet {
         }
         String tableName = configManager.getUseableTable(info.getBusinessId());
         if(FormatTool.isEmpty(tableName))return false;//no table to use for save this info.
-        log.info("*********************************** AnalyzeOneLog ****************************");
         //InitThreadPool(); //bc thread pool can't be use to control thread running.
         analyzerFileInfoDao.updateStatus(info.getId(), AppLogAnalyzeInfo.STATUS_PROCESSING);//for don't analyze by other thread.
         //threadPoolTaskExecutor.execute(new AnalyzeRunnable(info,tableName));//why we can't use thread pool to control thread running????

@@ -56,8 +56,6 @@ public class AppLogAnalyzeLauncher {
             log.info(" MutliThreadAnalyze 4 "+e.toString());
         } catch (Throwable e){
             log.info(" MutliThreadAnalyze 5 "+e.toString());
-        }finally {
-            log.info(" MutliThreadAnalyze  Over OVER");
         }
     }
     private void SampleThreadAnalyze(){

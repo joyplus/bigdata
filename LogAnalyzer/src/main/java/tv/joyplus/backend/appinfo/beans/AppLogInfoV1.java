@@ -79,7 +79,7 @@ public class AppLogInfoV1 extends AppDeviceInfoV1 {
         if ('"' == str.charAt(0) && '"' == str.charAt(str.length() - 1)) {
             return str.substring(1, str.length() - 1);
         }
-        throw new TaskException("info unuse");
+        throw new TaskException("info unuse removeQuotation ");
     }
 
     private String packageName;
