@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+ 
+<hibernate-mapping package="tv.joyplus.backend.task.hive.model">
+    <class name="Reports" table="md_device_reports">
+    	<id name="id" column="id"><generator class="identity" /></id>
+        <property name="campaign_id" column="campaign_id"></property>
+        <property name="publication_id" column="publication_id"></property>
+        <property name="ad_id" column="ad_id"></property>
+        <property name="zone_id" column="zone_id"></property>
+        <property name="device_id" column="device_id"></property>
+        <property name="date" column="date"></property>
+        <property name="province_code" column="province_code"></property>
+        <property name="city_code" column="city_code"></property>
+        <property name="request" column="requests"></property>
+        <property name="clicks" column="clicks"></property>
+        <property name="impression" column="impression"></property>
+        <property name="uv" column="uv"></property>
+    </class>
+    <class name="PublicationReports" table="md_publication_reports">
+    	<id name="id" column="id"><generator class="identity" /></id>
+        <property name="campaign_id" column="campaign_id"></property>
+        <property name="campaign_name" column="campaign_name"></property>
+        <property name="publication_id" column="publication_id"></property>
+        <property name="publication_name" column="publication_name"></property>
+        <property name="zone_id" column="zone_id"></property>
+        <property name="zone_name" column="zone_name"></property>
+        <property name="date" column="date"></property>
+        <property name="impression" column="impression"></property>
+        <property name="uv" column="uv"></property>
+    </class>
+    <class name="Publication" table="md_publications">
+    	<id name="id" column="inv_id"><generator class="identity" /></id>
+        <property name="creator_id" column="creator_id"></property>
+        <property name="status" column="inv_status"></property>
+        <property name="type" column="inv_type"></property>
+        <property name="name" column="inv_name"></property>
+        <property name="description" column="inv_description"></property>
+    </class>
+    <class name="Zone" table="md_zones">
+    	<id name="id" column="entry_id"><generator class="identity" /></id>
+        <property name="publication_id" column="publication_id"></property>
+        <property name="hash" column="zone_hash"></property>
+        <property name="name" column="zone_name"></property>
+        <property name="type" column="zone_type"></property>
+        <property name="width" column="zone_width"></property>
+        <property name="height" column="zone_height"></property>
+        <property name="refreshTime" column="zone_refresh"></property>
+    </class>
+    <class name="Campaign" table="md_campaigns">
+    	<id name="id" column="campaign_id"><generator class="identity" /></id>
+        <property name="campaign_owner" column="campaign_owner"></property>
+        <property name="status" column="campaign_status"></property>
+        <property name="type" column="campaign_type"></property>
+        <property name="name" column="campaign_name"></property>
+        <property name="desc" column="campaign_desc"></property>
+        <property name="date_start" column="campaign_start"></property>
+        <property name="date_end" column="campaign_end"></property>
+        <property name="creationdate" column="campaign_creationdate"></property>
+        <property name="networkid" column="campaign_networkid"></property>
+        <property name="priority" column="campaign_priority"></property>
+        <property name="country_target" column="country_target"></property>
+        <property name="publication_target" column="publication_target"></property>
+        <property name="channel_target" column="channel_target"></property>
+        <property name="device_target" column="device_target"></property>
+        <property name="device_type_target" column="device_type_target"></property>
+        <property name="video_target" column="video_target"></property>
+        <property name="pattern_target" column="pattern_target"></property>
+        <property name="quality_target" column="quality_target"></property>
+        <property name="brand_target" column="brand_target"></property>
+        <property name="creative_show_rule" column="creative_show_rule"></property>
+        <property name="belong_to_advertiser" column="belong_to_advertiser"></property>
+        <property name="campaign_display_way" column="campaign_display_way"></property>
+        <property name="total_amount" column="total_amount"></property>
+        <property name="campaign_class" column="campaign_class"></property>
+        <property name="time_target" column="time_target"></property>
+        <property name="hash" column="campaign_hash"></property>
+    </class>
+    <class name="FrequencyReport" table="md_device_reports_num">
+    	<id name="id" column="id"><generator class="identity" /></id>
+    	<property name="campaign_id" column="campaign_id"></property>
+    	<property name="ad_id" column="ad_id"></property>
+    	<property name="publication_id" column="publication_id"></property>
+    	<property name="zone_id" column="zone_id"></property>
+    	<!-- <property name="province_code" column="province_code"></property> -->
+    	<!-- <property name="city_code" column="city_code"></property> -->
+    	<property name="date" column="date"></property>
+    	<property name="n1" column="n1"></property>
+    	<property name="n2" column="n2"></property>
+    	<property name="n3" column="n3"></property>
+    	<property name="n4" column="n4"></property>
+    	<property name="n5" column="n5"></property>
+    	<property name="n6" column="n6"></property>
+    	<property name="n7" column="n7"></property>
+    	<property name="n8" column="n8"></property>
+    	<property name="n9" column="n9"></property>
+    	<property name="n10" column="n10"></property>
+    	<property name="n11" column="n11"></property>
+    	<property name="n12" column="n12"></property>
+    	<property name="n13" column="n13"></property>
+    	<property name="n14" column="n14"></property>
+    	<property name="n15" column="n15"></property>
+    	<property name="n16" column="n16"></property>
+    	<property name="n17" column="n17"></property>
+    	<property name="n18" column="n18"></property>
+    	<property name="n19" column="n19"></property>
+    	<property name="n20" column="n20"></property>
+    	<property name="n21" column="n21"></property>
+    	<property name="n22" column="n22"></property>
+    	<property name="n23" column="n23"></property>
+    	<property name="n24" column="n24"></property>
+    	<property name="n25" column="n25"></property>
+    	<property name="n26" column="n26"></property>
+    	<property name="n27" column="n27"></property>
+    	<property name="n28" column="n28"></property>
+    	<property name="n29" column="n29"></property>
+    	<property name="n30" column="n30"></property>
+    </class>
+</hibernate-mapping>
