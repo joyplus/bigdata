@@ -34,7 +34,7 @@ jar {
     manifest {
         attributes 'Implementation-Title': 'Backend', 'Implementation-Version': version
     }
-    archiveName = "bakendtasks-$version-$environment.$extension"
+    archiveName = "backendtasks-$version-$environment.$extension"
 }
 
 configurations{
