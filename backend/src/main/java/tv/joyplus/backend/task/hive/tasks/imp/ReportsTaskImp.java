@@ -50,7 +50,7 @@ public class ReportsTaskImp extends ReportsTask{
 			Query query = session.createSQLQuery("select device_id from md_devices where "
 					+ "device_movement = '"+device_name+"' OR device_name = '"+device_name+"'");
 			int device_id = 0;
-			if(query.uniqueResult()==null || "null".equals(query.uniqueResult())){
+			if(query.uniqueResult()!=null && !"null".equals(query.uniqueResult())){
 				device_id = Integer.valueOf(String.valueOf(query.uniqueResult()));
 			}
 			report.setDevice_id(device_id);
