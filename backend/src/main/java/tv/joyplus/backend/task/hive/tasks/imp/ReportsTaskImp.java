@@ -48,11 +48,15 @@ public class ReportsTaskImp extends ReportsTask{
 			report.setZone_id(Integer.valueOf(String.valueOf(map.get("zone_id"))));
 			String device_name = String.valueOf(map.get("device_name"));
 			Query query = session.createSQLQuery("select device_id from md_devices where "
-					+ "device_movement = '"+device_name+"' OR device_name = '"+device_name+"'");
+					+ "(device_name='"+device_name+"' OR  device_movement='"+device_name+"') and del_flg!=1");
 			int device_id = 0;
-			if(query.uniqueResult()!=null && !"null".equals(query.uniqueResult())){
-				device_id = Integer.valueOf(String.valueOf(query.uniqueResult()));
+			List<Object> result_device_list = query.list();
+			if(result_device_list  !=null &&result_device_list.size()>0){
+				device_id = Integer.valueOf(String.valueOf(result_device_list.get(0)));
 			}
+//			if(query.uniqueResult()!=null && !"null".equals(query.uniqueResult())){
+//				device_id = Integer.valueOf(String.valueOf(query.uniqueResult()));
+//			}
 			report.setDevice_id(device_id);
 			report.setDate(date);
 			report.setProvince_code(String.valueOf(map.get("province_code")));
