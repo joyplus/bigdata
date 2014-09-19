@@ -29,7 +29,7 @@
     <!-- Disable the second-level cache -->
     <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
      
-    <mapping resource="tv/joyplus/backend/task/hive/model/model.hbm.xml" />
+    <mapping resource="model.hbm.xml" />
          
     </session-factory>
 </hibernate-configuration>
