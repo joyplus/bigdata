@@ -1,14 +1,12 @@
 package tv.joyplus.backend.huan.core;
 
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.ItemProcessor;
-
 import tv.joyplus.backend.huan.beans.LogData;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LogItemProcessor implements ItemProcessor<String, LogData> {
 	private static final Log log = LogFactory.getLog(LogItemProcessor.class);

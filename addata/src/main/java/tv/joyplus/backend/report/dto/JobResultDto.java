@@ -19,6 +19,7 @@ public class JobResultDto {
 	public int request;
 	public int impression;
 	public int uv;
+	public int uv_ip;
 	public int quality_id;
 	public String quality_name;
 	public String region_code;
@@ -226,6 +227,12 @@ public class JobResultDto {
 	public void setImpression(int impression) {
 		this.impression = impression;
 	}
+	public int getUv_ip() {
+		return uv_ip;
+	}
+	public void setUv_ip(int uv_ip) {
+		this.uv_ip = uv_ip;
+	}
 	@Override
 	public String toString() {
 		return "JobResultDto [id=" + id + ", job_id=" + job_id
@@ -236,7 +243,7 @@ public class JobResultDto {
 				+ ", publication_name=" + publication_name + ", zone_id="
 				+ zone_id + ", zone_name=" + zone_name + ", advistiser_id="
 				+ advistiser_id + ", advistiser_name=" + advistiser_name
-				+ ", request=" + request + ", uv=" + uv + ", quality_id="
+				+ ", request=" + request + ", uv=" + uv+ ", uv_ip=" + uv_ip + ", quality_id="
 				+ quality_id + ", quality_name=" + quality_name
 				+ ", region_code=" + region_code + ", region_name="
 				+ region_name + ", device_id=" + device_id + ", device_brand="

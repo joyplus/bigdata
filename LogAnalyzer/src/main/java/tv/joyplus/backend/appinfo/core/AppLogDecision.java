@@ -33,6 +33,7 @@ public class AppLogDecision implements JobExecutionDecider {
     @Override
     public FlowExecutionStatus decide(JobExecution jobExecution, StepExecution stepExecution) {
         if(context == null) context = jobExecution.getExecutionContext();
+        log.debug("AppLogDecision AppLogDecision");
         //加载所有待解析目录
         if (!context.containsKey(INPUT_FILE_PATH)) {
 

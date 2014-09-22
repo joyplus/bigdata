@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import tv.joyplus.backend.appinfo.beans.AppLogProcessInfo;
 import tv.joyplus.backend.appinfo.dao.AppLogProcessDao;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -23,7 +22,7 @@ public class AppLogProcessDaoImpl extends JdbcDaoSupport implements AppLogProces
             public void setValues(PreparedStatement ps) throws SQLException {
                 ps.setString(1, businessId);
             }
-        }, new BeanPropertyRowMapper<>(AppLogProcessInfo.class));
+        }, new BeanPropertyRowMapper<AppLogProcessInfo>(AppLogProcessInfo.class));
         if(list==null || list.size()<=0) {
             return null;
         }

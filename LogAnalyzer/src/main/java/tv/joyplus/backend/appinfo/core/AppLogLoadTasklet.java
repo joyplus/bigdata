@@ -40,19 +40,20 @@ public class AppLogLoadTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution,
                                 ChunkContext chunkContext) throws Exception {
+        //add by Jas@20140801 for Loginfo state
+        log.info("AppLogLoadTasklet execute @"+ new Date(System.currentTimeMillis()));
         for(String businessId : businessIds) {
+            if(FormatTool.isEmpty(businessId)||(!configManager.containsBusinessId(businessId)))continue;
             AppLogProcessInfo info = getLastTime(businessId);
-
-            // 待下载文件列表
-            log.debug("time->" + time + ";date->" + new Date(time));
-
+            log.debug("businessId-->"+businessId+",time->" + time + ";date->" + new Date(time));
             for (long i = info.getLastExecuteTime().getTime(); i < (time - BEFORE_DURATION); i += BEFORE_DURATION) {
                 downloadInfoList(businessId, new Date(i));
                 info.setLastExecuteTime(new Timestamp(i));
                 processDao.save(info);
             }
         }
-        log.info("log load tasklet done");
+        //change by Jas@20140801 for Loginfo state
+        log.info("AppLogLoadTasklet execute done @"+ new Date(System.currentTimeMillis()));
         return RepeatStatus.FINISHED;
     }
 
@@ -69,18 +70,16 @@ public class AppLogLoadTasklet implements Tasklet {
     private void downloadInfoList(String businessId, Date date) throws Exception {
         String prifix = FormatTool.date("yyyy-MM-dd-HH-mm", date);
         prifix = prifix.substring(0, prifix.length() - 1);
-        log.debug("prifix-> " + prifix);
+        log.debug("businessId-->"+businessId+",prifix-> " + prifix);
         List<QiniuItem> list = qiniu.list(businessId, prifix);
+        if(list==null||list.size()<=0)return;
         log.debug("business.id -> " + businessId + ", size ->" + list.size());
-        List<AppLogDownloadInfo> infoList = new ArrayList<>();
+        List<AppLogDownloadInfo> infoList = new ArrayList<AppLogDownloadInfo>();
         for (QiniuItem item : list) {
-            if (downloadDao.existIdent(item.getKey(), businessId)) {
-                continue;
-            }
-            AppLogDownloadInfo info = newAppLogDownloadInfo(item, businessId);
-            infoList.add(info);
+            if (!downloadDao.existIdent(item.getKey(), businessId))
+                infoList.add(newAppLogDownloadInfo(item, businessId));
         }
-        downloadDao.batchSave(infoList);
+        if(infoList.size()>0)downloadDao.batchSave(infoList);
     }
 
     /**
@@ -102,7 +101,6 @@ public class AppLogLoadTasklet implements Tasklet {
         info.setStatus(0);
         info.setCreateTime(new Timestamp(System.currentTimeMillis()));
         info.setBusinessId(businessId);
-
         return info;
     }
 

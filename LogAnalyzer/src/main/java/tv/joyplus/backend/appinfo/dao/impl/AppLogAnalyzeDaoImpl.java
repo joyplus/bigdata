@@ -40,4 +40,12 @@ public class AppLogAnalyzeDaoImpl extends JdbcDaoSupport implements
 		getJdbcTemplate().update(sql, new Object[]{instance.getStatus(), instance.getId()});
 	}
 
+    //add by Jas
+    @Override
+    public AppLogAnalyzeInfo getUnAnalyzeOne(){
+        String sql = "SELECT * FROM " + AppLogAnalyzeInfo.TableName() + " WHERE status=0 LIMIT 1";
+        List<AppLogAnalyzeInfo> list= getJdbcTemplate().query(sql, new BeanPropertyRowMapper<AppLogAnalyzeInfo>(AppLogAnalyzeInfo.class));
+        if(list!=null&&list.size()>0)return list.iterator().next();
+        return null;
+    }
 }

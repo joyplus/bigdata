@@ -1,6 +1,7 @@
 package tv.joyplus.backend.appinfo.beans;
 
 import tv.joyplus.backend.exception.TaskException;
+import tv.joyplus.backend.utils.FormatTool;
 
 import java.sql.Timestamp;
 import java.util.Properties;
@@ -12,10 +13,14 @@ public class AppLogInfoV1 extends AppDeviceInfoV1 {
         this(null);
     }
 
-
-    public AppLogInfoV1(Properties prop, String line, String businessId) throws TaskException {
+    public AppLogInfoV1(Properties prop, String line, String businessId,String tablename) throws TaskException {
         this(prop, line);
         this.businessId = businessId;
+        this.tableName  = tablename;
+        check();
+    }
+    public AppLogInfoV1(Properties prop, String line, String businessId) throws TaskException {
+        this(prop, line,businessId,null);
     }
 
     public AppLogInfoV1(Properties prop) throws TaskException {
@@ -26,14 +31,17 @@ public class AppLogInfoV1 extends AppDeviceInfoV1 {
         super(prop);
         parser(line);
     }
-
+    private void check() throws TaskException {
+        if(FormatTool.isEmpty(tableName))
+            throw new TaskException("table unuse "+tableName);
+    }
     public void parser(String line) throws TaskException {
         if (line == null || line.trim().length() <= 0) {
             throw new TaskException("info unuse");
         }
         String[] strs = line.split(",");
         if (strs == null || strs.length != 12) {
-            throw new TaskException("info unuse");
+            throw new TaskException("info unuse length is "+(strs==null?"null":strs.length));
         }
         packageName = removeQuotation(strs[0]);
         appName = removeQuotation(strs[1]).trim();
