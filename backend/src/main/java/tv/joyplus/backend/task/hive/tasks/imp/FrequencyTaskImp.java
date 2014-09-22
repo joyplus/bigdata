@@ -3,6 +3,9 @@ package tv.joyplus.backend.task.hive.tasks.imp;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -60,28 +63,60 @@ public class FrequencyTaskImp extends FrequencyTask {
 				+ " GROUP BY campaign_id, creative_id,publication_id,zone_id, rowcount";
 		log.info("Running-->"+sql);
 		try{
-			List<Map<String, Object>> result = hiveJdbcTemplate.queryForList(sql);
-			Iterator<Map<String,Object>> it = result.iterator();
 			List<FrequencyReport> reports = new ArrayList<FrequencyReport>();
-			while(it.hasNext()){
-				Map<String, Object> map = it.next();
+//			List<Map<String, Object>> result = hiveJdbcTemplate.queryForList(sql);
+//			Iterator<Map<String,Object>> it = result.iterator();
+//			while(it.hasNext()){
+//				Map<String, Object> map = it.next();
+//				FrequencyReport report = new FrequencyReport();
+//				if(map.get("campaign_id")!=null && !"null".equalsIgnoreCase(String.valueOf(map.get("campaign_id")))){
+//					report.setCampaign_id(Integer.valueOf(String.valueOf(map.get("campaign_id"))));
+//				}
+//				if(map.get("creative_id")!=null && !"null".equalsIgnoreCase(String.valueOf(map.get("creative_id")))){
+//					report.setAd_id(Integer.valueOf(String.valueOf(map.get("creative_id"))));
+//				}
+//				if(map.get("publication_id")!=null && !"null".equalsIgnoreCase(String.valueOf(map.get("publication_id")))){
+//					report.setPublication_id(Integer.valueOf(String.valueOf(map.get("publication_id"))));
+//				}
+//				if(map.get("zone_id")!=null && !"null".equalsIgnoreCase(String.valueOf(map.get("zone_id")))){
+//					report.setZone_id(Integer.valueOf(String.valueOf(map.get("zone_id"))));
+//				}
+//				report.setDate(date);
+//				int frequency = Integer.valueOf(String.valueOf(map.get("rowcount")));
+//				int number = Integer.valueOf(String.valueOf(map.get("frequency")));
+//				boolean already_in_list = false;
+//				for(FrequencyReport report_inlist : reports){
+//					if(isSameReports(report_inlist, report)){
+//						setReportFrequency(report_inlist, frequency, number);
+//						already_in_list = true;
+//						break;
+//					}
+//				}
+//				if(!already_in_list){
+//					setReportFrequency(report,frequency,number);
+//					reports.add(report);
+//				}
+//			}
+			Statement stmt = hiveJdbcTemplate.getDataSource().getConnection().createStatement();
+			stmt.execute("set mapred.child.java.opts=-Xmx1024m");
+			ResultSet result = stmt.executeQuery(sql);
+			while (result.next()) {
 				FrequencyReport report = new FrequencyReport();
-				if(map.get("campaign_id")!=null && !"null".equalsIgnoreCase(String.valueOf(map.get("campaign_id")))){
-					report.setCampaign_id(Integer.valueOf(String.valueOf(map.get("campaign_id"))));
+				if(result.getString(1)!=null){
+					report.setCampaign_id(Integer.valueOf(result.getString(1)));
 				}
-				if(map.get("creative_id")!=null && !"null".equalsIgnoreCase(String.valueOf(map.get("creative_id")))){
-					report.setAd_id(Integer.valueOf(String.valueOf(map.get("creative_id"))));
+				if(result.getString(2)!=null){
+					report.setAd_id(Integer.valueOf(result.getString(2)));
 				}
-				if(map.get("publication_id")!=null && !"null".equalsIgnoreCase(String.valueOf(map.get("publication_id")))){
-					report.setPublication_id(Integer.valueOf(String.valueOf(map.get("publication_id"))));
+				if(result.getString(3)!=null){
+					report.setPublication_id(Integer.valueOf(result.getString(3)));
 				}
-				if(map.get("zone_id")!=null && !"null".equalsIgnoreCase(String.valueOf(map.get("zone_id")))){
-					report.setZone_id(Integer.valueOf(String.valueOf(map.get("zone_id"))));
+				if(result.getString(4)!=null){
+					report.setZone_id(Integer.valueOf(result.getString(4)));
 				}
-				
 				report.setDate(date);
-				int frequency = Integer.valueOf(String.valueOf(map.get("rowcount")));
-				int number = Integer.valueOf(String.valueOf(map.get("frequency")));
+				int frequency = Integer.valueOf(result.getString(5));
+				int number = Integer.valueOf(result.getString(6));
 				boolean already_in_list = false;
 				for(FrequencyReport report_inlist : reports){
 					if(isSameReports(report_inlist, report)){
@@ -95,6 +130,8 @@ public class FrequencyTaskImp extends FrequencyTask {
 					reports.add(report);
 				}
 			}
+			result.close();
+			stmt.close();
 			return reports;
 		}catch (Exception e) {
 			// TODO Auto-generated catch block
