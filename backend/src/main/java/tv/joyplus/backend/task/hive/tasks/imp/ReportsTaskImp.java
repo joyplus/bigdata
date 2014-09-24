@@ -144,6 +144,7 @@ public class ReportsTaskImp extends ReportsTask{
 					}
 					session.update(report_saved);
 				}
+				session.flush();
 			}
 			session.getTransaction().commit();
 			session.close();
