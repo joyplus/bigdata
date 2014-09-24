@@ -170,6 +170,7 @@ public class FrequencyTaskImp extends FrequencyTask {
 					}
 					session.update(report_saved);
 				}
+				session.flush();
 			}
 			session.getTransaction().commit();
 		}catch (Exception e) {

@@ -72,6 +72,7 @@ public class PublicationReportsTaskImp extends PublicationReportsTask {
 					report_saved.setUv(report.getUv());
 					session.update(report_saved);
 				}
+				session.flush();
 				
 			}
 			session.getTransaction().commit();
