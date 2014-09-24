@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,7 +33,7 @@ public class FrequencyTaskImp extends FrequencyTask {
 		// TODO Auto-generated method stub
 		String sql="select creative_id from " + hiveTableName +" where business_id='"
 				+ businessId+"' and ad_date='"+date+"' group by creative_id";
-		log.info("Running-->"+sql);
+		log.info("FrequencyTask Running-->"+sql);
 		List<Map<String, Object>> result = hiveJdbcTemplate.queryForList(sql);
 		Iterator<Map<String,Object>> it = result.iterator();
 		String ads=null;
@@ -61,7 +60,7 @@ public class FrequencyTaskImp extends FrequencyTask {
 						+ " and ad_date>='2014-01-08' and ad_date<='"+date+"' and creative_id in ("+ ads +") "
 						+ " GROUP BY campaign_id, creative_id,publication_id,zone_id, equipment_key)d "
 				+ " GROUP BY campaign_id, creative_id,publication_id,zone_id, rowcount";
-		log.info("Running-->"+sql);
+		log.info("FrequencyTask Running-->"+sql);
 		try{
 			List<FrequencyReport> reports = new ArrayList<FrequencyReport>();
 //			List<Map<String, Object>> result = hiveJdbcTemplate.queryForList(sql);
@@ -136,6 +135,7 @@ public class FrequencyTaskImp extends FrequencyTask {
 		}catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			log.error("FrequencyTask error",e);
 			return null;
 		}
 	}
@@ -170,11 +170,13 @@ public class FrequencyTaskImp extends FrequencyTask {
 					}
 					session.update(report_saved);
 				}
+				session.flush();
 			}
 			session.getTransaction().commit();
 		}catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			log.error("FrequencyTask error",e);
 		}finally{
 			if(session!=null){
 				session.close();

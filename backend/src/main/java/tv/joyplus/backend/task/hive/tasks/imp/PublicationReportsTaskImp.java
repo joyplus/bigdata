@@ -47,79 +47,93 @@ public class PublicationReportsTaskImp extends PublicationReportsTask {
 	@Override
 	public void saveReports(List<PublicationReports> reports) {
 		// TODO Auto-generated method stub
-		Session session = HibernateUtil.getSeesion();
-		session.beginTransaction();
-		Iterator<PublicationReports> its = reports.iterator();
-		while (its.hasNext()) {
-			PublicationReports report = its.next();
-			String hql = "from PublicationReports where zone_id=:zone_id and date=:date";
-			if(report.getCampaign_id()!=null){
-				hql += (" and campaign_id =" + report.getCampaign_id());
-			}else{
-				hql += " and campaign_id is NULL";
+		try{
+			Session session = HibernateUtil.getSeesion();
+			session.beginTransaction();
+			Iterator<PublicationReports> its = reports.iterator();
+			while (its.hasNext()) {
+				PublicationReports report = its.next();
+				String hql = "from PublicationReports where zone_id=:zone_id and date=:date";
+				if(report.getCampaign_id()!=null){
+					hql += (" and campaign_id =" + report.getCampaign_id());
+				}else{
+					hql += " and campaign_id is NULL";
+				}
+				Query query = session.createQuery(hql);
+				query.setParameter("zone_id", report.getZone_id());
+				query.setParameter("date", report.getDate());
+				PublicationReports report_saved = (PublicationReports) query.uniqueResult();
+				if(report_saved==null){
+					session.save(report);
+				}else{
+					report_saved.setPublication_id(report.getPublication_id());
+					report_saved.setPublication_name(report.getPublication_name());
+					report_saved.setImpression(report.getImpression());
+					report_saved.setUv(report.getUv());
+					session.update(report_saved);
+				}
+				session.flush();
+				
 			}
-			Query query = session.createQuery(hql);
-			query.setParameter("zone_id", report.getZone_id());
-			query.setParameter("date", report.getDate());
-			PublicationReports report_saved = (PublicationReports) query.uniqueResult();
-			if(report_saved==null){
-				session.save(report);
-			}else{
-				report_saved.setPublication_id(report.getPublication_id());
-				report_saved.setPublication_name(report.getPublication_name());
-				report_saved.setImpression(report.getImpression());
-				report_saved.setUv(report.getUv());
-				session.update(report_saved);
-			}
-			
+			session.getTransaction().commit();
+			session.close();
+		}catch(Exception e){
+			e.printStackTrace();
+			log.error("PublicationReportsTask error", e);
 		}
-		session.getTransaction().commit();
-		session.close();
+		
 	}
 	
 	private List<PublicationReports> getReports(String date, String sql){
-		log.info("Running sql-->" + sql);
-		List<Map<String, Object>> result = hiveJdbcTemplate.queryForList(sql);
-		
-		Iterator<Map<String,Object>> it = result.iterator();
-		List<PublicationReports> reports = new ArrayList<PublicationReports>();
-		Session session = HibernateUtil.getSeesion();
-		while (it.hasNext()) {
-			Map<String, Object> map = it.next();
-			PublicationReports report = new PublicationReports();
-			if(map.containsKey("campaign_id")){
-				report.setCampaign_id(Integer.valueOf(String.valueOf((map.get("campaign_id")))));
-				//get campaign name
-				Query query_campaign = session.createQuery("from Campaign c where c.id=:id");
-				query_campaign.setParameter("id", report.getCampaign_id());
-				Campaign campaign = (Campaign) query_campaign.uniqueResult();
-				if(campaign!=null){
-					report.setCampaign_name(campaign.getName());
+		log.info("PublicationReportsTask Running sql-->" + sql);
+		try{
+			List<Map<String, Object>> result = hiveJdbcTemplate.queryForList(sql);
+			
+			Iterator<Map<String,Object>> it = result.iterator();
+			List<PublicationReports> reports = new ArrayList<PublicationReports>();
+			Session session = HibernateUtil.getSeesion();
+			while (it.hasNext()) {
+				Map<String, Object> map = it.next();
+				PublicationReports report = new PublicationReports();
+				if(map.containsKey("campaign_id")){
+					report.setCampaign_id(Integer.valueOf(String.valueOf((map.get("campaign_id")))));
+					//get campaign name
+					Query query_campaign = session.createQuery("from Campaign c where c.id=:id");
+					query_campaign.setParameter("id", report.getCampaign_id());
+					Campaign campaign = (Campaign) query_campaign.uniqueResult();
+					if(campaign!=null){
+						report.setCampaign_name(campaign.getName());
+					}
 				}
+				report.setZone_id(Integer.valueOf(String.valueOf(map.get("zone_id"))));
+				//get zone by zone_id
+				Query query_zone = session.createQuery("from Zone z where z.id=:id");
+				query_zone.setParameter("id", report.getZone_id());
+				Zone zone = (Zone) query_zone.uniqueResult();
+				if(zone!=null){
+					report.setZone_name(zone.getName());
+					report.setPublication_id(zone.getPublication_id());
+				}
+				//get publication by publication_name
+				Query query_publication = session.createQuery("from Publication p where p.id=:id");
+				query_publication.setParameter("id", report.getPublication_id());
+				Publication publication = (Publication) query_publication.uniqueResult();
+				if(publication!=null){
+					report.setPublication_name(publication.getName());
+				}
+				report.setDate(date);
+				report.setImpression(Integer.valueOf(String.valueOf(map.get("impression"))));
+				report.setUv(Integer.valueOf(String.valueOf(map.get("uv"))));
+				reports.add(report);
 			}
-			report.setZone_id(Integer.valueOf(String.valueOf(map.get("zone_id"))));
-			//get zone by zone_id
-			Query query_zone = session.createQuery("from Zone z where z.id=:id");
-			query_zone.setParameter("id", report.getZone_id());
-			Zone zone = (Zone) query_zone.uniqueResult();
-			if(zone!=null){
-				report.setZone_name(zone.getName());
-				report.setPublication_id(zone.getPublication_id());
-			}
-			//get publication by publication_name
-			Query query_publication = session.createQuery("from Publication p where p.id=:id");
-			query_publication.setParameter("id", report.getPublication_id());
-			Publication publication = (Publication) query_publication.uniqueResult();
-			if(publication!=null){
-				report.setPublication_name(publication.getName());
-			}
-			report.setDate(date);
-			report.setImpression(Integer.valueOf(String.valueOf(map.get("impression"))));
-			report.setUv(Integer.valueOf(String.valueOf(map.get("uv"))));
-			reports.add(report);
+			session.close();
+			return reports;
+		}catch(Exception e){
+			e.printStackTrace();
+			log.error("PublicationReportsTask error", e);
+			return null;
 		}
-		session.close();
-		return reports;
+		
 	}
 
 	public JdbcTemplate getHiveJdbcTemplate() {
